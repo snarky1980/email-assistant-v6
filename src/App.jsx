@@ -773,14 +773,14 @@ function App() {
                 <div 
                   className="flex items-center space-x-4 px-6 py-4 shadow-lg"
                   style={{ 
-                    backgroundColor: 'var(--tb-mint)',
+                    backgroundColor: 'var(--tb-light-blue)',
                     borderRadius: '25px',
                     color: 'var(--tb-navy)'
                   }}
                 >
-                  <Globe className="h-6 w-6" style={{ color: 'var(--tb-navy)' }} />
+                  <Globe className="h-6 w-6" style={{ color: 'var(--tb-teal)' }} />
                   <span className="font-bold text-sm">
-                    {t.interfaceLanguage}:
+                    {t.interfaceLanguage}
                   </span>
                   <div className="flex bg-white p-1 shadow-sm" style={{ borderRadius: '15px' }}>
                     <button
