@@ -54,8 +54,8 @@ const VariableEditor = ({
     lineHeight: "1.7",
     letterSpacing: "0.01em",
     minHeight,
-    border: "3px solid rgb(134 239 172)",
-    borderRadius: "12px",
+  border: "none",
+  borderRadius: "var(--radius)",
     padding: "16px",
     resize: "vertical",
     width: "100%",
@@ -105,20 +105,20 @@ const VariableEditor = ({
           position: "relative",
           zIndex: 2,
           background: "transparent",
-          color: isFocused ? "#000" : "#333",
+          color: isFocused ? 'var(--tb-navy)' : 'var(--tb-gray)',
           outline: "none",
         }}
       />
 
       <style jsx>{`
         .editor-overlay .variable {
-          background-color: #fef3c7;
-          color: #d97706;
+          background-color: var(--muted);
+          color: var(--tb-navy);
           padding: 3px 6px;
           border-radius: 6px;
           font-weight: 600;
           font-size: 15px;
-          border: 1px solid #f59e0b;
+          border: 1px solid var(--tb-mint);
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
           letter-spacing: 0.005em;
         }

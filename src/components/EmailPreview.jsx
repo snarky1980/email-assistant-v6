@@ -173,7 +173,7 @@ const EmailPreview = ({
   return (
     <div className="bg-white rounded-lg shadow-lg border-2" style={{ borderColor: 'var(--tb-mint)' }}>
       {/* En-tête de la prévisualisation avec couleurs Bureau de la traduction */}
-      <div className="px-6 py-4" style={{ backgroundColor: 'var(--tb-lime)', color: 'var(--tb-navy)' }}>
+  <div className="px-6 py-4" style={{ backgroundColor: 'var(--tb-sage-muted)', color: 'var(--tb-navy)' }}>
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-xl font-bold" style={{ color: 'var(--tb-navy)' }}>
@@ -360,9 +360,10 @@ const EmailPreview = ({
               onClick={handleCopy}
               className={`px-4 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
                 isCopied
-                  ? "text-green-700 bg-green-100 border border-green-300"
-                  : "text-white bg-blue-600 border border-transparent hover:bg-blue-700 focus:ring-blue-500"
+                  ? "text-[var(--tb-navy)] bg-[var(--tb-light-blue)] border-2"
+                  : "text-white"
               }`}
+              style={isCopied ? { borderColor: 'var(--tb-mint)' } : { backgroundColor: 'var(--tb-navy)' }}
             >
               {isCopied ? "✅ Copié!" : "📋 Copier l'email"}
             </button>

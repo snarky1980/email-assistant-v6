@@ -60,12 +60,12 @@ const HighlightingEditor = ({
     fontWeight: "400",
     lineHeight: "1.5",
     minHeight,
-    border: "2px solid #f1f5f9",
-    borderRadius: "8px",
     padding: "12px",
     width: "100%",
+  border: "none",
+    borderRadius: "var(--radius)",
     backgroundColor: "#ffffff",
-    color: "#1f2937",
+    color: "var(--tb-navy)",
     ...style,
   };
 
@@ -82,8 +82,7 @@ const HighlightingEditor = ({
     ...baseStyle,
     resize: "vertical",
     outline: "none",
-    borderColor: "#3b82f6",
-    boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
+  boxShadow: "none",
   };
 
   if (isEditing) {
@@ -109,18 +108,18 @@ const HighlightingEditor = ({
         dangerouslySetInnerHTML={{
           __html: value
             ? generateHighlightedContent(value)
-            : `<span style="color: #9ca3af;">${placeholder}</span>`,
+            : `<span style="color: var(--tb-gray);">${placeholder}</span>`,
         }}
       />
 
       <style jsx>{`
         .variable-highlight {
-          background-color: #fef3c7 !important;
-          color: #92400e !important;
+          background-color: var(--muted) !important;
+          color: var(--tb-navy) !important;
           padding: 2px 4px;
           border-radius: 4px;
           font-weight: 600;
-          border: 1px solid #f59e0b;
+          border: 1px solid var(--tb-mint);
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
           display: inline;
           text-decoration: none;

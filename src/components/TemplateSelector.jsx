@@ -221,8 +221,8 @@ const TemplateSelector = ({
                 className="p-5 cursor-pointer transition-all duration-200 hover:transform hover:scale-[1.02]"
                 style={{
                   backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white',
-                  borderRight: selectedTemplate?.id === template.id ? `6px solid var(--tb-teal)` : 'none',
-                  boxShadow: selectedTemplate?.id === template.id ? '0 4px 12px rgba(8, 145, 178, 0.15)' : 'none'
+                    borderRight: selectedTemplate?.id === template.id ? `6px solid var(--tb-sage-muted)` : 'none',
+                    boxShadow: selectedTemplate?.id === template.id ? '0 4px 12px rgba(163, 179, 84, 0.20)' : 'none'
                 }}
                 onMouseEnter={(e) => {
                   if (selectedTemplate?.id !== template.id) {

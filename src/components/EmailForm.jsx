@@ -171,7 +171,7 @@ const EmailForm = ({
         </h2>
         <p className="text-sm text-white/90 mt-1">
           Modèle sélectionné:{" "}
-          <span className="font-bold" style={{ color: 'var(--tb-lime)' }}>{selectedTemplate.name}</span>
+          <span className="font-bold" style={{ color: 'var(--tb-sage-muted)' }}>{selectedTemplate.name}</span>
         </p>
       </div>
 
@@ -184,7 +184,7 @@ const EmailForm = ({
             className="block text-sm font-bold mb-2"
             style={{ color: 'var(--tb-navy)' }}
           >
-            Nom du client <span style={{ color: '#dc2626' }}>*</span>
+            Nom du client <span style={{ color: 'crimson' }}>*</span>
           </label>
           <input
             type="text"
@@ -195,7 +195,8 @@ const EmailForm = ({
             placeholder="Ex: Madame Dupont, Monsieur Martin..."
             className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all"
             style={{
-              borderColor: fieldErrors.clientName ? '#dc2626' : 'var(--tb-mint)',
+              borderColor: fieldErrors.clientName ? 'crimson' : 'var(--tb-mint)',
+              borderRadius: 'var(--radius)',
               backgroundColor: 'white'
             }}
             onFocus={(e) => {
@@ -225,7 +226,7 @@ const EmailForm = ({
             className="block text-sm font-bold mb-2"
             style={{ color: 'var(--tb-navy)' }}
           >
-            Sujet de l'email <span style={{ color: '#dc2626' }}>*</span>
+            Sujet de l'email <span style={{ color: 'crimson' }}>*</span>
           </label>
           <input
             type="text"
@@ -237,7 +238,8 @@ const EmailForm = ({
             maxLength={100}
             className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all"
             style={{
-              borderColor: fieldErrors.subject ? '#dc2626' : 'var(--tb-mint)',
+              borderColor: fieldErrors.subject ? 'crimson' : 'var(--tb-mint)',
+              borderRadius: 'var(--radius)',
               backgroundColor: 'white'
             }}
             onFocus={(e) => {
@@ -286,7 +288,8 @@ const EmailForm = ({
             maxLength={500}
             className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all resize-vertical"
             style={{
-              borderColor: fieldErrors.customMessage ? '#dc2626' : 'var(--tb-mint)',
+              borderColor: fieldErrors.customMessage ? 'crimson' : 'var(--tb-mint)',
+              borderRadius: 'var(--radius)',
               backgroundColor: 'white'
             }}
             onFocus={(e) => {

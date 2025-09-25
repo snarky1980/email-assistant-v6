@@ -39,11 +39,12 @@ import "./App.css";
 const customEditorStyles = `
   /* Translation Bureau Brand Colors - Exact Match from Brand Identity */
   :root {
-    --tb-navy: #1a365d;          /* Deep navy (from brand image) */
-    --tb-teal: #0891b2;          /* Bright teal (from brand image) */  
-    --tb-mint: #a7f3d0;          /* Light mint (from brand image) */
-    --tb-lime: #bef264;          /* Soft lime yellow (from brand image) */
-    --tb-light-blue: #e0f2fe;    /* Very light blue (from brand image) */
+    --tb-navy: #1a365d;          /* Deep navy (from image) */
+  --tb-teal: #1f8a99;          /* Muted teal */  
+  --tb-mint: #bfe7e3;          /* Light bluish mint */
+  --tb-lime: #bef264;          /* Soft lime yellow (from image) */
+  --tb-sage-muted: #d8e2b0;    /* Muted sage/yellow (requested) */
+    --tb-light-blue: #dbeafe;    /* Very light blue (from image) */
     --tb-cream: #fefefe;         /* Clean white */
     --tb-gray: #6b7280;          /* Supporting gray */
   }
@@ -53,7 +54,7 @@ const customEditorStyles = `
     background: var(--tb-light-blue);
     position: relative;
     overflow: hidden;
-    min-height: 140px;
+    min-height: 110px;
   }
 
   /* Modern typography base */
@@ -169,6 +170,17 @@ const customEditorStyles = `
 `;
 
 function App() {
+  // Track sticky header shadow state
+  const [isHeaderStuck, setIsHeaderStuck] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsHeaderStuck(window.scrollY > 8);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   // Inject custom styles for variable highlighting
   useEffect(() => {
     const styleElement = document.createElement("style");
@@ -201,6 +213,24 @@ function App() {
   const [variables, setVariables] = useState(savedState.variables || {});
   const [copySuccess, setCopySuccess] = useState(false);
 
+  // Palette-based styles for category badges
+  const getCategoryBadgeStyle = (category) => {
+    switch (category) {
+      case "Devis et estimations":
+        return { backgroundColor: 'var(--tb-teal)', borderColor: 'var(--tb-teal)', color: 'white' };
+      case "Gestion de projets":
+        return { backgroundColor: 'var(--tb-mint)', borderColor: 'var(--tb-mint)', color: 'var(--tb-navy)' };
+      case "Problèmes techniques":
+        return { backgroundColor: 'var(--tb-navy)', borderColor: 'var(--tb-navy)', color: 'white' };
+      case "Communications générales":
+        return { backgroundColor: 'var(--tb-sage-muted)', borderColor: 'var(--tb-sage-muted)', color: 'var(--tb-navy)' };
+      case "Services spécialisés":
+        return { backgroundColor: '#1f2937', borderColor: '#1f2937', color: 'white' };
+      default:
+        return { backgroundColor: '#f1f5f9', borderColor: '#e2e8f0', color: '#334155' };
+    }
+  };
+
   // 🎯 RÉFÉRENCES POUR LES RACCOURCIS CLAVIER
   const searchRef = useRef(null); // Référence pour focus sur la recherche (Ctrl+J)
 
@@ -228,7 +258,7 @@ function App() {
       subtitle: "Bureau de la traduction",
       selectTemplate: "Sélectionnez un modèle",
       templatesCount: `modèles disponibles`,
-      searchPlaceholder: "🔍 Rechercher un modèle...",
+  searchPlaceholder: "Rechercher un modèle...",
       allCategories: "Toutes les catégories",
       categories: {
         "Devis et estimations": "Devis et estimations",
@@ -256,7 +286,7 @@ function App() {
       subtitle: "Translation Bureau",
       selectTemplate: "Select a template",
       templatesCount: `templates available`,
-      searchPlaceholder: "🔍 Search for a template...",
+  searchPlaceholder: "Search for a template...",
       allCategories: "All categories",
       categories: {
         "Devis et estimations": "Quotes and estimates",
@@ -684,7 +714,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f0f8ff' }}>
+  <div className="min-h-screen" style={{ backgroundColor: 'var(--tb-light-blue)' }}>
       {loading ? (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -695,7 +725,7 @@ function App() {
       ) : (
         <>
           {/* En-tête avec formes organiques inspirées de l'identité Bureau de la traduction */}
-          <header className="organic-header relative shadow-lg">
+          <header className="organic-header relative sticky top-0 z-40" style={{ boxShadow: isHeaderStuck ? '0 8px 24px rgba(26,54,93,0.18)' : '0 4px 12px rgba(26,54,93,0.10)' }}>
             {/* Grandes capsules inspirées de l'identité Bureau de la traduction */}
             <div className="absolute inset-0 overflow-hidden">
               {/* Très grande capsule navy verticale à gauche */}
@@ -716,11 +746,11 @@ function App() {
                 }}
               ></div>
               
-              {/* Énorme capsule sage verticale à droite */}
+              {/* Énorme capsule verticale à droite (muted sage from palette) */}
               <div 
                 className="absolute right-8 -top-6 w-32 h-56 opacity-90"
                 style={{ 
-                  backgroundColor: '#c4d97b',
+                  backgroundColor: 'var(--tb-sage-muted)',
                   borderRadius: '64px'
                 }}
               ></div>
@@ -735,7 +765,7 @@ function App() {
               ></div>
             </div>
             
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-6">
                   {/* Icône avec bold impact - solide */}
@@ -750,14 +780,6 @@ function App() {
                     >
                       <Mail className="h-14 w-14 text-white" />
                     </div>
-                    <div 
-                      className="absolute -top-4 -right-4 w-10 h-10"
-                      style={{ 
-                        backgroundColor: '#c4d97b',
-                        borderRadius: '50%',
-                        boxShadow: '0 8px 25px rgba(190, 242, 100, 0.7)'
-                      }}
-                    ></div>
                   </div>
                   
                   {/* Textes avec contraste élevé */}
@@ -776,7 +798,7 @@ function App() {
                   className="flex items-center space-x-4 px-8 py-5 shadow-2xl"
                   style={{ 
                     backgroundColor: 'var(--tb-teal)',
-                    borderRadius: '30px'
+                    borderRadius: 'calc(var(--radius) + 10px)'
                   }}
                 >
                   <Globe className="h-8 w-8 text-white" />
@@ -786,30 +808,29 @@ function App() {
                   <div className="flex bg-white p-2 shadow-lg" style={{ borderRadius: '20px' }}>
                     <button
                       onClick={() => setInterfaceLanguage("fr")}
-                      className={`px-6 py-3 text-sm font-bold transition-all duration-200 transform ${
+                      className={`px-6 py-3 text-sm font-bold transition-all duration-200 transform button-ripple teal-focus ${
                         interfaceLanguage === "fr"
                           ? "text-white shadow-xl scale-105"
                           : "hover:scale-105"
                       }`}
                       style={{
-                        backgroundColor: interfaceLanguage === "fr" ? 'var(--tb-navy)' : 'transparent',
+                        backgroundColor: interfaceLanguage === "fr" ? 'var(--tb-teal)' : 'transparent',
                         color: interfaceLanguage === "fr" ? 'white' : 'var(--tb-navy)',
-                        borderRadius: '16px'
+                        borderRadius: 'calc(var(--radius) + 6px)'
                       }}
                     >
                       FR
                     </button>
                     <button
                       onClick={() => setInterfaceLanguage("en")}
-                      className={`px-6 py-3 text-sm font-bold transition-all duration-200 transform ${
+                      className={`px-6 py-3 text-sm font-bold transition-all duration-200 transform button-ripple teal-focus ${
                         interfaceLanguage === "en"
                           ? "text-white shadow-xl scale-105"
                           : "hover:scale-105"
                       }`}
                       style={{
-                        backgroundColor: interfaceLanguage === "en" ? 'var(--tb-navy)' : 'transparent',
-                        color: interfaceLanguage === "en" ? 'white' : 'var(--tb-navy)',
-                        borderRadius: '16px'
+                        backgroundColor: interfaceLanguage === "en" ? 'var(--tb-teal)' : 'transparent',
+                        borderRadius: 'calc(var(--radius) + 6px)'
                       }}
                     >
                       EN
@@ -821,12 +842,14 @@ function App() {
           </header>
 
           {/* Contenu principal */}
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ backgroundColor: 'var(--background)', borderRadius: '20px' }}>
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
               {/* Panneau de gauche - Liste des modèles */}
               <div className="lg:col-span-2 lg:max-w-md">
-                <Card className="h-full shadow-xl border-0 overflow-hidden" style={{ backgroundColor: 'white' }}>
-                  <CardHeader className="pb-4" style={{ backgroundColor: 'var(--tb-teal)' }}>
+                <Card className="h-full shadow-xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
+                  {/* Backdrop to fill rounded top corners with teal */}
+                  <div className="absolute inset-x-0 top-0" style={{ height: '96px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
+                  <CardHeader className="pb-4 relative z-10" style={{ backgroundColor: 'transparent' }}>
                     <CardTitle className="text-xl font-bold text-white flex items-center">
                       <FileText className="h-6 w-6 mr-2 text-white" />
                       {t.selectTemplate}
@@ -840,14 +863,20 @@ function App() {
                       value={selectedCategory}
                       onValueChange={setSelectedCategory}
                     >
-                      <SelectTrigger className="border-2 transition-all duration-300" style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'white' }}>
+                      <SelectTrigger className="border-2 transition-all duration-300" style={{ borderColor: 'var(--tb-teal)', backgroundColor: 'white' }}>
                         <Filter className="h-4 w-4 mr-2" style={{ color: 'var(--tb-teal)' }} />
                         <SelectValue placeholder={t.allCategories} />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">{t.allCategories}</SelectItem>
+                      <SelectContent className="border-2" style={{ borderColor: 'var(--tb-mint)' }}>
+                        <SelectItem value="all" className="cursor-pointer data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]">
+                          {t.allCategories}
+                        </SelectItem>
                         {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
+                          <SelectItem
+                            key={category}
+                            value={category}
+                            className="cursor-pointer data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]"
+                          >
                             {t.categories[category] || category}
                           </SelectItem>
                         ))}
@@ -966,23 +995,8 @@ function App() {
                                 </p>
                                 <Badge
                                   variant="secondary"
-                                  className={`text-xs font-medium ${
-                                    template.category === "Devis et estimations"
-                                      ? "bg-blue-100 text-blue-700 border-blue-200"
-                                      : template.category ===
-                                        "Gestion de projets"
-                                      ? "bg-green-100 text-green-700 border-green-200"
-                                      : template.category ===
-                                        "Problèmes techniques"
-                                      ? "bg-red-100 text-red-700 border-red-200"
-                                      : template.category ===
-                                        "Communications générales"
-                                      ? "bg-purple-100 text-purple-700 border-purple-200"
-                                      : template.category ===
-                                        "Services spécialisés"
-                                      ? "bg-amber-100 text-amber-700 border-amber-200"
-                                      : "bg-gray-100 text-gray-700 border-gray-200"
-                                  }`}
+                                  className={`text-xs font-medium border-2`}
+                                  style={getCategoryBadgeStyle(template.category)}
                                 >
                                   {template.category}
                                 </Badge>
@@ -1003,8 +1017,10 @@ function App() {
                     {/* Variables avec style moderne */}
                     {selectedTemplate.variables &&
                       selectedTemplate.variables.length > 0 && (
-                        <Card className="shadow-xl border-2 overflow-hidden" style={{ backgroundColor: 'white', borderColor: '#2dd4bf' }}>
-                          <CardHeader style={{ backgroundColor: '#2dd4bf' }}>
+                        <Card className="shadow-xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
+                          {/* Fill header gap with teal to match editors */}
+                          <div className="absolute inset-x-0 top-0" style={{ height: '68px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
+                          <CardHeader className="relative z-10" style={{ backgroundColor: 'transparent' }}>
                             <CardTitle className="text-xl font-bold text-white flex items-center">
                               <Edit3 className="h-6 w-6 mr-2 text-white" />
                               {t.variables}
@@ -1022,7 +1038,7 @@ function App() {
                                 // Couleur selon le type de variable
                                 const getInputStyle = () => {
                                   return {
-                                    borderColor: '#a7f3d0',
+                                    borderColor: 'var(--tb-mint)',
                                     backgroundColor: 'white'
                                   };
                                 };
@@ -1031,22 +1047,19 @@ function App() {
                                   <div
                                     key={varName}
                                     className="rounded-md p-3 border-2 transition-all duration-200"
-                                    style={{ backgroundColor: '#dbeafe', borderColor: '#a7f3d0' }}
+                                    style={{ backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}
                                   >
                                     {/* En-tête compact */}
                                     <div className="flex items-center justify-between mb-2">
-                                      <label className="text-xs font-semibold flex items-center" style={{ color: '#1e3a5f' }}>
-                                        <span
-                                          className="w-2 h-2 rounded-full mr-1.5"
-                                          style={{ backgroundColor: '#93b768' }}
-                                        ></span>
+                                      <label className="text-xs font-semibold" style={{ color: 'var(--tb-navy)' }}>
                                         {varInfo.description[interfaceLanguage]}
                                       </label>
 
                                       {/* Badge du type compact */}
                                       <Badge
                                         variant="outline"
-                                        className="text-xs px-1 py-0 h-4"
+                                        className="text-xs px-1.5 py-0 h-4 border-2"
+                                        style={{ borderColor: 'var(--tb-sage-muted)', color: 'var(--tb-navy)' }}
                                       >
                                         {varInfo.type}
                                       </Badge>
@@ -1084,18 +1097,19 @@ function App() {
                       )}
 
                     {/* Version éditable - ZONE PRINCIPALE */}
-                    <Card className="shadow-2xl border-2 overflow-hidden" style={{ backgroundColor: 'white', borderColor: '#2dd4bf' }}>
-                      <CardHeader style={{ backgroundColor: '#2dd4bf' }}>
-                        <CardTitle className="text-2xl font-bold text-gray-800 flex items-center">
-                          <Mail className="h-7 w-7 mr-3 text-green-600" />
+                        <Card className="shadow-2xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
+                      {/* Fill header gap on editors card */}
+                      <div className="absolute inset-x-0 top-0" style={{ height: '76px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
+                      <CardHeader className="relative z-10" style={{ backgroundColor: 'transparent' }}>
+                        <CardTitle className="text-2xl font-bold text-white flex items-center">
+                          <Mail className="h-7 w-7 mr-3 text-white" />
                           {t.editEmail}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="p-6 space-y-6">
                         {/* Objet éditable avec aperçu surlignement */}
                         <div className="space-y-3">
-                          <label className="text-lg font-bold text-gray-700 flex items-center">
-                            <span className="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                          <label className="text-lg font-bold text-[var(--tb-navy)]">
                             {t.subject}
                           </label>
                           <HighlightingEditor
@@ -1104,13 +1118,13 @@ function App() {
                             variables={variables}
                             placeholder={t.subject}
                             minHeight="60px"
+                            style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
                           />
                         </div>
 
                         {/* Corps éditable avec aperçu surlignement */}
                         <div className="space-y-3">
-                          <label className="text-lg font-bold text-gray-700 flex items-center">
-                            <span className="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                          <label className="text-lg font-bold text-[var(--tb-navy)]">
                             {t.body}
                           </label>
                           <HighlightingEditor
@@ -1119,6 +1133,7 @@ function App() {
                             variables={variables}
                             placeholder={t.body}
                             minHeight="250px"
+                            style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
                           />
                         </div>
                       </CardContent>
@@ -1141,7 +1156,8 @@ function App() {
                         <Button
                           variant="outline"
                           onClick={resetForm}
-                          className="border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold"
+                          className="border-2 transition-all duration-300 font-semibold"
+                          style={{ borderColor: 'var(--tb-teal)', color: 'var(--tb-navy)' }}
                         >
                           <RotateCcw className="h-4 w-4 mr-2" />
                           {t.reset}
@@ -1161,23 +1177,19 @@ function App() {
                           <Button
                             onClick={() => copyToClipboard("subject")}
                             variant="outline"
-                            className="font-medium px-4 py-2 border-2 transition-all duration-300 group"
-                            style={{
-                              borderColor: '#dbeafe',
-                              backgroundColor: 'white',
-                              color: '#1e3a5f'
-                            }}
+                className="font-medium px-4 py-2 border-2 transition-all duration-300 group"
+                style={{ borderColor: 'var(--tb-sage-muted)', backgroundColor: 'var(--tb-sage-muted)', color: 'var(--tb-navy)' }}
                             onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = '#a7f3d0';
-                              e.target.style.borderColor = '#2dd4bf';
+                  e.target.style.backgroundColor = '#8f9d49';
+                  e.target.style.borderColor = '#8f9d49';
                             }}
                             onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = 'white';
-                              e.target.style.borderColor = '#dbeafe';
+                  e.target.style.backgroundColor = 'var(--tb-sage-muted)';
+                  e.target.style.borderColor = 'var(--tb-sage-muted)';
                             }}
                             title="Copier l'objet seulement (Ctrl+J)"
                           >
-                            <Mail className="h-4 w-4 mr-2 group-hover:text-blue-600" />
+                              <Mail className="h-4 w-4 mr-2" />
                             {t.copySubject || "Objet"}
                           </Button>
 
@@ -1186,22 +1198,18 @@ function App() {
                             onClick={() => copyToClipboard("body")}
                             variant="outline"
                             className="font-medium px-4 py-2 border-2 transition-all duration-300 group"
-                            style={{
-                              borderColor: '#c4d97b',
-                              backgroundColor: 'white',
-                              color: '#1e3a5f'
-                            }}
+                            style={{ borderColor: 'var(--tb-sage-muted)', backgroundColor: 'var(--tb-sage-muted)', color: 'var(--tb-navy)' }}
                             onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = '#dbeafe';
-                              e.target.style.borderColor = '#2dd4bf';
+                              e.target.style.backgroundColor = '#8f9d49';
+                              e.target.style.borderColor = '#8f9d49';
                             }}
                             onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = 'white';
-                              e.target.style.borderColor = '#c4d97b';
+                              e.target.style.backgroundColor = 'var(--tb-sage-muted)';
+                              e.target.style.borderColor = 'var(--tb-sage-muted)';
                             }}
                             title="Copier le corps seulement (Ctrl+B)"
                           >
-                            <Edit3 className="h-4 w-4 mr-2 group-hover:text-green-600" />
+                            <Edit3 className="h-4 w-4 mr-2" />
                             {t.copyBody || "Corps"}
                           </Button>
 
@@ -1210,15 +1218,15 @@ function App() {
                             onClick={() => copyToClipboard("all")}
                             className="font-bold px-6 py-3 transition-all duration-300 shadow-lg transform"
                             style={{
-                              backgroundColor: copySuccess ? '#c4d97b' : '#1e3a5f',
+                              backgroundColor: copySuccess ? 'var(--tb-sage-muted)' : 'var(--tb-teal)',
                               color: copySuccess ? '#1e3a5f' : 'white'
                             }}
                             onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = copySuccess ? '#a7f3d0' : '#0f172a';
+                              e.target.style.backgroundColor = copySuccess ? 'var(--tb-mint)' : '#176b77';
                               e.target.style.transform = 'scale(1.05)';
                             }}
                             onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = copySuccess ? '#c4d97b' : '#1e3a5f';
+                              e.target.style.backgroundColor = copySuccess ? 'var(--tb-sage-muted)' : 'var(--tb-teal)';
                               e.target.style.transform = 'scale(1)';
                             }}
                             title="Copier tout l'email (Ctrl+Enter)"
@@ -1231,7 +1239,7 @@ function App() {
                     </div>
                   </>
                 ) : (
-                  <Card className="shadow-xl border-2" style={{ backgroundColor: '#f8fafc', borderColor: '#dbeafe' }}>
+                  <Card className="shadow-xl border-0" style={{ backgroundColor: '#f8fafc' }}>
                     <CardContent className="flex items-center justify-center h-80">
                       <div className="text-center">
                         <div className="relative mb-6">

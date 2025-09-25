@@ -42,7 +42,7 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.875rem;
   /* Translation Bureau Brand Color Palette */
   --background: #f8fffe;              /* Very light teal-tinted background */
   --foreground: #1a365d;              /* Navy text */
@@ -50,39 +50,40 @@
   --card-foreground: #1a365d;         /* Navy on cards */
   --popover: #ffffff;
   --popover-foreground: #1a365d;
-  --primary: #0891b2;                 /* Bright teal primary */
+  --primary: #1f8a99;                 /* Muted teal primary */
   --primary-foreground: #ffffff;
-  --secondary: #a7f3d0;               /* Light mint secondary */
+  --secondary: #bfe7e3;               /* Light bluish mint secondary */
   --secondary-foreground: #1a365d;    
   --muted: #e0f2fe;                   /* Very light blue muted */
   --muted-foreground: #1a365d;
-  --accent: #bef264;                  /* Lime accent */
+  --accent: var(--tb-sage-muted);     /* Use muted sage for component accent (replaces lime) */
   --accent-foreground: #1a365d;
   
   /* Translation Bureau specific brand colors - from official palette */
   --tb-navy: #1e3a5f;                 /* Deep navy blue */
-  --tb-teal: #2dd4bf;                 /* Bright teal */
-  --tb-mint: #a7f3d0;                 /* Light mint */
-  --tb-lime: #c4d97b;                 /* Sage yellow-green */
+  --tb-teal: #1f8a99;                 /* Muted teal */
+  --tb-mint: #bfe7e3;                 /* Light bluish mint */
+  --tb-sage-muted: #a3b354;           /* Muted sage/yellow - darker */
+  --tb-lime: var(--tb-sage-muted);    /* Alias lime references to muted sage for cohesion */
   --tb-light-blue: #dbeafe;           /* Very light blue */
   --tb-gray: #6b7280;                 /* Supporting gray */
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #a7f3d0;                  /* Light mint borders */
+  --border: #bfe7e3;                  /* Light bluish mint borders */
   --input: #e0f2fe;                   /* Light blue inputs */
-  --ring: #0891b2;                    /* Teal focus ring */
-  --chart-1: #0891b2;                 /* Teal */
-  --chart-2: #a7f3d0;                 /* Mint */
-  --chart-3: #bef264;                 /* Lime */
+  --ring: #1f8a99;                    /* Teal focus ring */
+  --chart-1: #1f8a99;                 /* Teal */
+  --chart-2: #bfe7e3;                 /* Mint */
+  --chart-3: var(--tb-sage-muted);    /* Sage accent instead of lime */
   --chart-4: #1a365d;                 /* Navy */
   --chart-5: #e0f2fe;                 /* Light blue */
   --sidebar: #ffffff;
   --sidebar-foreground: #1a365d;
-  --sidebar-primary: #0891b2;
+  --sidebar-primary: #1f8a99;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #a7f3d0;
+  --sidebar-accent: #bfe7e3;
   --sidebar-accent-foreground: #1a365d;
-  --sidebar-border: #a7f3d0;
-  --sidebar-ring: #0891b2;
+  --sidebar-border: #bfe7e3;
+  --sidebar-ring: #1f8a99;
 }
 
 .dark {
@@ -126,4 +127,53 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Optional polish: reusable interaction classes */
+.search-input-reset,
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration,
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-clear-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+.teal-focus:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(31, 138, 153, 0.28) !important; /* var(--tb-teal) */
+}
+
+.button-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.button-ripple::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 9999px;
+  background: rgba(31, 138, 153, 0.25);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: width 0.35s ease, height 0.35s ease, opacity 0.5s ease;
+}
+.button-ripple:active::after {
+  width: 240px;
+  height: 240px;
+  opacity: 1;
+  transition: 0s;
+}
+
+.chip-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.chip-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(26, 54, 93, 0.12);
 }
