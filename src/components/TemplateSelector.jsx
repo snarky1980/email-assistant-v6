@@ -1,26 +1,30 @@
 /**
  * TemplateSelector - Composant de sélection des modèles d'emails
- * 
+ *
  * Ce composant affiche la liste des modèles d'emails disponibles
  * et permet à l'utilisateur de sélectionner celui qui convient
  * le mieux à sa situation.
- * 
+ *
  * Props:
  * - templates: Array - Liste des modèles d'emails disponibles
  * - selectedTemplate: Object - Le modèle actuellement sélectionné
  * - onTemplateSelect: Function - Callback pour la sélection d'un modèle
- * 
+ *
  * @author Bureau de la traduction
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => {
+const TemplateSelector = ({
+  templates,
+  selectedTemplate,
+  onTemplateSelect,
+}) => {
   // État pour le filtre de recherche
-  const [searchFilter, setSearchFilter] = useState('');
-  
+  const [searchFilter, setSearchFilter] = useState("");
+
   // État pour le filtre par catégorie
-  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   /**
    * Filtre les modèles selon les critères de recherche et de catégorie
@@ -28,20 +32,24 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
    */
   const getFilteredTemplates = () => {
     if (!templates) return [];
-    
-    return templates.filter(template => {
+
+    return templates.filter((template) => {
       // Filtre par recherche textuelle
-      const matchesSearch = searchFilter === '' || 
+      const matchesSearch =
+        searchFilter === "" ||
         template.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
-        template.description.toLowerCase().includes(searchFilter.toLowerCase()) ||
-        (template.tags && template.tags.some(tag => 
-          tag.toLowerCase().includes(searchFilter.toLowerCase())
-        ));
-      
+        template.description
+          .toLowerCase()
+          .includes(searchFilter.toLowerCase()) ||
+        (template.tags &&
+          template.tags.some((tag) =>
+            tag.toLowerCase().includes(searchFilter.toLowerCase())
+          ));
+
       // Filtre par catégorie
-      const matchesCategory = categoryFilter === 'all' || 
-        template.category === categoryFilter;
-      
+      const matchesCategory =
+        categoryFilter === "all" || template.category === categoryFilter;
+
       return matchesSearch && matchesCategory;
     });
   };
@@ -52,8 +60,8 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
    */
   const getAvailableCategories = () => {
     if (!templates) return [];
-    
-    const categories = templates.map(template => template.category);
+
+    const categories = templates.map((template) => template.category);
     return [...new Set(categories)].sort();
   };
 
@@ -64,16 +72,16 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
    */
   const getCategoryIcon = (category) => {
     const icons = {
-      'information': '📋',
-      'demande': '❓',
-      'confirmation': '✅',
-      'suivi': '📞',
-      'probleme': '⚠️',
-      'remerciement': '🙏',
-      'urgence': '🚨',
-      'standard': '📧'
+      information: "📋",
+      demande: "❓",
+      confirmation: "✅",
+      suivi: "📞",
+      probleme: "⚠️",
+      remerciement: "🙏",
+      urgence: "🚨",
+      standard: "📧",
     };
-    return icons[category] || '📄';
+    return icons[category] || "📄";
   };
 
   /**
@@ -83,14 +91,14 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
    */
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'low':
-        return 'bg-green-100 text-green-800';
+      case "high":
+        return "bg-red-100 text-red-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "low":
+        return "bg-green-100 text-green-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -113,7 +121,10 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
       <div className="p-4 space-y-3 border-b border-gray-200 bg-gray-50">
         {/* Recherche */}
         <div>
-          <label htmlFor="search" className="block text-xs font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="search"
+            className="block text-xs font-medium text-gray-700 mb-1"
+          >
             Rechercher
           </label>
           <input
@@ -128,7 +139,10 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
 
         {/* Filtre par catégorie */}
         <div>
-          <label htmlFor="category" className="block text-xs font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="category"
+            className="block text-xs font-medium text-gray-700 mb-1"
+          >
             Catégorie
           </label>
           <select
@@ -138,9 +152,10 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">Toutes les catégories</option>
-            {availableCategories.map(category => (
+            {availableCategories.map((category) => (
               <option key={category} value={category}>
-                {getCategoryIcon(category)} {category.charAt(0).toUpperCase() + category.slice(1)}
+                {getCategoryIcon(category)}{" "}
+                {category.charAt(0).toUpperCase() + category.slice(1)}
               </option>
             ))}
           </select>
@@ -157,8 +172,8 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
             </p>
             <button
               onClick={() => {
-                setSearchFilter('');
-                setCategoryFilter('all');
+                setSearchFilter("");
+                setCategoryFilter("all");
               }}
               className="mt-2 text-sm text-blue-600 hover:text-blue-800"
             >
@@ -172,7 +187,9 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
                 key={template.id || index}
                 onClick={() => onTemplateSelect(template)}
                 className={`p-4 cursor-pointer transition-colors hover:bg-gray-50 ${
-                  selectedTemplate?.id === template.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''
+                  selectedTemplate?.id === template.id
+                    ? "bg-blue-50 border-r-4 border-blue-500"
+                    : ""
                 }`}
               >
                 {/* En-tête du modèle */}
@@ -185,12 +202,19 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
                       {template.name}
                     </h3>
                   </div>
-                  
+
                   {/* Indicateur de priorité */}
                   {template.priority && (
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(template.priority)}`}>
-                      {template.priority === 'high' ? 'Urgent' : 
-                       template.priority === 'medium' ? 'Normal' : 'Standard'}
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(
+                        template.priority
+                      )}`}
+                    >
+                      {template.priority === "high"
+                        ? "Urgent"
+                        : template.priority === "medium"
+                        ? "Normal"
+                        : "Standard"}
                     </span>
                   )}
                 </div>
@@ -221,13 +245,9 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
 
                 {/* Métadonnées */}
                 <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>
-                    Catégorie: {template.category}
-                  </span>
+                  <span>Catégorie: {template.category}</span>
                   {template.estimatedTime && (
-                    <span>
-                      ⏱️ {template.estimatedTime} min
-                    </span>
+                    <span>⏱️ {template.estimatedTime} min</span>
                   )}
                 </div>
 
@@ -248,8 +268,11 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
       <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
         <div className="flex justify-between items-center text-sm text-gray-600">
           <span>
-            {filteredTemplates.length} modèle{filteredTemplates.length !== 1 ? 's' : ''} 
-            {searchFilter || categoryFilter !== 'all' ? ' trouvé' + (filteredTemplates.length !== 1 ? 's' : '') : ' disponible' + (filteredTemplates.length !== 1 ? 's' : '')}
+            {filteredTemplates.length} modèle
+            {filteredTemplates.length !== 1 ? "s" : ""}
+            {searchFilter || categoryFilter !== "all"
+              ? " trouvé" + (filteredTemplates.length !== 1 ? "s" : "")
+              : " disponible" + (filteredTemplates.length !== 1 ? "s" : "")}
           </span>
           {selectedTemplate && (
             <span className="text-blue-600 font-medium">
@@ -272,9 +295,14 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
               </h3>
               <div className="mt-1 text-sm text-blue-700">
                 <ul className="list-disc list-inside space-y-1">
-                  <li>Identifiez le type de communication (information, demande, etc.)</li>
+                  <li>
+                    Identifiez le type de communication (information, demande,
+                    etc.)
+                  </li>
                   <li>Considérez le niveau d'urgence de votre message</li>
-                  <li>Utilisez les filtres pour trouver rapidement le bon modèle</li>
+                  <li>
+                    Utilisez les filtres pour trouver rapidement le bon modèle
+                  </li>
                 </ul>
               </div>
             </div>
@@ -286,4 +314,3 @@ const TemplateSelector = ({ templates, selectedTemplate, onTemplateSelect }) => 
 };
 
 export default TemplateSelector;
-

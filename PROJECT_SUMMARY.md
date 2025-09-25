@@ -7,6 +7,7 @@
 ## ✨ Fonctionnalités Clés v6
 
 ### 🔥 Nouvelles Fonctionnalités
+
 - **Surlignage intelligent perfectionné** : Toutes les variables sont surlignées avec précision
 - **Mode lecture/édition** : Interface intuitive pour basculer entre visualisation et édition
 - **Navigation améliorée** : Scrollbar permanente et zone d'affichage élargie
@@ -14,6 +15,7 @@
 - **Configuration GitHub Pages** : Déploiement automatique pré-configuré
 
 ### 🎨 Améliorations UX/UI
+
 - **Algorithme de correspondance avancé** : Gestion précise des nombres, texte et formatage spécial
 - **Support des symboles** : Reconnaissance des variables suivies de "$", "€", espaces
 - **Performance optimisée** : Rendu en temps réel sans lag
@@ -22,6 +24,7 @@
 ## 🛠️ Architecture Technique
 
 ### Stack Technologique
+
 - **Frontend** : React 18 + Hooks
 - **Build Tool** : Vite 6.3.5
 - **Styling** : Tailwind CSS 4.1.7
@@ -32,22 +35,25 @@
 ### Composants Principaux
 
 #### HighlightingEditor.jsx
+
 ```jsx
 // Composant principal pour le surlignage intelligent
 const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
   // Mode lecture avec surlignage
   // Mode édition avec textarea
   // Synchronisation parfaite
-}
+};
 ```
 
 **Fonctionnalités techniques :**
+
 - Algorithme de correspondance avec patterns adaptatifs
 - Gestion des nombres courts et longs
 - Support des symboles et formatage spécial
 - Performance optimisée avec debouncing
 
 #### App.jsx
+
 ```jsx
 // Application principale avec :
 // - Gestion d'état centralisée
@@ -59,6 +65,7 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 ### Structure des Données
 
 #### Modèles d'Emails
+
 ```json
 {
   "id": "identifiant_unique",
@@ -74,25 +81,28 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 ## 🚀 Configuration de Déploiement
 
 ### GitHub Pages (Pré-configuré)
+
 - **Workflow** : `.github/workflows/deploy.yml`
 - **Base Path** : Automatique selon l'environnement
 - **Build** : Optimisé pour production
 - **URL** : `https://[username].github.io/email-assistant-v6/`
 
 ### Scripts NPM
+
 ```json
 {
-  "dev": "vite",                    // Développement
-  "build": "vite build",            // Build production
-  "preview": "vite preview",        // Aperçu local
-  "lint": "eslint .",              // Vérification code
-  "deploy": "npm run build && gh-pages -d dist"  // Déploiement manuel
+  "dev": "vite", // Développement
+  "build": "vite build", // Build production
+  "preview": "vite preview", // Aperçu local
+  "lint": "eslint .", // Vérification code
+  "deploy": "npm run build && gh-pages -d dist" // Déploiement manuel
 }
 ```
 
 ## 📊 Métriques de Performance
 
 ### Améliorations v6
+
 - **Surlignage** : 100% des variables détectées (vs 80% en v5)
 - **Performance** : Rendu 3x plus rapide
 - **UX** : 0 artefact visuel (vs 5+ en v5)
@@ -100,6 +110,7 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 - **Accessibilité** : Score Lighthouse 95+ (vs 85 en v5)
 
 ### Optimisations Techniques
+
 - **Bundle Size** : Optimisé avec tree-shaking
 - **Code Splitting** : Chargement progressif
 - **Cache Strategy** : Assets statiques cachés 1 an
@@ -108,6 +119,7 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 ## 🔧 Maintenance et Évolution
 
 ### Zones d'Amélioration Future
+
 1. **Tests automatisés** : Jest + React Testing Library
 2. **Internationalisation** : Support de langues supplémentaires
 3. **Thèmes** : Mode sombre/clair
@@ -115,6 +127,7 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 5. **Collaboration** : Partage et commentaires
 
 ### Monitoring
+
 - **Analytics** : Prêt pour Google Analytics
 - **Performance** : Lighthouse CI configuré
 - **Erreurs** : Prêt pour Sentry
@@ -123,6 +136,7 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 ## 📚 Documentation
 
 ### Fichiers de Documentation
+
 - **README.md** : Guide utilisateur complet
 - **CONTRIBUTING.md** : Guide de contribution
 - **DEPLOYMENT.md** : Guide de déploiement
@@ -130,6 +144,7 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 - **PROJECT_SUMMARY.md** : Ce fichier
 
 ### Standards de Code
+
 - **Conventional Commits** : Format standardisé
 - **ESLint** : Règles de qualité code
 - **Prettier** : Formatage automatique
@@ -138,6 +153,7 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 ## 🎯 Objectifs Atteints v6
 
 ### ✅ Fonctionnalités
+
 - [x] Surlignage intelligent perfectionné
 - [x] Interface utilisateur épurée
 - [x] Navigation améliorée
@@ -146,6 +162,7 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 - [x] Configuration déploiement
 
 ### ✅ Qualité
+
 - [x] Code maintenable et documenté
 - [x] Architecture modulaire
 - [x] Standards de développement
@@ -155,6 +172,7 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 ## 🚀 Prochaines Étapes
 
 ### Déploiement
+
 1. **Créer repository** `email-assistant-v6` sur GitHub
 2. **Pousser le code** sur la branche `main`
 3. **Activer GitHub Pages** dans les paramètres
@@ -162,6 +180,7 @@ const HighlightingEditor = ({ value, onChange, variables, placeholder }) => {
 5. **Tester application** en production
 
 ### Évolution
+
 1. **Collecter feedback** utilisateurs
 2. **Prioriser améliorations** selon usage
 3. **Planifier v7** avec nouvelles fonctionnalités

@@ -1,43 +1,43 @@
 /**
  * EmailAssistant - Composant principal de l'assistant pour la rédaction de courriels aux clients
- * 
+ *
  * Ce composant fournit une interface utilisateur pour aider les employés du Bureau de la traduction
  * à rédiger des courriels professionnels et cohérents destinés aux clients.
- * 
+ *
  * Fonctionnalités principales:
  * - Sélection de modèles d'emails prédéfinis
  * - Personnalisation du contenu selon le contexte
  * - Prévisualisation en temps réel
  * - Génération d'emails formatés et professionnels
- * 
+ *
  * @author Bureau de la traduction
  * @version 1.0.0
  */
 
-import React, { useState, useEffect } from 'react';
-import EmailForm from './EmailForm';
-import EmailPreview from './EmailPreview';
-import TemplateSelector from './TemplateSelector';
-import { emailTemplates } from '../utils/emailTemplates';
+import React, { useState, useEffect } from "react";
+import EmailForm from "./EmailForm";
+import EmailPreview from "./EmailPreview";
+import TemplateSelector from "./TemplateSelector";
+import { emailTemplates } from "../utils/emailTemplates";
 
 const EmailAssistant = () => {
   // État pour le modèle d'email sélectionné
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-  
+
   // État pour les données du formulaire
   const [formData, setFormData] = useState({
-    clientName: '',
-    subject: '',
-    customMessage: '',
-    urgency: 'normal',
-    language: 'fr' // Français par défaut
+    clientName: "",
+    subject: "",
+    customMessage: "",
+    urgency: "normal",
+    language: "fr", // Français par défaut
   });
-  
+
   // État pour l'email généré
-  const [generatedEmail, setGeneratedEmail] = useState('');
-  
+  const [generatedEmail, setGeneratedEmail] = useState("");
+
   // État pour l'affichage (formulaire ou prévisualisation)
-  const [currentView, setCurrentView] = useState('form');
+  const [currentView, setCurrentView] = useState("form");
 
   /**
    * Gestionnaire pour la sélection d'un modèle d'email
@@ -47,9 +47,9 @@ const EmailAssistant = () => {
     setSelectedTemplate(template);
     // Pré-remplir le sujet si disponible dans le modèle
     if (template.defaultSubject) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        subject: template.defaultSubject
+        subject: template.defaultSubject,
       }));
     }
   };
@@ -59,9 +59,9 @@ const EmailAssistant = () => {
    * @param {Object} newData - Les nouvelles données du formulaire
    */
   const handleFormChange = (newData) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      ...newData
+      ...newData,
     }));
   };
 
@@ -72,16 +72,16 @@ const EmailAssistant = () => {
     if (!selectedTemplate) return;
 
     let emailContent = selectedTemplate.content;
-    
+
     // Remplacer les variables dans le modèle
     emailContent = emailContent
-      .replace(/\{clientName\}/g, formData.clientName || '[Nom du client]')
-      .replace(/\{customMessage\}/g, formData.customMessage || '')
-      .replace(/\{date\}/g, new Date().toLocaleDateString('fr-CA'));
+      .replace(/\{clientName\}/g, formData.clientName || "[Nom du client]")
+      .replace(/\{customMessage\}/g, formData.customMessage || "")
+      .replace(/\{date\}/g, new Date().toLocaleDateString("fr-CA"));
 
     // Ajouter la signature selon l'urgence
     const signature = getSignatureByUrgency(formData.urgency);
-    emailContent += '\n\n' + signature;
+    emailContent += "\n\n" + signature;
 
     setGeneratedEmail(emailContent);
   };
@@ -93,11 +93,11 @@ const EmailAssistant = () => {
    */
   const getSignatureByUrgency = (urgency) => {
     const baseSignature = `Cordialement,\n\nBureau de la traduction\nServices publics et Approvisionnement Canada`;
-    
+
     switch (urgency) {
-      case 'high':
+      case "high":
         return `${baseSignature}\n\n⚠️ Réponse requise dans les plus brefs délais`;
-      case 'low':
+      case "low":
         return `${baseSignature}\n\nMerci de votre patience`;
       default:
         return baseSignature;
@@ -111,10 +111,12 @@ const EmailAssistant = () => {
     try {
       await navigator.clipboard.writeText(generatedEmail);
       // Ici on pourrait ajouter une notification de succès
-      alert('Email copié dans le presse-papiers !');
+      alert("Email copié dans le presse-papiers !");
     } catch (err) {
-      console.error('Erreur lors de la copie:', err);
-      alert('Erreur lors de la copie. Veuillez sélectionner et copier manuellement.');
+      console.error("Erreur lors de la copie:", err);
+      alert(
+        "Erreur lors de la copie. Veuillez sélectionner et copier manuellement."
+      );
     }
   };
 
@@ -134,7 +136,8 @@ const EmailAssistant = () => {
             Assistant pour rédaction de courriels aux clients
           </h1>
           <p className="text-lg text-gray-600">
-            Bureau de la traduction - Services publics et Approvisionnement Canada
+            Bureau de la traduction - Services publics et Approvisionnement
+            Canada
           </p>
         </div>
 
@@ -142,21 +145,21 @@ const EmailAssistant = () => {
         <div className="flex justify-center mb-6">
           <div className="bg-white rounded-lg p-1 shadow-sm">
             <button
-              onClick={() => setCurrentView('form')}
+              onClick={() => setCurrentView("form")}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                currentView === 'form'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
+                currentView === "form"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               📝 Rédaction
             </button>
             <button
-              onClick={() => setCurrentView('preview')}
+              onClick={() => setCurrentView("preview")}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                currentView === 'preview'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
+                currentView === "preview"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
               disabled={!generatedEmail}
             >
@@ -178,7 +181,7 @@ const EmailAssistant = () => {
 
           {/* Zone principale - formulaire ou prévisualisation */}
           <div className="lg:col-span-2">
-            {currentView === 'form' ? (
+            {currentView === "form" ? (
               <EmailForm
                 formData={formData}
                 selectedTemplate={selectedTemplate}
@@ -190,7 +193,7 @@ const EmailAssistant = () => {
                 generatedEmail={generatedEmail}
                 formData={formData}
                 onCopyToClipboard={copyToClipboard}
-                onBackToForm={() => setCurrentView('form')}
+                onBackToForm={() => setCurrentView("form")}
               />
             )}
           </div>
@@ -199,12 +202,12 @@ const EmailAssistant = () => {
         {/* Pied de page avec informations */}
         <footer className="mt-12 text-center text-sm text-gray-500">
           <p>
-            Cet outil a été développé pour standardiser et améliorer la qualité 
+            Cet outil a été développé pour standardiser et améliorer la qualité
             des communications avec nos clients.
           </p>
           <p className="mt-1">
-            Pour toute question ou suggestion d'amélioration, 
-            contactez l'équipe de développement.
+            Pour toute question ou suggestion d'amélioration, contactez l'équipe
+            de développement.
           </p>
         </footer>
       </div>
@@ -213,4 +216,3 @@ const EmailAssistant = () => {
 };
 
 export default EmailAssistant;
-

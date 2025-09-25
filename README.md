@@ -10,22 +10,26 @@
 ## 🎯 Fonctionnalités
 
 ### ✨ **NOUVEAU : Surlignage des Variables**
+
 - **Variables automatiquement surlignées** dans les champs d'édition (Objet et Corps)
 - **Identification visuelle en temps réel** des variables `<<nom_variable>>`
 - **Typographie moderne** avec police Inter optimisée
 - **Interface claire et professionnelle** sans superposition de texte
 
 ### ✅ Interface Moderne
+
 - Design élégant avec gradients et animations fluides
 - Interface responsive et optimisée
 - Navigation intuitive et ergonomique
 
 ### ✅ Gestion Multilingue
+
 - **Interface bilingue** : Français/Anglais
 - **Modèles bilingues** : Sélection indépendante de la langue des templates
 - Commutation fluide entre les langues
 
 ### ✅ Badges de Catégorie Colorés
+
 - **Devis et estimations** : Badge bleu
 - **Gestion de projets** : Badge vert
 - **Problèmes techniques** : Badge rouge
@@ -33,17 +37,20 @@
 - **Communications générales** : Badge violet
 
 ### ✅ Validation des Variables
+
 - Validation en temps réel des champs
 - Codes couleur par type de variable
 - Messages de validation avec "OK"
 - Bordures colorées selon l'état
 
 ### ✅ Surlignement des Variables
+
 - Variables surlignées avec couleurs distinctives
 - Identification visuelle par type
 - Aperçu avec variables remplacées
 
 ### ✅ Copie Granulaire
+
 - **Copier le lien** : Partage direct du template
 - **Copier Objet** : Copie uniquement l'objet
 - **Copier Corps** : Copie uniquement le corps du message
@@ -51,6 +58,7 @@
 - **Réinitialiser** : Reset des variables
 
 ### ✅ Fonctionnalités Avancées
+
 - Recherche en temps réel dans les templates
 - Filtrage par catégorie
 - Sauvegarde automatique des préférences
@@ -76,6 +84,7 @@
 ## 🏗️ Architecture Technique
 
 ### Composant VariableEditor
+
 Composant personnalisé pour l'édition avec surlignage des variables :
 
 ```jsx
@@ -88,12 +97,14 @@ Composant personnalisé pour l'édition avec surlignage des variables :
 ```
 
 **Fonctionnalités techniques :**
+
 - Système d'overlay pour le surlignage en temps réel
 - Synchronisation du scroll entre textarea et overlay
 - Détection automatique des variables via regex `/<<([^>]+)>>/g`
 - Typographie moderne avec Inter font et optimisations de rendu
 
 ### Structure du projet
+
 ```
 src/
 ├── components/
@@ -158,6 +169,7 @@ Les modèles d'email se trouvent dans `src/assets/complete_email_templates.json`
 Ce projet est configuré pour un déploiement automatique sur GitHub Pages via GitHub Actions.
 
 Chaque push sur la branche `main` déclenche automatiquement :
+
 1. Installation des dépendances
 2. Build de production
 3. Déploiement sur GitHub Pages
@@ -169,6 +181,7 @@ Ce projet est destiné à un usage interne du Bureau de la traduction.
 ## 🤝 Contribution
 
 Pour ajouter des modèles ou améliorer l'interface :
+
 1. Forkez le repository
 2. Créez une branche pour vos modifications
 3. Testez vos changements localement
@@ -181,4 +194,3 @@ Pour toute question ou problème, contactez l'équipe de développement.
 ---
 
 **Bureau de la traduction** - Assistant pour rédaction de courriels aux clients
-

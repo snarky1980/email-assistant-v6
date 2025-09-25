@@ -5,7 +5,7 @@
     "languages": ["fr", "en"],
     "categories": [
       "Devis et estimations",
-      "Gestion de projets", 
+      "Gestion de projets",
       "Problèmes techniques",
       "Communications générales",
       "Services spécialisés"
@@ -217,7 +217,13 @@
         "fr": "Bonjour,\n\nNous vous remercions pour votre projet <<NuméroProjet>>. Celui-ci est évalué à environ <<NbJours>> jour(s) de travail. L'estimation des coûts s'élève à <<Montant>>$.\n\nLe montant estimé pourrait varier de plus ou moins 10 %, selon l'évaluation finale du volume et de la complexité des documents. Des frais d'urgence de 50 % s'appliqueront si le projet doit être livré dans un délai de moins de <<NbJoursUrgence>> jour(s) ouvrable(s) ou de moins de 24 heures. Le coût révisé serait alors de <<MontantUrgence>> $.\n\nNous vous confirmons que ce projet sera traité uniquement après réception de votre approbation. Afin d'assurer un résultat fidèle et professionnel, et compte tenu de la disponibilité des ressources, la date de livraison pourrait être ajustée une fois l'approbation reçue.\n\nPour toute question ou tout renseignement complémentaire, n'hésitez pas à communiquer avec nous.\n\nBien cordialement,",
         "en": "Hello,\n\nThank you for your project <<NuméroProjet>>. It is estimated at approximately <<NbJours>> working day(s). The cost estimate amounts to $<<Montant>>.\n\nThe estimated amount could vary by plus or minus 10%, depending on the final assessment of the volume and complexity of the documents. Rush fees of 50% will apply if the project must be delivered within less than <<NbJoursUrgence>> business day(s) or less than 24 hours. The revised cost would then be $<<MontantUrgence>>.\n\nWe confirm that this project will be processed only upon receipt of your approval. To ensure an accurate and professional result, and given resource availability, the delivery date may be adjusted once approval is received.\n\nFor any questions or additional information, please do not hesitate to contact us.\n\nBest regards,"
       },
-      "variables": ["NuméroProjet", "NbJours", "Montant", "NbJoursUrgence", "MontantUrgence"]
+      "variables": [
+        "NuméroProjet",
+        "NbJours",
+        "Montant",
+        "NbJoursUrgence",
+        "MontantUrgence"
+      ]
     },
     {
       "id": "devis_sans_approbation",
@@ -280,7 +286,13 @@
         "fr": "Bonjour,\n\nIl nous est difficile de fournir une estimation sans avoir accès au document à traiter. À titre indicatif, un document d'environ <<NbPages>> pages nécessiterait environ <<NbJours>> jour(s) de travail. Les frais estimés se situent autour de <<MontantEstimé>> $.\n\nSi des frais d'urgence s'appliquent — notamment si le projet doit être livré dans un délai de moins de <<NbJoursUrgence>> jour(s) ouvrable(s) ou de moins de 24 heures —, le coût pourrait s'élever à <<MontantUrgence>> $.\n\nPour obtenir une estimation plus précise, nous vous invitons à soumettre un projet dans le système de commande en ligne, en indiquant clairement « devis seulement » dans la section des instructions spéciales.\n\nPour toute question ou information complémentaire, n'hésitez pas à communiquer avec nous.\n\nBien cordialement,",
         "en": "Hello,\n\nIt is difficult for us to provide an estimate without having access to the document to be processed. As an indication, a document of approximately <<NbPages>> pages would require approximately <<NbJours>> working day(s). The estimated fees are around $<<MontantEstimé>>.\n\nIf rush fees apply—particularly if the project must be delivered within less than <<NbJoursUrgence>> business day(s) or less than 24 hours—the cost could rise to $<<MontantUrgence>>.\n\nTo obtain a more accurate estimate, we invite you to submit a project in the online ordering system, clearly indicating \"quote only\" in the special instructions section.\n\nFor any questions or additional information, please do not hesitate to contact us.\n\nBest regards,"
       },
-      "variables": ["NbPages", "NbJours", "MontantEstimé", "NbJoursUrgence", "MontantUrgence"]
+      "variables": [
+        "NbPages",
+        "NbJours",
+        "MontantEstimé",
+        "NbJoursUrgence",
+        "MontantUrgence"
+      ]
     },
     {
       "id": "fichier_pdf_modifiable",
@@ -532,7 +544,12 @@
         "fr": "Bonjour,\n\nNous vous remercions pour votre projet <<NuméroProjet>>.\n\nNous avons remarqué que le document semble être en <<LanguePrésente>> plutôt qu'en <<LangueSource>> comme spécifié dans votre commande. Pour procéder correctement à la traduction vers <<LangueCible>>, nous devons clarifier la langue source.\n\nVeuillez confirmer :\n1. Si le document est effectivement en <<LanguePrésente>> et doit être traduit vers <<LangueCible>>; ou\n2. Si nous devons attendre un document en <<LangueSource>>.\n\nNous procéderons dès réception de votre confirmation.\n\nBien cordialement,",
         "en": "Hello,\n\nThank you for your project <<NuméroProjet>>.\n\nWe noticed that the document appears to be in <<LanguePrésente>> rather than in <<LangueSource>> as specified in your order. To proceed correctly with the translation to <<LangueCible>>, we need to clarify the source language.\n\nPlease confirm:\n1. If the document is indeed in <<LanguePrésente>> and should be translated to <<LangueCible>>; or\n2. If we should wait for a document in <<LangueSource>>.\n\nWe will proceed upon receipt of your confirmation.\n\nBest regards,"
       },
-      "variables": ["NuméroProjet", "LanguePrésente", "LangueSource", "LangueCible"]
+      "variables": [
+        "NuméroProjet",
+        "LanguePrésente",
+        "LangueSource",
+        "LangueCible"
+      ]
     },
     {
       "id": "devis_transcription",
@@ -553,7 +570,13 @@
         "fr": "Bonjour,\n\nNous vous remercions pour votre demande de transcription (projet <<NuméroProjet>>).\n\nSelon notre évaluation préliminaire, les frais de transcription se situeraient entre <<MontantMin>>$ et <<MontantMax>>$, selon la qualité audio et la complexité du contenu.\n\nLe délai estimé est d'environ <<NbJours>> jour(s) de travail. Des frais d'urgence de 50% s'appliqueront pour un délai de moins de <<NbJoursUrgence>> jour(s).\n\nVeuillez confirmer si vous souhaitez procéder avec ce service.\n\nBien cordialement,",
         "en": "Hello,\n\nThank you for your transcription request (project <<NuméroProjet>>).\n\nAccording to our preliminary assessment, transcription fees would range between $<<MontantMin>> and $<<MontantMax>>, depending on audio quality and content complexity.\n\nThe estimated timeframe is approximately <<NbJours>> working day(s). Rush fees of 50% will apply for a deadline of less than <<NbJoursUrgence>> day(s).\n\nPlease confirm if you wish to proceed with this service.\n\nBest regards,"
       },
-      "variables": ["NuméroProjet", "MontantMin", "MontantMax", "NbJours", "NbJoursUrgence"]
+      "variables": [
+        "NuméroProjet",
+        "MontantMin",
+        "MontantMax",
+        "NbJours",
+        "NbJoursUrgence"
+      ]
     },
     {
       "id": "services_langage_clair",
@@ -662,4 +685,3 @@
     }
   ]
 }
-

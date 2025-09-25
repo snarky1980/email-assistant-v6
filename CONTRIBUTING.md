@@ -5,6 +5,7 @@ Merci de votre intérêt pour contribuer à Email Assistant v6 ! Ce guide vous a
 ## 🚀 Démarrage rapide
 
 ### Prérequis
+
 - Node.js 18 ou supérieur
 - npm ou pnpm
 - Git
@@ -27,21 +28,25 @@ npm run dev
 ## 📋 Types de contributions
 
 ### 🐛 Rapports de bugs
+
 - Utilisez les issues GitHub avec le label `bug`
 - Incluez les étapes pour reproduire le problème
 - Précisez votre environnement (OS, navigateur, version)
 
 ### ✨ Nouvelles fonctionnalités
+
 - Ouvrez d'abord une issue pour discuter de la fonctionnalité
 - Attendez l'approbation avant de commencer le développement
 - Suivez les conventions de code existantes
 
 ### 📝 Amélioration de la documentation
+
 - Corrections de typos
 - Clarifications
 - Ajout d'exemples
 
 ### 🎨 Améliorations UI/UX
+
 - Respectez le design system existant
 - Testez sur différentes tailles d'écran
 - Maintenez l'accessibilité
@@ -49,6 +54,7 @@ npm run dev
 ## 🔧 Processus de développement
 
 ### 1. Créer une branche
+
 ```bash
 git checkout -b feature/nom-de-la-fonctionnalite
 # ou
@@ -56,6 +62,7 @@ git checkout -b fix/description-du-bug
 ```
 
 ### 2. Conventions de nommage des branches
+
 - `feature/` : Nouvelles fonctionnalités
 - `fix/` : Corrections de bugs
 - `docs/` : Documentation
@@ -63,6 +70,7 @@ git checkout -b fix/description-du-bug
 - `refactor/` : Refactoring de code
 
 ### 3. Conventions de commits
+
 Utilisez le format [Conventional Commits](https://www.conventionalcommits.org/) :
 
 ```
@@ -75,6 +83,7 @@ style(variables): improve visual contrast for variables
 ```
 
 Types principaux :
+
 - `feat` : Nouvelle fonctionnalité
 - `fix` : Correction de bug
 - `docs` : Documentation
@@ -86,19 +95,21 @@ Types principaux :
 ### 4. Standards de code
 
 #### JavaScript/React
+
 ```jsx
 // ✅ Bon
 const VariableEditor = ({ value, onChange, placeholder }) => {
   const [isFocused, setIsFocused] = useState(false);
-  
-  const handleChange = useCallback((e) => {
-    onChange(e);
-  }, [onChange]);
-  
+
+  const handleChange = useCallback(
+    (e) => {
+      onChange(e);
+    },
+    [onChange]
+  );
+
   return (
-    <div className="editor-container">
-      {/* Composant bien structuré */}
-    </div>
+    <div className="editor-container">{/* Composant bien structuré */}</div>
   );
 };
 
@@ -109,6 +120,7 @@ function variableEditor(props) {
 ```
 
 #### CSS/Styling
+
 - Utilisez TailwindCSS pour les styles
 - Préférez les classes utilitaires aux styles personnalisés
 - Maintenez la cohérence avec le design system
@@ -122,6 +134,7 @@ function variableEditor(props) {
 ```
 
 ### 5. Tests
+
 ```bash
 # Lancer les tests
 npm run test
@@ -136,6 +149,7 @@ npm run build
 ### 6. Pull Request
 
 #### Checklist avant soumission
+
 - [ ] Le code suit les conventions du projet
 - [ ] Les tests passent
 - [ ] La documentation est mise à jour si nécessaire
@@ -143,25 +157,31 @@ npm run build
 - [ ] Le build de production fonctionne
 
 #### Template de Pull Request
+
 ```markdown
 ## Description
+
 Brève description des changements
 
 ## Type de changement
+
 - [ ] Bug fix
 - [ ] Nouvelle fonctionnalité
 - [ ] Breaking change
 - [ ] Documentation
 
 ## Tests
+
 - [ ] Tests unitaires ajoutés/mis à jour
 - [ ] Tests manuels effectués
 - [ ] Build de production testé
 
 ## Screenshots (si applicable)
+
 [Ajoutez des captures d'écran pour les changements visuels]
 
 ## Checklist
+
 - [ ] Code review auto-effectué
 - [ ] Documentation mise à jour
 - [ ] Changements testés
@@ -170,21 +190,25 @@ Brève description des changements
 ## 🎯 Zones de contribution prioritaires
 
 ### 1. Amélioration du VariableEditor
+
 - Performance du surlignage
 - Support de nouveaux types de variables
 - Amélioration de l'accessibilité
 
 ### 2. Templates
+
 - Ajout de nouveaux templates
 - Amélioration des catégories
 - Support de nouvelles langues
 
 ### 3. Interface utilisateur
+
 - Amélioration de l'expérience mobile
 - Nouvelles fonctionnalités d'accessibilité
 - Optimisations de performance
 
 ### 4. Documentation
+
 - Guides d'utilisation
 - Documentation technique
 - Exemples d'intégration

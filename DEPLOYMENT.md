@@ -15,24 +15,28 @@ Ce guide explique comment déployer Email Assistant v6 sur GitHub Pages et autre
 GitHub Pages offre un déploiement gratuit et automatique directement depuis votre repository.
 
 #### Configuration Automatique (Pré-configurée)
+
 Le projet v6 est déjà configuré avec :
+
 - **Workflow GitHub Actions** : `.github/workflows/deploy.yml`
 - **Configuration Vite** : Base path automatique pour GitHub Pages
 - **Package.json** : Scripts et métadonnées optimisés
 
 #### Étapes de déploiement :
+
 1. **Créer le repository** `email-assistant-v6` sur GitHub
 2. **Pousser le code** sur la branche `main`
 3. **Activer GitHub Pages** : Settings > Pages > Source: GitHub Actions
 4. **URL automatique** : `https://[USERNAME].github.io/email-assistant-v6/`
 
 #### Workflow automatique
+
 ```yaml
 # Déjà configuré dans .github/workflows/deploy.yml
 name: Deploy to GitHub Pages
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -46,8 +50,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
       - name: Install dependencies
         run: npm ci
       - name: Build
@@ -61,11 +65,13 @@ jobs:
 Vercel offre un déploiement gratuit et automatique pour les projets React.
 
 #### Déploiement automatique
+
 1. Connectez votre repository GitHub à Vercel
 2. Vercel détecte automatiquement Vite et configure le build
 3. Chaque push sur `main` déclenche un redéploiement
 
 #### Déploiement manuel
+
 ```bash
 # Installer Vercel CLI
 npm i -g vercel
@@ -78,7 +84,9 @@ vercel --prod
 ```
 
 #### Configuration Vercel
+
 Créez un fichier `vercel.json` :
+
 ```json
 {
   "buildCommand": "npm run build",
@@ -90,12 +98,14 @@ Créez un fichier `vercel.json` :
 ### 2. Netlify
 
 #### Via GitHub (Automatique)
+
 1. Connectez votre repository à Netlify
 2. Configuration de build :
    - **Build command**: `npm run build`
    - **Publish directory**: `dist`
 
 #### Via Netlify CLI
+
 ```bash
 # Installer Netlify CLI
 npm install -g netlify-cli
@@ -110,41 +120,44 @@ netlify deploy --prod --dir=dist
 ### 3. GitHub Pages
 
 #### Configuration automatique
+
 Créez `.github/workflows/deploy.yml` :
+
 ```yaml
 name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build
-      run: npm run build
-    
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
 ```
 
 #### Configuration manuelle
+
 ```bash
 # Build du projet
 npm run build
@@ -204,7 +217,9 @@ aws cloudfront create-invalidation --distribution-id VOTRE-DISTRIBUTION-ID --pat
 ## ⚙️ Configuration de Production
 
 ### Variables d'environnement
+
 Créez un fichier `.env.production` :
+
 ```env
 VITE_APP_TITLE=Assistant Modèles de Courriels
 VITE_APP_VERSION=2.0.0
@@ -212,33 +227,37 @@ VITE_API_URL=https://votre-api.com
 ```
 
 ### Optimisations de build
+
 Dans `vite.config.prod.js` :
+
 ```js
 export default defineConfig({
   build: {
-    minify: 'terser',
+    minify: "terser",
     terserOptions: {
       compress: {
         drop_console: true,
-        drop_debugger: true
-      }
+        drop_debugger: true,
+      },
     },
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-select', '@radix-ui/react-dialog']
-        }
-      }
-    }
-  }
-})
+          vendor: ["react", "react-dom"],
+          ui: ["@radix-ui/react-select", "@radix-ui/react-dialog"],
+        },
+      },
+    },
+  },
+});
 ```
 
 ## 🔧 Configuration du Serveur
 
 ### Headers de sécurité
+
 Ajoutez ces headers pour la sécurité :
+
 ```
 Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'
 X-Frame-Options: DENY
@@ -247,7 +266,9 @@ Referrer-Policy: strict-origin-when-cross-origin
 ```
 
 ### Cache
+
 Configuration pour optimiser le cache :
+
 ```
 # Cache des assets statiques (1 an)
 Cache-Control: public, max-age=31536000, immutable
@@ -259,14 +280,21 @@ Cache-Control: public, max-age=3600
 ## 📊 Monitoring
 
 ### Analytics
+
 Ajoutez Google Analytics ou Plausible :
+
 ```html
 <!-- Dans index.html -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+<script
+  async
+  src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"
+></script>
 ```
 
 ### Performance
+
 Utilisez Lighthouse CI pour surveiller les performances :
+
 ```yaml
 # .github/workflows/lighthouse.yml
 name: Lighthouse CI
@@ -287,6 +315,7 @@ jobs:
 ### Problèmes courants
 
 #### 1. Erreur de build
+
 ```bash
 # Nettoyer le cache
 rm -rf node_modules package-lock.json
@@ -295,7 +324,9 @@ npm run build
 ```
 
 #### 2. Problème de routing (SPA)
+
 Configurez les redirections pour les SPA :
+
 ```
 # _redirects (Netlify)
 /*    /index.html   200
@@ -306,6 +337,7 @@ RewriteRule ^(?!.*\.).*$ /index.html [L]
 ```
 
 #### 3. Problème de CORS
+
 Configurez les headers CORS sur votre serveur ou utilisez un proxy.
 
 ## 📈 Optimisations Post-Déploiement

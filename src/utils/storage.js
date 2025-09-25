@@ -1,5 +1,5 @@
 // src/utils/storage.js
-const KEY = 'ea_state_v1';
+const KEY = "ea_state_v1";
 
 export function loadState() {
   try {

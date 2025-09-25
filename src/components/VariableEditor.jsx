@@ -1,12 +1,12 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from "react";
 
-const VariableEditor = ({ 
-  value, 
-  onChange, 
-  placeholder, 
-  minHeight = '60px',
-  className = '',
-  style = {} 
+const VariableEditor = ({
+  value,
+  onChange,
+  placeholder,
+  minHeight = "60px",
+  className = "",
+  style = {},
 }) => {
   const textareaRef = useRef(null);
   const overlayRef = useRef(null);
@@ -22,8 +22,8 @@ const VariableEditor = ({
 
   // Create highlighted text for overlay
   const createHighlightedText = (text) => {
-    if (!text) return '';
-    
+    if (!text) return "";
+
     // Replace variables with highlighted spans
     return text.replace(/<<([^>]+)>>/g, (match, variable) => {
       return `<span class="variable">${match}</span>`;
@@ -47,45 +47,49 @@ const VariableEditor = ({
   }, [value]);
 
   const baseStyle = {
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
-    fontSize: '16px',
-    fontWeight: '400',
-    lineHeight: '1.7',
-    letterSpacing: '0.01em',
+    fontFamily:
+      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+    fontSize: "16px",
+    fontWeight: "400",
+    lineHeight: "1.7",
+    letterSpacing: "0.01em",
     minHeight,
-    border: '3px solid rgb(134 239 172)',
-    borderRadius: '12px',
-    padding: '16px',
-    resize: 'vertical',
-    width: '100%',
-    transition: 'all 0.2s ease-in-out',
-    ...style
+    border: "3px solid rgb(134 239 172)",
+    borderRadius: "12px",
+    padding: "16px",
+    resize: "vertical",
+    width: "100%",
+    transition: "all 0.2s ease-in-out",
+    ...style,
   };
 
   return (
-    <div className={`editor-container ${className}`} style={{ position: 'relative' }}>
+    <div
+      className={`editor-container ${className}`}
+      style={{ position: "relative" }}
+    >
       {/* Overlay for highlighting */}
       <div
         ref={overlayRef}
         className="editor-overlay"
         style={{
           ...baseStyle,
-          position: 'absolute',
+          position: "absolute",
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          pointerEvents: 'none',
-          color: 'transparent',
+          pointerEvents: "none",
+          color: "transparent",
           zIndex: 1,
-          overflow: 'hidden',
-          whiteSpace: 'pre-wrap',
-          wordWrap: 'break-word',
-          background: 'transparent'
+          overflow: "hidden",
+          whiteSpace: "pre-wrap",
+          wordWrap: "break-word",
+          background: "transparent",
         }}
         dangerouslySetInnerHTML={{ __html: createHighlightedText(value) }}
       />
-      
+
       {/* Actual textarea */}
       <textarea
         ref={textareaRef}
@@ -98,14 +102,14 @@ const VariableEditor = ({
         className="editor-textarea"
         style={{
           ...baseStyle,
-          position: 'relative',
+          position: "relative",
           zIndex: 2,
-          background: 'transparent',
-          color: isFocused ? '#000' : '#333',
-          outline: 'none'
+          background: "transparent",
+          color: isFocused ? "#000" : "#333",
+          outline: "none",
         }}
       />
-      
+
       <style jsx>{`
         .editor-overlay .variable {
           background-color: #fef3c7;

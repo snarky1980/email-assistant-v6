@@ -1,11 +1,11 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import path from 'path'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
 // Configuration Vite pour la production
 export default defineConfig({
-  base: '/email-assistant-v6/', // Base path for GitHub Pages deployment
+  base: "/email-assistant-v6/", // Base path for GitHub Pages deployment
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -13,21 +13,20 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
+    outDir: "dist",
+    assetsDir: "assets",
     sourcemap: false,
-    minify: 'esbuild'
+    minify: "esbuild",
   },
   server: {
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     port: 5174,
     strictPort: false,
-    allowedHosts: 'all',
+    allowedHosts: "all",
   },
   preview: {
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     port: 5175,
     strictPort: false,
   },
-})
-
+});

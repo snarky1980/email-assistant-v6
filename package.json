@@ -9,7 +9,13 @@
     "type": "git",
     "url": "https://github.com/snarky1980/email-assistant-v6.git"
   },
-  "keywords": ["react", "email", "templates", "vite", "tailwind"],
+  "keywords": [
+    "react",
+    "email",
+    "templates",
+    "vite",
+    "tailwind"
+  ],
   "author": "Email Assistant Team",
   "license": "MIT",
   "scripts": {

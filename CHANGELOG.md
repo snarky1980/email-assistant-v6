@@ -8,6 +8,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [6.0.0] - 2024-09-23
 
 ### ✨ Ajouté
+
 - **Surlignage intelligent perfectionné** : Toutes les variables sont maintenant surlignées avec précision
 - **Mode lecture/édition** : Interface intuitive pour basculer entre visualisation et édition
 - **Scrollbar permanente** : Navigation améliorée dans la liste des modèles avec scrollbar toujours visible
@@ -17,6 +18,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Configuration GitHub Pages** : Déploiement automatique via GitHub Actions
 
 ### 🔧 Amélioré
+
 - **Performance de rendu** : Optimisation majeure de l'algorithme de surlignage
 - **Interface utilisateur** : Suppression complète des artefacts visuels parasites
 - **Expérience utilisateur** : Navigation plus fluide et découverte améliorée des modèles
@@ -24,6 +26,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Accessibilité** : Contraste et lisibilité optimisés
 
 ### 🐛 Corrigé
+
 - **Surlignage manquant** : Variables courtes (1-2 caractères) maintenant détectées
 - **Artefacts visuels** : Suppression des points/ronds parasites dans les champs de saisie
 - **Alignement** : Correction du décalage entre surlignage et texte
@@ -31,6 +34,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Formatage spécial** : Gestion correcte des nombres suivis de symboles ($, €)
 
 ### 🗑️ Supprimé
+
 - **Validations redondantes** : Suppression des messages "Valide/Requis" encombrants
 - **Overlay complexe** : Remplacement par une solution plus simple et fiable
 - **Filtres restrictifs** : Suppression des limitations sur les variables courtes
@@ -38,6 +42,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [2.0.0] - 2024-09-15
 
 ### ✨ Ajouté
+
 - **Surlignage des variables en temps réel** dans les champs d'édition (Objet et Corps)
 - **Composant VariableEditor personnalisé** avec système d'overlay pour le surlignage
 - **Typographie moderne** avec police Inter et optimisations de rendu
@@ -47,6 +52,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Documentation technique complète** avec exemples de code
 
 ### 🎨 Amélioré
+
 - **Police Inter** avec font-feature-settings optimisées
 - **Espacement des lettres** et hauteur de ligne améliorés
 - **Rendu des polices** avec antialiasing et optimisations
@@ -55,12 +61,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Performance** du rendu des composants
 
 ### 🔧 Technique
+
 - Remplacement de `@uiw/react-textarea-code-editor` par `VariableEditor` personnalisé
 - Amélioration des styles CSS avec typographie moderne
 - Optimisation des performances de rendu
 - Code mieux documenté et maintenable
 
 ### 🐛 Corrigé
+
 - Variables non surlignées dans les champs d'édition
 - Problèmes de lisibilité avec l'ancienne typographie
 - Incohérences dans le rendu des polices
@@ -68,6 +76,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [1.0.0] - 2024-09-13
 
 ### ✨ Ajouté
+
 - **Interface multilingue** (Français/Anglais)
 - **Gestion des templates** avec recherche et filtrage
 - **Validation des variables** en temps réel
@@ -80,12 +89,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Système de variables** avec types et validation
 
 ### 🎨 Design
+
 - Interface élégante avec gradients et animations
 - Navigation intuitive et ergonomique
 - Codes couleur par type de variable
 - Messages de validation avec indicateurs visuels
 
 ### 🛠️ Technologies
+
 - React 18 avec hooks modernes
 - Vite pour le build et développement
 - TailwindCSS pour les styles
@@ -95,6 +106,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ---
 
 ## Types de changements
+
 - `✨ Ajouté` pour les nouvelles fonctionnalités
 - `🎨 Amélioré` pour les changements dans les fonctionnalités existantes
 - `🐛 Corrigé` pour les corrections de bugs
