@@ -4,10 +4,10 @@
   "version": "6.0.0",
   "type": "module",
   "description": "Application React moderne pour la génération d'emails professionnels avec surlignage intelligent des variables",
-  "homepage": "https://[username].github.io/email-assistant-v6",
+  "homepage": "https://snarky1980.github.io/email-assistant-v6",
   "repository": {
     "type": "git",
-    "url": "https://github.com/[username]/email-assistant-v6.git"
+    "url": "https://github.com/snarky1980/email-assistant-v6.git"
   },
   "keywords": ["react", "email", "templates", "vite", "tailwind"],
   "author": "Email Assistant Team",

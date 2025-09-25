@@ -5,7 +5,7 @@ import path from 'path'
 
 // Configuration Vite pour la production
 export default defineConfig({
-  base: '/', // Changé de '/email-assistant/' à '/' pour le déploiement
+  base: '/email-assistant-v6/', // Base path for GitHub Pages deployment
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
