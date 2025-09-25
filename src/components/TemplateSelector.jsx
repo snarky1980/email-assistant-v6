@@ -92,16 +92,15 @@ const TemplateSelector = ({
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-800";
+        return "text-white font-bold";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "text-white font-bold"; 
       case "low":
-        return "bg-green-100 text-green-800";
+        return "text-white font-bold";
       default:
-        // Fallback avec couleurs Bureau de la traduction
-        return `text-white`;
+        return "text-white font-bold";
       case 'unknown':
-        return `text-white`;
+        return "text-white font-bold";
     }
   };
 
