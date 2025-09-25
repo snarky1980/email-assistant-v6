@@ -56,7 +56,7 @@ const customEditorStyles = `
     background: var(--tb-light-blue);
     position: relative;
     overflow: hidden;
-    min-height: 110px;
+    min-height: 96px;
   }
 
   /* Modern typography base */
@@ -168,6 +168,12 @@ const customEditorStyles = `
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
     font-weight: 400;
     letter-spacing: 0.01em;
+  }
+
+  /* Responsive viewport-fitted panels for better ergonomics on desktop */
+  @media (min-width: 1024px) {
+    .viewport-panel { height: calc(100vh - 240px); }
+    .viewport-scroll { height: calc(100vh - 240px); overflow: auto; }
   }
 `;
 
@@ -866,11 +872,11 @@ function App() {
           </header>
 
           {/* Contenu principal */}
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ backgroundColor: 'var(--background)', borderRadius: '20px' }}>
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <main className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 py-6" style={{ backgroundColor: 'var(--background)', borderRadius: '20px' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
               {/* Panneau de gauche - Liste des modèles */}
-              <div className="lg:col-span-2 lg:max-w-md">
-                <Card className="h-full shadow-xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
+              <div className="lg:col-span-2 lg:max-w-[420px]">
+                <Card className="h-full shadow-xl border-0 overflow-hidden relative viewport-panel" style={{ backgroundColor: 'white' }}>
                   {/* Backdrop to fill rounded top corners with teal */}
                   <div className="absolute inset-x-0 top-0" style={{ height: '96px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
                   <CardHeader className="pb-4 relative z-10" style={{ backgroundColor: 'transparent' }}>
@@ -989,11 +995,8 @@ function App() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="p-0">
-                    <ScrollArea
-                      className="h-[600px]"
-                      style={{ "--scrollbar-width": "8px" }}
-                    >
+                  <CardContent className="p-0 viewport-scroll">
+                    <ScrollArea className="h-full" style={{ "--scrollbar-width": "8px" }}>
                       <div className="space-y-3 p-4 relative">
                         {/* Indicateur de scroll en bas */}
                         {filteredTemplates.length > 6 && (
@@ -1039,7 +1042,7 @@ function App() {
               </div>
 
               {/* Panneau de droite - Édition */}
-              <div className="lg:col-span-3 space-y-6">
+              <div className="lg:col-span-3 space-y-5 lg:space-y-6">
                 {selectedTemplate ? (
                   <>
                     {/* Variables avec style moderne */}
@@ -1125,7 +1128,7 @@ function App() {
                       )}
 
                     {/* Version éditable - ZONE PRINCIPALE */}
-                        <Card className="shadow-2xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
+                        <Card className="shadow-2xl border-0 overflow-hidden relative viewport-panel" style={{ backgroundColor: 'white' }}>
                       {/* Fill header gap on editors card */}
                       <div className="absolute inset-x-0 top-0" style={{ height: '76px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
                       <CardHeader className="relative z-10" style={{ backgroundColor: 'transparent' }}>
@@ -1134,7 +1137,7 @@ function App() {
                           {t.editEmail}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="p-6 space-y-6">
+                      <CardContent className="p-6 space-y-5 lg:space-y-6 viewport-scroll">
                         {/* Objet éditable avec aperçu surlignement */}
                         <div className="space-y-3">
                           <label className="text-lg font-bold text-[var(--tb-navy)]">
@@ -1160,7 +1163,7 @@ function App() {
                             onChange={(e) => setFinalBody(e.target.value)}
                             variables={variables}
                             placeholder={t.body}
-                            minHeight="250px"
+                            minHeight="340px"
                             style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
                           />
                         </div>
