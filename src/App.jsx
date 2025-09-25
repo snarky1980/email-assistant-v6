@@ -738,22 +738,24 @@ function App() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-6">
-                  {/* Icône avec style organique */}
+                  {/* Icône avec bold impact - solide */}
                   <div className="relative">
                     <div 
-                      className="p-4 shadow-lg"
+                      className="p-6 shadow-2xl transform hover:scale-110 transition-transform duration-300"
                       style={{ 
-                        backgroundColor: 'var(--tb-teal)',
-                        borderRadius: '28px',
+                        backgroundColor: 'var(--tb-navy)',
+                        borderRadius: '40px',
+                        boxShadow: '0 25px 50px rgba(26, 54, 93, 0.4)'
                       }}
                     >
-                      <Mail className="h-10 w-10 text-white" />
+                      <Mail className="h-14 w-14 text-white" />
                     </div>
                     <div 
-                      className="absolute -top-2 -right-2 w-6 h-6"
+                      className="absolute -top-4 -right-4 w-10 h-10"
                       style={{ 
                         backgroundColor: 'var(--tb-lime)',
-                        borderRadius: '50%'
+                        borderRadius: '50%',
+                        boxShadow: '0 8px 25px rgba(190, 242, 100, 0.7)'
                       }}
                     ></div>
                   </div>
@@ -769,49 +771,48 @@ function App() {
                   </div>
                 </div>
 
-                {/* Sélecteur de langue avec style organique */}
+                {/* Sélecteur de langue avec punch - solide */}
                 <div 
-                  className="flex items-center space-x-4 px-6 py-4 shadow-lg"
+                  className="flex items-center space-x-4 px-8 py-5 shadow-2xl"
                   style={{ 
-                    backgroundColor: 'var(--tb-light-blue)',
-                    borderRadius: '25px',
-                    color: 'var(--tb-navy)'
+                    backgroundColor: 'var(--tb-teal)',
+                    borderRadius: '30px'
                   }}
                 >
-                  <Globe className="h-6 w-6" style={{ color: 'var(--tb-teal)' }} />
-                  <span className="font-bold text-sm">
+                  <Globe className="h-8 w-8 text-white" />
+                  <span className="font-bold text-base text-white">
                     {t.interfaceLanguage}
                   </span>
-                  <div className="flex bg-white p-1 shadow-sm" style={{ borderRadius: '15px' }}>
+                  <div className="flex bg-white p-2 shadow-lg" style={{ borderRadius: '20px' }}>
                     <button
                       onClick={() => setInterfaceLanguage("fr")}
-                      className={`px-4 py-2 text-sm font-bold transition-all duration-200 ${
+                      className={`px-6 py-3 text-sm font-bold transition-all duration-200 transform ${
                         interfaceLanguage === "fr"
-                          ? "text-white shadow-sm"
-                          : ""
+                          ? "text-white shadow-xl scale-105"
+                          : "hover:scale-105"
                       }`}
                       style={{
                         backgroundColor: interfaceLanguage === "fr" ? 'var(--tb-navy)' : 'transparent',
                         color: interfaceLanguage === "fr" ? 'white' : 'var(--tb-navy)',
-                        borderRadius: '12px'
+                        borderRadius: '16px'
                       }}
                     >
-                      🇫🇷 FR
+                      FR
                     </button>
                     <button
                       onClick={() => setInterfaceLanguage("en")}
-                      className={`px-4 py-2 text-sm font-bold transition-all duration-200 ${
+                      className={`px-6 py-3 text-sm font-bold transition-all duration-200 transform ${
                         interfaceLanguage === "en"
-                          ? "text-white shadow-sm"
-                          : ""
+                          ? "text-white shadow-xl scale-105"
+                          : "hover:scale-105"
                       }`}
                       style={{
                         backgroundColor: interfaceLanguage === "en" ? 'var(--tb-navy)' : 'transparent',
                         color: interfaceLanguage === "en" ? 'white' : 'var(--tb-navy)',
-                        borderRadius: '12px'
+                        borderRadius: '16px'
                       }}
                     >
-                      🇬🇧 EN
+                      EN
                     </button>
                   </div>
                 </div>

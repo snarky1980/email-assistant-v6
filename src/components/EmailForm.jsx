@@ -163,15 +163,15 @@ const EmailForm = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm">
-      {/* En-tête du formulaire */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">
+    <div className="bg-white rounded-lg shadow-lg border-2" style={{ borderColor: 'var(--tb-mint)' }}>
+      {/* En-tête du formulaire avec couleurs Bureau de la traduction */}
+      <div className="px-6 py-4" style={{ backgroundColor: 'var(--tb-navy)', color: 'white' }}>
+        <h2 className="text-xl font-bold text-white">
           📝 Personnalisation de l'email
         </h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-white/90 mt-1">
           Modèle sélectionné:{" "}
-          <span className="font-medium">{selectedTemplate.name}</span>
+          <span className="font-bold" style={{ color: 'var(--tb-lime)' }}>{selectedTemplate.name}</span>
         </p>
       </div>
 
@@ -181,9 +181,10 @@ const EmailForm = ({
         <div>
           <label
             htmlFor="clientName"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-bold mb-2"
+            style={{ color: 'var(--tb-navy)' }}
           >
-            Nom du client <span className="text-red-500">*</span>
+            Nom du client <span style={{ color: '#dc2626' }}>*</span>
           </label>
           <input
             type="text"
@@ -192,9 +193,23 @@ const EmailForm = ({
             value={formData.clientName || ""}
             onChange={handleInputChange}
             placeholder="Ex: Madame Dupont, Monsieur Martin..."
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-              fieldErrors.clientName ? "border-red-500" : "border-gray-300"
-            }`}
+            className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all"
+            style={{
+              borderColor: fieldErrors.clientName ? '#dc2626' : 'var(--tb-mint)',
+              backgroundColor: 'white'
+            }}
+            onFocus={(e) => {
+              if (!fieldErrors.clientName) {
+                e.target.style.borderColor = 'var(--tb-teal)';
+                e.target.style.boxShadow = `0 0 0 3px rgba(8, 145, 178, 0.1)`;
+              }
+            }}
+            onBlur={(e) => {
+              if (!fieldErrors.clientName) {
+                e.target.style.borderColor = 'var(--tb-mint)';
+                e.target.style.boxShadow = 'none';
+              }
+            }}
           />
           {fieldErrors.clientName && (
             <p className="mt-1 text-sm text-red-600">
@@ -207,9 +222,10 @@ const EmailForm = ({
         <div>
           <label
             htmlFor="subject"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-bold mb-2"
+            style={{ color: 'var(--tb-navy)' }}
           >
-            Sujet de l'email <span className="text-red-500">*</span>
+            Sujet de l'email <span style={{ color: '#dc2626' }}>*</span>
           </label>
           <input
             type="text"
@@ -219,9 +235,23 @@ const EmailForm = ({
             onChange={handleInputChange}
             placeholder="Sujet de votre email..."
             maxLength={100}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-              fieldErrors.subject ? "border-red-500" : "border-gray-300"
-            }`}
+            className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all"
+            style={{
+              borderColor: fieldErrors.subject ? '#dc2626' : 'var(--tb-mint)',
+              backgroundColor: 'white'
+            }}
+            onFocus={(e) => {
+              if (!fieldErrors.subject) {
+                e.target.style.borderColor = 'var(--tb-teal)';
+                e.target.style.boxShadow = `0 0 0 3px rgba(8, 145, 178, 0.1)`;
+              }
+            }}
+            onBlur={(e) => {
+              if (!fieldErrors.subject) {
+                e.target.style.borderColor = 'var(--tb-mint)';
+                e.target.style.boxShadow = 'none';
+              }
+            }}
           />
           <div className="flex justify-between mt-1">
             {fieldErrors.subject ? (
@@ -277,7 +307,8 @@ const EmailForm = ({
         <div>
           <label
             htmlFor="urgency"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-bold mb-2"
+            style={{ color: 'var(--tb-navy)' }}
           >
             Niveau d'urgence
           </label>
@@ -286,7 +317,19 @@ const EmailForm = ({
             name="urgency"
             value={formData.urgency || "normal"}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all"
+            style={{
+              borderColor: 'var(--tb-mint)',
+              backgroundColor: 'white'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--tb-teal)';
+              e.target.style.boxShadow = `0 0 0 3px rgba(8, 145, 178, 0.1)`;
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--tb-mint)';
+              e.target.style.boxShadow = 'none';
+            }}
           >
             <option value="low">🟢 Faible - Réponse non urgente</option>
             <option value="normal">
@@ -294,7 +337,7 @@ const EmailForm = ({
             </option>
             <option value="high">🔴 Élevé - Réponse requise rapidement</option>
           </select>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm" style={{ color: 'var(--tb-teal)' }}>
             Ceci affectera la signature et le ton de l'email
           </p>
         </div>
@@ -303,7 +346,8 @@ const EmailForm = ({
         <div>
           <label
             htmlFor="language"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-bold mb-2"
+            style={{ color: 'var(--tb-navy)' }}
           >
             Langue de l'email
           </label>
@@ -312,40 +356,77 @@ const EmailForm = ({
             name="language"
             value={formData.language || "fr"}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all"
+            style={{
+              borderColor: 'var(--tb-mint)',
+              backgroundColor: 'white'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--tb-teal)';
+              e.target.style.boxShadow = `0 0 0 3px rgba(8, 145, 178, 0.1)`;
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--tb-mint)';
+              e.target.style.boxShadow = 'none';
+            }}
           >
-            <option value="fr">🇫🇷 Français</option>
-            <option value="en">🇬🇧 English</option>
+            <option value="fr">Français</option>
+            <option value="en">English</option>
           </select>
         </div>
 
         {/* Boutons d'action */}
-        <div className="flex justify-between pt-4 border-t border-gray-200">
+        <div className="flex justify-between pt-6 border-t-2" style={{ borderColor: 'var(--tb-mint)' }}>
           <button
             type="button"
             onClick={handleReset}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="px-6 py-3 text-sm font-bold rounded-lg transition-all duration-200 hover:scale-105 border-2"
+            style={{
+              color: 'var(--tb-navy)',
+              backgroundColor: 'white',
+              borderColor: 'var(--tb-mint)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = 'var(--tb-light-blue)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'white';
+            }}
           >
             🔄 Réinitialiser
           </button>
 
           <button
             type="submit"
-            className="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-3 text-sm font-bold text-white rounded-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            style={{
+              backgroundColor: 'var(--tb-teal)',
+              boxShadow: '0 4px 12px rgba(8, 145, 178, 0.3)'
+            }}
             disabled={!formData.clientName || !formData.subject}
+            onMouseEnter={(e) => {
+              if (!e.target.disabled) {
+                e.target.style.backgroundColor = 'var(--tb-navy)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.target.disabled) {
+                e.target.style.backgroundColor = 'var(--tb-teal)';
+              }
+            }}
           >
             ✨ Générer l'email
           </button>
         </div>
 
         {/* Message d'aide */}
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+        <div className="border-2 rounded-lg p-5" style={{ backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}>
           <div className="flex">
             <div className="flex-shrink-0">
-              <span className="text-blue-400 text-xl">💡</span>
+              <span className="text-2xl">💡</span>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">
+              <h3 className="text-sm font-bold" style={{ color: 'var(--tb-navy)' }}>
                 Conseils pour un email efficace
               </h3>
               <div className="mt-2 text-sm text-blue-700">

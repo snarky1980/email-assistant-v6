@@ -106,24 +106,25 @@ const TemplateSelector = ({
   const availableCategories = getAvailableCategories();
 
   return (
-    <div className="bg-white rounded-lg shadow-sm">
-      {/* En-tête */}
-      <div className="px-4 py-3 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">
+    <div className="bg-white rounded-lg shadow-lg border-2" style={{ borderColor: 'var(--tb-mint)' }}>
+      {/* En-tête avec couleurs Bureau de la traduction */}
+      <div className="px-6 py-4" style={{ backgroundColor: 'var(--tb-teal)', color: 'white' }}>
+        <h2 className="text-xl font-bold text-white">
           📚 Modèles d'emails
         </h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-white/90 mt-1">
           Sélectionnez un modèle adapté à votre situation
         </p>
       </div>
 
-      {/* Filtres */}
-      <div className="p-4 space-y-3 border-b border-gray-200 bg-gray-50">
+      {/* Filtres avec style coloré */}
+      <div className="p-4 space-y-3 border-b-2" style={{ backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}>
         {/* Recherche */}
         <div>
           <label
             htmlFor="search"
-            className="block text-xs font-medium text-gray-700 mb-1"
+            className="block text-xs font-bold mb-1"
+            style={{ color: 'var(--tb-navy)' }}
           >
             Rechercher
           </label>
@@ -133,7 +134,19 @@ const TemplateSelector = ({
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
             placeholder="Nom, description, mots-clés..."
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-3 text-sm border-2 rounded-lg focus:outline-none transition-all"
+            style={{
+              borderColor: 'var(--tb-mint)',
+              backgroundColor: 'white'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--tb-teal)';
+              e.target.style.boxShadow = `0 0 0 3px rgba(8, 145, 178, 0.1)`;
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--tb-mint)';
+              e.target.style.boxShadow = 'none';
+            }}
           />
         </div>
 
@@ -141,7 +154,8 @@ const TemplateSelector = ({
         <div>
           <label
             htmlFor="category"
-            className="block text-xs font-medium text-gray-700 mb-1"
+            className="block text-xs font-bold mb-1"
+            style={{ color: 'var(--tb-navy)' }}
           >
             Catégorie
           </label>
@@ -149,7 +163,19 @@ const TemplateSelector = ({
             id="category"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-3 text-sm border-2 rounded-lg focus:outline-none transition-all"
+            style={{
+              borderColor: 'var(--tb-mint)',
+              backgroundColor: 'white'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--tb-teal)';
+              e.target.style.boxShadow = `0 0 0 3px rgba(8, 145, 178, 0.1)`;
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--tb-mint)';
+              e.target.style.boxShadow = 'none';
+            }}
           >
             <option value="all">Toutes les catégories</option>
             {availableCategories.map((category) => (
@@ -167,7 +193,7 @@ const TemplateSelector = ({
         {filteredTemplates.length === 0 ? (
           <div className="p-6 text-center">
             <div className="text-4xl mb-2">🔍</div>
-            <p className="text-gray-600">
+            <p className="text-sm mb-3" style={{ color: 'var(--tb-navy)' }}>
               Aucun modèle trouvé pour ces critères
             </p>
             <button
@@ -175,7 +201,11 @@ const TemplateSelector = ({
                 setSearchFilter("");
                 setCategoryFilter("all");
               }}
-              className="mt-2 text-sm text-blue-600 hover:text-blue-800"
+              className="px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 hover:scale-105"
+              style={{ 
+                backgroundColor: 'var(--tb-teal)', 
+                color: 'white' 
+              }}
             >
               Réinitialiser les filtres
             </button>
@@ -186,11 +216,22 @@ const TemplateSelector = ({
               <div
                 key={template.id || index}
                 onClick={() => onTemplateSelect(template)}
-                className={`p-4 cursor-pointer transition-colors hover:bg-gray-50 ${
-                  selectedTemplate?.id === template.id
-                    ? "bg-blue-50 border-r-4 border-blue-500"
-                    : ""
-                }`}
+                className="p-5 cursor-pointer transition-all duration-200 hover:transform hover:scale-[1.02]"
+                style={{
+                  backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white',
+                  borderRight: selectedTemplate?.id === template.id ? `6px solid var(--tb-teal)` : 'none',
+                  boxShadow: selectedTemplate?.id === template.id ? '0 4px 12px rgba(8, 145, 178, 0.15)' : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedTemplate?.id !== template.id) {
+                    e.currentTarget.style.backgroundColor = 'var(--tb-light-blue)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedTemplate?.id !== template.id) {
+                    e.currentTarget.style.backgroundColor = 'white';
+                  }
+                }}
               >
                 {/* En-tête du modèle */}
                 <div className="flex items-start justify-between mb-2">
@@ -198,7 +239,7 @@ const TemplateSelector = ({
                     <span className="text-lg">
                       {getCategoryIcon(template.category)}
                     </span>
-                    <h3 className="font-medium text-gray-900 text-sm">
+                    <h3 className="font-bold text-sm" style={{ color: 'var(--tb-navy)' }}>
                       {template.name}
                     </h3>
                   </div>
@@ -220,7 +261,7 @@ const TemplateSelector = ({
                 </div>
 
                 {/* Description */}
-                <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                <p className="text-sm mb-2 line-clamp-2" style={{ color: 'var(--tb-navy)' }}>
                   {template.description}
                 </p>
 
@@ -230,13 +271,17 @@ const TemplateSelector = ({
                     {template.tags.slice(0, 3).map((tag, tagIndex) => (
                       <span
                         key={tagIndex}
-                        className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full"
+                        className="px-2 py-1 text-xs rounded-full"
+                        style={{ 
+                          backgroundColor: 'var(--tb-mint)', 
+                          color: 'var(--tb-navy)' 
+                        }}
                       >
                         {tag}
                       </span>
                     ))}
                     {template.tags.length > 3 && (
-                      <span className="px-2 py-1 text-xs text-gray-500">
+                      <span className="px-2 py-1 text-xs" style={{ color: 'var(--tb-teal)' }}>
                         +{template.tags.length - 3}
                       </span>
                     )}
@@ -244,7 +289,7 @@ const TemplateSelector = ({
                 )}
 
                 {/* Métadonnées */}
-                <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center justify-between text-xs" style={{ color: 'var(--tb-teal)' }}>
                   <span>Catégorie: {template.category}</span>
                   {template.estimatedTime && (
                     <span>⏱️ {template.estimatedTime} min</span>

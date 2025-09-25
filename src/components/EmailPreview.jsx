@@ -161,21 +161,32 @@ const EmailPreview = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm">
-      {/* En-tête de la prévisualisation */}
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className="bg-white rounded-lg shadow-lg border-2" style={{ borderColor: 'var(--tb-mint)' }}>
+      {/* En-tête de la prévisualisation avec couleurs Bureau de la traduction */}
+      <div className="px-6 py-4" style={{ backgroundColor: 'var(--tb-lime)', color: 'var(--tb-navy)' }}>
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-bold" style={{ color: 'var(--tb-navy)' }}>
               👁️ Prévisualisation de l'email
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm mt-1" style={{ color: 'var(--tb-navy)' }}>
               Vérifiez le contenu avant de l'utiliser
             </p>
           </div>
           <button
             onClick={onBackToForm}
-            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50"
+            className="px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 hover:scale-105 border-2"
+            style={{
+              color: 'var(--tb-navy)',
+              backgroundColor: 'white',
+              borderColor: 'var(--tb-navy)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = 'var(--tb-light-blue)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'white';
+            }}
           >
             ← Modifier
           </button>
@@ -183,25 +194,25 @@ const EmailPreview = ({
       </div>
 
       {/* Métadonnées de l'email */}
-      <div className="px-6 py-3 bg-gray-50 border-b border-gray-200">
+      <div className="px-6 py-4 border-b-2" style={{ backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <span className="text-gray-500">Mots:</span>
-            <span className="ml-1 font-medium">{metadata.wordCount}</span>
+            <span className="font-medium" style={{ color: 'var(--tb-teal)' }}>Mots:</span>
+            <span className="ml-1 font-bold" style={{ color: 'var(--tb-navy)' }}>{metadata.wordCount}</span>
           </div>
           <div>
-            <span className="text-gray-500">Caractères:</span>
-            <span className="ml-1 font-medium">{metadata.charCount}</span>
+            <span className="font-medium" style={{ color: 'var(--tb-teal)' }}>Caractères:</span>
+            <span className="ml-1 font-bold" style={{ color: 'var(--tb-navy)' }}>{metadata.charCount}</span>
           </div>
           <div>
-            <span className="text-gray-500">Lecture:</span>
-            <span className="ml-1 font-medium">
+            <span className="font-medium" style={{ color: 'var(--tb-teal)' }}>Lecture:</span>
+            <span className="ml-1 font-bold" style={{ color: 'var(--tb-navy)' }}>
               {metadata.estimatedReadTime} min
             </span>
           </div>
           <div>
-            <span className="text-gray-500">Urgence:</span>
-            <span className="ml-1 font-medium">{metadata.urgency}</span>
+            <span className="font-medium" style={{ color: 'var(--tb-teal)' }}>Urgence:</span>
+            <span className="ml-1 font-bold" style={{ color: 'var(--tb-navy)' }}>{metadata.urgency}</span>
           </div>
         </div>
       </div>
@@ -210,11 +221,11 @@ const EmailPreview = ({
       <div className="p-6">
         <div className="border border-gray-200 rounded-lg overflow-hidden">
           {/* En-tête de l'email simulé */}
-          <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
+          <div className="px-4 py-3 border-b-2" style={{ backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}>
             <div className="space-y-2 text-sm">
               <div className="flex">
-                <span className="text-gray-600 w-16">De:</span>
-                <span className="text-gray-900">
+                <span className="font-medium w-16" style={{ color: 'var(--tb-teal)' }}>De:</span>
+                <span className="font-bold" style={{ color: 'var(--tb-navy)' }}>
                   Bureau de la traduction &lt;traduction@canada.ca&gt;
                 </span>
               </div>
