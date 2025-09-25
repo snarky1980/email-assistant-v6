@@ -940,7 +940,7 @@ function App() {
                       <div className="space-y-3 p-4 relative">
                         {/* Indicateur de scroll en bas */}
                         {filteredTemplates.length > 6 && (
-                          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-10 flex items-end justify-center pb-1">
+                          <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none z-10 flex items-end justify-center pb-1" style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}>
                             <div className="text-xs px-2 py-1 rounded-full shadow-sm border-2" style={{ color: 'var(--tb-navy)', backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}>
                               ↓ {filteredTemplates.length - 6}+ autres modèles
                             </div>
@@ -1038,7 +1038,7 @@ function App() {
                                       <label className="text-xs font-semibold flex items-center" style={{ color: '#1e3a5f' }}>
                                         <span
                                           className="w-2 h-2 rounded-full mr-1.5"
-                                          style={{ backgroundColor: '#c4d97b' }}
+                                          style={{ backgroundColor: '#93b768' }}
                                         ></span>
                                         {varInfo.description[interfaceLanguage]}
                                       </label>
@@ -1084,8 +1084,8 @@ function App() {
                       )}
 
                     {/* Version éditable - ZONE PRINCIPALE */}
-                    <Card className="shadow-2xl border-0 bg-gradient-to-br from-white to-green-50 overflow-hidden">
-                      <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50">
+                    <Card className="shadow-2xl border-2 overflow-hidden" style={{ backgroundColor: 'white', borderColor: '#2dd4bf' }}>
+                      <CardHeader style={{ backgroundColor: '#2dd4bf' }}>
                         <CardTitle className="text-2xl font-bold text-gray-800 flex items-center">
                           <Mail className="h-7 w-7 mr-3 text-green-600" />
                           {t.editEmail}
@@ -1231,7 +1231,7 @@ function App() {
                     </div>
                   </>
                 ) : (
-                  <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
+                  <Card className="shadow-xl border-2" style={{ backgroundColor: '#f8fafc', borderColor: '#dbeafe' }}>
                     <CardContent className="flex items-center justify-center h-80">
                       <div className="text-center">
                         <div className="relative mb-6">
