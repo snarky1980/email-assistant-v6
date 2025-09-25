@@ -890,29 +890,31 @@ function App() {
                     </div>
 
                     {/* Langue des modèles avec style moderne */}
-                    <div className="flex items-center space-x-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-3">
-                      <Languages className="h-5 w-5 text-indigo-600" />
-                      <span className="text-sm font-semibold text-gray-700">
+                    <div className="flex items-center space-x-3 rounded-lg p-3" style={{ backgroundColor: 'var(--tb-light-blue)' }}>
+                      <Languages className="h-5 w-5" style={{ color: 'var(--tb-teal)' }} />
+                      <span className="text-sm font-semibold" style={{ color: 'var(--tb-navy)' }}>
                         {t.templateLanguage}:
                       </span>
                       <div className="flex bg-white rounded-lg p-1 shadow-sm">
                         <button
                           onClick={() => setTemplateLanguage("fr")}
-                          className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${
-                            templateLanguage === "fr"
-                              ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg transform scale-105"
-                              : "text-gray-600 hover:bg-gray-100"
-                          }`}
+                          className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300`}
+                          style={{
+                            backgroundColor: templateLanguage === "fr" ? 'var(--tb-teal)' : 'transparent',
+                            color: templateLanguage === "fr" ? 'white' : 'var(--tb-navy)',
+                            transform: templateLanguage === "fr" ? 'scale(1.05)' : 'scale(1)'
+                          }}
                         >
                           FR
                         </button>
                         <button
                           onClick={() => setTemplateLanguage("en")}
-                          className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${
-                            templateLanguage === "en"
-                              ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg transform scale-105"
-                              : "text-gray-600 hover:bg-gray-100"
-                          }`}
+                          className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300`}
+                          style={{
+                            backgroundColor: templateLanguage === "en" ? 'var(--tb-teal)' : 'transparent',
+                            color: templateLanguage === "en" ? 'white' : 'var(--tb-navy)',
+                            transform: templateLanguage === "en" ? 'scale(1.05)' : 'scale(1)'
+                          }}
                         >
                           EN
                         </button>
