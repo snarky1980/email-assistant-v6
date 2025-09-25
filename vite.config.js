@@ -10,8 +10,11 @@ import path from "path";
 // projet), nous définissons ici un port alternatif et autorisons Vite
 // à basculer automatiquement vers un autre port si nécessaire.
 export default defineConfig(({ command, mode }) => {
-  // Configuration de base pour GitHub Pages
-  const base = mode === "production" ? "/email-assistant-v6/" : "/";
+  // Configuration de base pour GitHub Pages - utilise le nom du repo depuis package.json
+  const repoName = process.env.GITHUB_REPOSITORY ? 
+    process.env.GITHUB_REPOSITORY.split('/')[1] : 
+    null; // pas de base path pour développement local
+  const base = mode === "production" && repoName ? `/${repoName}/` : "/";
 
   return {
     base,
