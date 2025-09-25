@@ -924,11 +924,12 @@ function App() {
                       <FileText className="h-6 w-6 mr-2 text-white" />
                       {t.selectTemplate}
                     </CardTitle>
-                    <p className="text-sm text-white/90">
+                    <p className="text-xs text-white/95 mt-0.5 mb-1">
                       {filteredTemplates.length} {t.templatesCount}
                     </p>
 
                     {/* Filtre par catégorie avec style */}
+                    <div className="mt-1">
                     <Select
                       value={selectedCategory}
                       onValueChange={setSelectedCategory}
@@ -952,6 +953,7 @@ function App() {
                         ))}
                       </SelectContent>
                     </Select>
+                    </div>
 
                     {/* Recherche avec bouton d'effacement */}
                     <div className="relative group w-full mt-1">
@@ -1106,7 +1108,7 @@ function App() {
 
               {/* Panneau de droite - Édition */}
               <Panel minSize={45} className="min-w-[420px]">
-                <div className="space-y-5 lg:space-y-6">
+                <div className="space-y-4 lg:space-y-5">
                 {selectedTemplate ? (
                   <>
                     {/* Variables avec style moderne */}
@@ -1114,9 +1116,9 @@ function App() {
                       selectedTemplate.variables.length > 0 && (
                         <Card className="shadow-xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
                           {/* Fill header gap with teal to match editors */}
-                          <div className="absolute inset-x-0 top-0" style={{ height: '68px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
+                          <div className="absolute inset-x-0 top-0" style={{ height: '60px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
                           <Collapsible open={varsOpen} onOpenChange={(v) => { setVarsOpen(v); }}>
-                            <CardHeader className="relative z-10 py-3" style={{ backgroundColor: 'transparent' }}>
+                            <CardHeader className="relative z-10 py-2.5" style={{ backgroundColor: 'transparent' }}>
                               <CollapsibleTrigger asChild>
                                 <button className="w-full flex items-center justify-between group text-left">
                                   <CardTitle className="text-xl font-bold text-white flex items-center">
@@ -1203,8 +1205,8 @@ function App() {
                     {/* Version éditable - ZONE PRINCIPALE */}
                         <Card className="shadow-2xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
                       {/* Fill header gap on editors card */}
-                      <div className="absolute inset-x-0 top-0" style={{ height: '68px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
-                      <CardHeader className="relative z-10 py-3" style={{ backgroundColor: 'transparent' }}>
+                      <div className="absolute inset-x-0 top-0" style={{ height: '64px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
+                      <CardHeader className="relative z-10 py-2.5" style={{ backgroundColor: 'transparent' }}>
                         <CardTitle className="font-bold text-white flex items-center text-xl">
                           <Mail className="h-6 w-6 mr-3 text-white" />
                           {t.editEmail}
@@ -1212,10 +1214,14 @@ function App() {
                       </CardHeader>
                       <CardContent className="space-y-5 lg:space-y-6 p-4">
                         {/* Objet éditable avec aperçu surlignement */}
-                        <div className="space-y-3">
-                          <label className="text-base font-bold text-[var(--tb-navy)]">
-                            {t.subject}
-                          </label>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
+                            </span>
+                            <span className="text-base font-bold text-[var(--tb-navy)]">{t.subject}</span>
+                          </div>
                           <HighlightingEditor
                             value={finalSubject}
                             onChange={(e) => setFinalSubject(e.target.value)}
@@ -1227,10 +1233,14 @@ function App() {
                         </div>
 
                         {/* Corps éditable avec aperçu surlignement */}
-                        <div className="space-y-3">
-                          <label className="text-base font-bold text-[var(--tb-navy)]">
-                            {t.body}
-                          </label>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
+                            </span>
+                            <span className="text-base font-bold text-[var(--tb-navy)]">{t.body}</span>
+                          </div>
                           <HighlightingEditor
                             value={finalBody}
                             onChange={(e) => setFinalBody(e.target.value)}
