@@ -29,7 +29,7 @@ export default defineConfig(({ command, mode }) => {
       // disponible si 5000 est déjà utilisé.
       strictPort: false,
       // Permettre toutes les origines pour Replit proxy
-      allowedHosts: "all",
+      allowedHosts: true,
     },
     // Spécifier un port différent pour l'aperçu de production
     preview: {
