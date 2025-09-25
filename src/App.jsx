@@ -696,45 +696,41 @@ function App() {
         <>
           {/* En-tête avec formes organiques inspirées de l'identité Bureau de la traduction */}
           <header className="organic-header relative shadow-lg">
-            {/* Formes organiques inspirées de l'image de marque */}
+            {/* Grandes capsules inspirées de l'identité Bureau de la traduction */}
             <div className="absolute inset-0 overflow-hidden">
-              {/* Forme pill navy à gauche */}
+              {/* Très grande capsule navy verticale à gauche */}
               <div 
-                className="absolute -left-8 top-4 w-32 h-20 opacity-90"
+                className="absolute -left-12 -top-4 w-28 h-52 opacity-95"
                 style={{ 
                   backgroundColor: 'var(--tb-navy)',
-                  borderRadius: '60px',
-                  transform: 'rotate(-15deg)'
+                  borderRadius: '56px'
                 }}
               ></div>
               
-              {/* Forme pill teal au centre */}
+              {/* Grande capsule teal horizontale au centre */}
               <div 
-                className="absolute left-1/4 -top-6 w-24 h-32 opacity-80"
+                className="absolute left-24 top-8 w-64 h-24 opacity-85"
                 style={{ 
                   backgroundColor: 'var(--tb-teal)',
-                  borderRadius: '60px',
-                  transform: 'rotate(10deg)'
+                  borderRadius: '48px'
                 }}
               ></div>
               
-              {/* Forme pill lime à droite */}
+              {/* Énorme capsule lime verticale à droite */}
               <div 
-                className="absolute right-8 top-8 w-28 h-16 opacity-70"
+                className="absolute right-8 -top-6 w-32 h-56 opacity-90"
                 style={{ 
                   backgroundColor: 'var(--tb-lime)',
-                  borderRadius: '50px',
-                  transform: 'rotate(-25deg)'
+                  borderRadius: '64px'
                 }}
               ></div>
               
-              {/* Grande forme pill mint en arrière-plan */}
+              {/* Grande capsule mint horizontale en bas */}
               <div 
-                className="absolute right-16 -bottom-4 w-40 h-24 opacity-60"
+                className="absolute right-20 bottom-4 w-56 h-20 opacity-80"
                 style={{ 
                   backgroundColor: 'var(--tb-mint)',
-                  borderRadius: '70px',
-                  transform: 'rotate(35deg)'
+                  borderRadius: '40px'
                 }}
               ></div>
             </div>
