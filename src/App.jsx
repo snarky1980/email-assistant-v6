@@ -14,8 +14,6 @@ import {
   Link,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.jsx";
-import { Switch } from "@/components/ui/switch.jsx";
-import { Label } from "@/components/ui/label.jsx";
 import { Input } from "@/components/ui/input.jsx";
 import { Textarea } from "@/components/ui/textarea.jsx";
 import HighlightingEditor from "./components/HighlightingEditor";
@@ -227,8 +225,6 @@ function App() {
   const [finalBody, setFinalBody] = useState(""); // Version finale éditable
   const [variables, setVariables] = useState(savedState.variables || {});
   const [copySuccess, setCopySuccess] = useState(false);
-  // Compact mode and Variables panel open state
-  const [compact, setCompact] = useState(savedState.compact || false);
   const [varsOpen, setVarsOpen] = useState(
     savedState.varsOpen !== undefined ? savedState.varsOpen : true
   );
@@ -262,7 +258,6 @@ function App() {
       searchQuery,
       selectedCategory,
       variables,
-      compact,
       varsOpen,
     });
   }, [
@@ -271,7 +266,6 @@ function App() {
     searchQuery,
     selectedCategory,
     variables,
-    compact,
     varsOpen,
   ]);
 
@@ -759,7 +753,7 @@ function App() {
   };
 
   return (
-  <div className={`min-h-screen ${compact ? "compact" : ""}`} style={{ backgroundColor: 'var(--tb-light-blue)' }}>
+  <div className="min-h-screen" style={{ backgroundColor: 'var(--tb-light-blue)' }}>
     <Toaster richColors position="top-right" />
       {loading ? (
         <div className="flex items-center justify-center min-h-screen">
@@ -771,7 +765,7 @@ function App() {
       ) : (
         <>
           {/* En-tête avec formes organiques inspirées de l'identité Bureau de la traduction */}
-          <header className="organic-header relative sticky top-0 z-40" style={{ boxShadow: isHeaderStuck ? '0 8px 24px rgba(26,54,93,0.18)' : '0 4px 12px rgba(26,54,93,0.10)' }}>
+          <header className="organic-header relative sticky top-0 z-40" style={{ boxShadow: isHeaderStuck ? '0 6px 18px rgba(26,54,93,0.16)' : '0 3px 9px rgba(26,54,93,0.10)' }}>
             {/* Grandes capsules inspirées de l'identité Bureau de la traduction */}
             <div className="absolute inset-0 overflow-hidden">
               {/* Très grande capsule navy verticale à gauche */}
@@ -811,29 +805,29 @@ function App() {
               ></div>
             </div>
             
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-6">
                   {/* Icône avec bold impact - solide */}
                   <div className="relative">
                     <div 
-                      className="p-6 shadow-2xl transform hover:scale-110 transition-transform duration-300"
+                      className="p-4 shadow-xl transform hover:scale-105 transition-transform duration-300"
                       style={{ 
                         backgroundColor: 'var(--tb-navy)',
                         borderRadius: '40px',
-                        boxShadow: '0 25px 50px rgba(26, 54, 93, 0.4)'
+                        boxShadow: '0 18px 36px rgba(26, 54, 93, 0.35)'
                       }}
                     >
-                      <Mail className="h-14 w-14 text-white" />
+                      <Mail className="h-10 w-10 text-white" />
                     </div>
                   </div>
                   
                   {/* Textes avec contraste élevé */}
                   <div>
-                    <h1 className="text-3xl font-bold" style={{ color: 'var(--tb-navy)' }}>
+                    <h1 className="text-2xl font-bold" style={{ color: 'var(--tb-navy)' }}>
                       {t.title}
                     </h1>
-                    <p className="text-lg font-medium" style={{ color: 'var(--tb-teal)' }}>
+                    <p className="text-base font-medium" style={{ color: 'var(--tb-teal)' }}>
                       {t.subtitle}
                     </p>
                   </div>
@@ -841,7 +835,7 @@ function App() {
 
                 {/* Sélecteur de langue avec punch - solide */}
                 <div 
-                  className="flex items-center space-x-4 px-8 py-5 shadow-2xl"
+                  className="flex items-center space-x-3 px-6 py-4 shadow-xl"
                   style={{ 
                     backgroundColor: 'var(--tb-teal)',
                     borderRadius: 'calc(var(--radius) + 10px)'
@@ -851,10 +845,10 @@ function App() {
                   <span className="font-bold text-base text-white">
                     {t.interfaceLanguage}
                   </span>
-                  <div className="flex bg-white p-2 shadow-lg" style={{ borderRadius: '20px' }}>
+                  <div className="flex bg-white p-1.5 shadow-lg" style={{ borderRadius: '18px' }}>
                     <button
                       onClick={() => setInterfaceLanguage("fr")}
-                      className={`px-6 py-3 text-sm font-bold transition-all duration-200 transform button-ripple teal-focus ${
+                      className={`px-5 py-2.5 text-sm font-bold transition-all duration-200 transform button-ripple teal-focus ${
                         interfaceLanguage === "fr"
                           ? "text-white shadow-xl scale-105"
                           : "hover:scale-105"
@@ -869,7 +863,7 @@ function App() {
                     </button>
                     <button
                       onClick={() => setInterfaceLanguage("en")}
-                      className={`px-6 py-3 text-sm font-bold transition-all duration-200 transform button-ripple teal-focus ${
+                      className={`px-5 py-2.5 text-sm font-bold transition-all duration-200 transform button-ripple teal-focus ${
                         interfaceLanguage === "en"
                           ? "text-white shadow-xl scale-105"
                           : "hover:scale-105"
@@ -888,15 +882,9 @@ function App() {
           </header>
 
           {/* Contenu principal */}
-          <main className={`max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 ${compact ? 'py-4' : 'py-6'}`} style={{ backgroundColor: 'var(--background)', borderRadius: '20px' }}>
-            {/* Controls row: Compact + Reset layout */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-[var(--tb-navy)]">
-                <Switch id="compact-mode" checked={compact} onCheckedChange={setCompact} />
-                <Label htmlFor="compact-mode" className="cursor-pointer select-none">
-                  {interfaceLanguage === 'fr' ? 'Mode compact' : 'Compact mode'}
-                </Label>
-              </div>
+          <main className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 py-3" style={{ backgroundColor: 'var(--background)', borderRadius: '20px' }}>
+            {/* Controls row: Reset layout */}
+            <div className="flex items-center justify-end mb-2">
               <Button
                 variant="ghost"
                 className="text-sm text-[var(--tb-navy)] hover:text-[var(--tb-teal)] hover:bg-[var(--tb-light-blue)]"
@@ -916,7 +904,7 @@ function App() {
               <PanelGroup
                 key={remountKey}
                 direction="horizontal"
-                className={`h-full ${compact ? 'gap-1 lg:gap-2' : 'gap-2 lg:gap-3'}`}
+                className="h-full gap-1 lg:gap-2"
                 onLayout={(sizes) => {
                   saveState({
                     ...loadState(),
@@ -930,8 +918,8 @@ function App() {
                   <div>
                 <Card className="shadow-xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
                   {/* Backdrop to fill rounded top corners with teal */}
-                  <div className="absolute inset-x-0 top-0" style={{ height: '96px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
-                  <CardHeader className="pb-4 relative z-10" style={{ backgroundColor: 'transparent' }}>
+                  <div className="absolute inset-x-0 top-0" style={{ height: '72px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
+                  <CardHeader className="pb-3 relative z-10" style={{ backgroundColor: 'transparent' }}>
                     <CardTitle className="text-xl font-bold text-white flex items-center">
                       <FileText className="h-6 w-6 mr-2 text-white" />
                       {t.selectTemplate}
@@ -966,7 +954,7 @@ function App() {
                     </Select>
 
                     {/* Recherche avec bouton d'effacement */}
-                    <div className="relative group w-full">
+                    <div className="relative group w-full mt-1">
                       <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center search-adornment">
                         <Search className="h-4 w-4 transition-colors" style={{ color: 'var(--tb-teal)' }} />
                       </div>
@@ -1070,7 +1058,7 @@ function App() {
 
                   <CardContent className="p-0">
                     <ScrollArea className="h-[55vh] sm:h-[60vh] md:h-[65vh] lg:h-[70vh]" style={{ "--scrollbar-width": "8px" }}>
-                      <div className={`relative ${compact ? 'space-y-2 p-3' : 'space-y-3 p-4'}`}>
+                      <div className="relative space-y-2 p-3">
                         {/* Indicateur de scroll en bas */}
                         {filteredTemplates.length > 6 && (
                           <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none z-10 flex items-end justify-center pb-1" style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}>
@@ -1083,7 +1071,7 @@ function App() {
                           <div
                             key={template.id}
                             onClick={() => setSelectedTemplate(template)}
-                            className={`${compact ? 'p-3' : 'p-4'} rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102`}
+                            className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102"
                             style={{
                               borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)',
                               backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white'
@@ -1128,7 +1116,7 @@ function App() {
                           {/* Fill header gap with teal to match editors */}
                           <div className="absolute inset-x-0 top-0" style={{ height: '68px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
                           <Collapsible open={varsOpen} onOpenChange={(v) => { setVarsOpen(v); }}>
-                            <CardHeader className={`relative z-10 ${compact ? 'py-3' : ''}`} style={{ backgroundColor: 'transparent' }}>
+                            <CardHeader className="relative z-10 py-3" style={{ backgroundColor: 'transparent' }}>
                               <CollapsibleTrigger asChild>
                                 <button className="w-full flex items-center justify-between group text-left">
                                   <CardTitle className="text-xl font-bold text-white flex items-center">
@@ -1140,8 +1128,8 @@ function App() {
                               </CollapsibleTrigger>
                             </CardHeader>
                 <CollapsibleContent>
-                  <CardContent className={`p-4 ${compact ? 'pt-2' : ''}`}>
-                                <div className={`grid grid-cols-1 md:grid-cols-2 ${compact ? 'gap-2' : 'gap-3'}`}>
+                  <CardContent className="p-4 pt-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {selectedTemplate.variables.map((varName) => {
                                 const varInfo =
                                   templatesData.variables[varName];
@@ -1160,7 +1148,7 @@ function App() {
                                 return (
                                   <div
                                     key={varName}
-                                    className={`rounded-md ${compact ? 'p-2' : 'p-3'} border-2 transition-all duration-200`}
+                                    className="rounded-md p-2 border-2 transition-all duration-200"
                                     style={{ backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}
                                   >
                                     {/* En-tête compact */}
@@ -1215,17 +1203,17 @@ function App() {
                     {/* Version éditable - ZONE PRINCIPALE */}
                         <Card className="shadow-2xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
                       {/* Fill header gap on editors card */}
-                      <div className="absolute inset-x-0 top-0" style={{ height: '76px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
-                      <CardHeader className={`relative z-10 ${compact ? 'py-3' : ''}`} style={{ backgroundColor: 'transparent' }}>
-                        <CardTitle className={`font-bold text-white flex items-center ${compact ? 'text-xl' : 'text-2xl'}`}>
-                          <Mail className="h-7 w-7 mr-3 text-white" />
+                      <div className="absolute inset-x-0 top-0" style={{ height: '68px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
+                      <CardHeader className="relative z-10 py-3" style={{ backgroundColor: 'transparent' }}>
+                        <CardTitle className="font-bold text-white flex items-center text-xl">
+                          <Mail className="h-6 w-6 mr-3 text-white" />
                           {t.editEmail}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className={`space-y-5 lg:space-y-6 ${compact ? 'p-4' : 'p-6'}`}>
+                      <CardContent className="space-y-5 lg:space-y-6 p-4">
                         {/* Objet éditable avec aperçu surlignement */}
                         <div className="space-y-3">
-                          <label className={`${compact ? 'text-base' : 'text-lg'} font-bold text-[var(--tb-navy)]`}>
+                          <label className="text-base font-bold text-[var(--tb-navy)]">
                             {t.subject}
                           </label>
                           <HighlightingEditor
@@ -1233,14 +1221,14 @@ function App() {
                             onChange={(e) => setFinalSubject(e.target.value)}
                             variables={variables}
                             placeholder={t.subject}
-                            minHeight={compact ? "48px" : "60px"}
+                            minHeight="48px"
                             style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
                           />
                         </div>
 
                         {/* Corps éditable avec aperçu surlignement */}
                         <div className="space-y-3">
-                          <label className={`${compact ? 'text-base' : 'text-lg'} font-bold text-[var(--tb-navy)]`}>
+                          <label className="text-base font-bold text-[var(--tb-navy)]">
                             {t.body}
                           </label>
                           <HighlightingEditor
@@ -1248,7 +1236,7 @@ function App() {
                             onChange={(e) => setFinalBody(e.target.value)}
                             variables={variables}
                             placeholder={t.body}
-                            minHeight={compact ? "200px" : "260px"}
+                            minHeight="200px"
                             style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
                           />
                         </div>
