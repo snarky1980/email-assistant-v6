@@ -684,7 +684,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, #e0f2fe, #a7f3d0, #d3d3a0)' }}>
       {loading ? (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
