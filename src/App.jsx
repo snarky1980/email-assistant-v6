@@ -675,46 +675,45 @@ function App() {
         </div>
       ) : (
         <>
-          {/* En-tête dynamique */}
-          <header className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-xl">
+          {/* En-tête simplifié et accueillant */}
+          <header className="bg-white shadow-sm border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="relative">
-                    <Mail className="h-10 w-10 text-white animate-pulse" />
-                    <Sparkles className="h-4 w-4 text-yellow-300 absolute -top-1 -right-1 animate-bounce" />
+                  <div className="bg-blue-100 rounded-full p-3">
+                    <Mail className="h-8 w-8 text-blue-600" />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold text-white drop-shadow-lg">
+                    <h1 className="text-2xl font-semibold text-gray-900">
                       {t.title}
                     </h1>
-                    <p className="text-blue-100 text-sm">{t.subtitle}</p>
+                    <p className="text-gray-600 text-sm">{t.subtitle}</p>
                   </div>
                 </div>
 
-                {/* Langue de l'interface avec style moderne */}
-                <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2">
-                  <Globe className="h-5 w-5 text-white" />
-                  <span className="text-white font-medium">
+                {/* Langue de l'interface avec style simplifié */}
+                <div className="flex items-center space-x-3 bg-gray-50 rounded-lg px-4 py-2">
+                  <Globe className="h-5 w-5 text-gray-600" />
+                  <span className="text-gray-700 font-medium text-sm">
                     {t.interfaceLanguage}:
                   </span>
-                  <div className="flex bg-white/20 rounded-lg p-1">
+                  <div className="flex bg-white rounded-md p-1 shadow-sm">
                     <button
                       onClick={() => setInterfaceLanguage("fr")}
-                      className={`px-4 py-2 text-sm font-bold rounded-md transition-all duration-300 ${
+                      className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
                         interfaceLanguage === "fr"
-                          ? "bg-white text-blue-600 shadow-lg transform scale-105"
-                          : "text-white hover:bg-white/20"
+                          ? "bg-blue-600 text-white"
+                          : "text-gray-600 hover:bg-gray-100"
                       }`}
                     >
                       FR
                     </button>
                     <button
                       onClick={() => setInterfaceLanguage("en")}
-                      className={`px-4 py-2 text-sm font-bold rounded-md transition-all duration-300 ${
+                      className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
                         interfaceLanguage === "en"
-                          ? "bg-white text-blue-600 shadow-lg transform scale-105"
-                          : "text-white hover:bg-white/20"
+                          ? "bg-blue-600 text-white"
+                          : "text-gray-600 hover:bg-gray-100"
                       }`}
                     >
                       EN
