@@ -720,7 +720,7 @@ function App() {
               <div 
                 className="absolute right-8 -top-6 w-32 h-56 opacity-90"
                 style={{ 
-                  backgroundColor: 'var(--tb-lime)',
+                  backgroundColor: '#c4d97b',
                   borderRadius: '64px'
                 }}
               ></div>
@@ -753,7 +753,7 @@ function App() {
                     <div 
                       className="absolute -top-4 -right-4 w-10 h-10"
                       style={{ 
-                        backgroundColor: 'var(--tb-lime)',
+                        backgroundColor: '#c4d97b',
                         borderRadius: '50%',
                         boxShadow: '0 8px 25px rgba(190, 242, 100, 0.7)'
                       }}
@@ -825,7 +825,7 @@ function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Panneau de gauche - Liste des modèles */}
               <div className="lg:col-span-1">
-                <Card className="h-fit shadow-xl border-2 overflow-hidden" style={{ backgroundColor: 'white', borderColor: 'var(--tb-mint)' }}>
+                <Card className="h-full shadow-xl border-0 overflow-hidden" style={{ backgroundColor: 'white' }}>
                   <CardHeader className="pb-4" style={{ backgroundColor: 'var(--tb-teal)' }}>
                     <CardTitle className="text-xl font-bold text-white flex items-center">
                       <FileText className="h-6 w-6 mr-2 text-white" />
@@ -997,16 +997,16 @@ function App() {
               </div>
 
               {/* Panneau de droite - Édition */}
-              <div className="lg:col-span-2 space-y-6">
+              <div className="lg:col-span-2 space-y-6 h-full">
                 {selectedTemplate ? (
                   <>
                     {/* Variables avec style moderne */}
                     {selectedTemplate.variables &&
                       selectedTemplate.variables.length > 0 && (
-                        <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-orange-50 overflow-hidden">
-                          <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50">
-                            <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
-                              <Edit3 className="h-6 w-6 mr-2 text-orange-600" />
+                        <Card className="shadow-xl border-2 overflow-hidden h-full" style={{ backgroundColor: 'white', borderColor: 'var(--tb-teal)' }}>
+                          <CardHeader style={{ backgroundColor: 'var(--tb-teal)' }}>
+                            <CardTitle className="text-xl font-bold text-white flex items-center">
+                              <Edit3 className="h-6 w-6 mr-2 text-white" />
                               {t.variables}
                             </CardTitle>
                           </CardHeader>
@@ -1020,40 +1020,25 @@ function App() {
                                 const currentValue = variables[varName] || "";
 
                                 // Couleur selon le type de variable
-                                const getTypeColor = () => {
-                                  switch (varInfo.type) {
-                                    case "email":
-                                      return "border-blue-300 focus:border-blue-500";
-                                    case "phone":
-                                      return "border-green-300 focus:border-green-500";
-                                    case "date":
-                                      return "border-purple-300 focus:border-purple-500";
-                                    case "number":
-                                      return "border-orange-300 focus:border-orange-500";
-                                    default:
-                                      return "border-gray-300 focus:border-gray-500";
-                                  }
+                                const getInputStyle = () => {
+                                  return {
+                                    borderColor: 'var(--tb-mint)',
+                                    backgroundColor: 'white'
+                                  };
                                 };
 
                                 return (
                                   <div
                                     key={varName}
-                                    className="bg-white rounded-md p-3 border border-gray-200 hover:border-orange-300 transition-all duration-200"
+                                    className="rounded-md p-3 border-2 transition-all duration-200"
+                                    style={{ backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}
                                   >
                                     {/* En-tête compact */}
                                     <div className="flex items-center justify-between mb-2">
-                                      <label className="text-xs font-semibold text-gray-700 flex items-center">
+                                      <label className="text-xs font-semibold flex items-center" style={{ color: 'var(--tb-navy)' }}>
                                         <span
                                           className={`w-2 h-2 rounded-full mr-1.5 ${
-                                            varInfo.type === "email"
-                                              ? "bg-blue-400"
-                                              : varInfo.type === "phone"
-                                              ? "bg-green-400"
-                                              : varInfo.type === "date"
-                                              ? "bg-purple-400"
-                                              : varInfo.type === "number"
-                                              ? "bg-orange-400"
-                                              : "bg-gray-400"
+                                            'bg-teal-400'
                                           }`}
                                         ></span>
                                         {varInfo.description[interfaceLanguage]}
@@ -1078,7 +1063,8 @@ function App() {
                                         }))
                                       }
                                       placeholder={varInfo.example}
-                                      className={`text-sm h-9 border transition-all duration-200 ${getTypeColor()}`}
+                                      className="text-sm h-9 border-2 transition-all duration-200"
+                                      style={getInputStyle()}
                                     />
 
                                     {/* Compteur de caractères pour les champs texte longs */}
