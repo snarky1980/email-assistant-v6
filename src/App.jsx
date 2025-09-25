@@ -716,7 +716,7 @@ function App() {
                 }}
               ></div>
               
-              {/* Énorme capsule lime verticale à droite */}
+              {/* Énorme capsule sage verticale à droite */}
               <div 
                 className="absolute right-8 -top-6 w-32 h-56 opacity-90"
                 style={{ 
@@ -840,8 +840,8 @@ function App() {
                       value={selectedCategory}
                       onValueChange={setSelectedCategory}
                     >
-                      <SelectTrigger className="border-2 border-gray-200 focus:border-purple-400 transition-all duration-300">
-                        <Filter className="h-4 w-4 mr-2 text-purple-500" />
+                      <SelectTrigger className="border-2 transition-all duration-300" style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'white' }}>
+                        <Filter className="h-4 w-4 mr-2" style={{ color: 'var(--tb-teal)' }} />
                         <SelectValue placeholder={t.allCategories} />
                       </SelectTrigger>
                       <SelectContent>
@@ -856,20 +856,30 @@ function App() {
 
                     {/* Recherche avec bouton d'effacement */}
                     <div className="relative group">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors" style={{ color: 'var(--tb-teal)' }} />
                       <Input
                         ref={searchRef}
                         type="text"
                         placeholder={t.searchPlaceholder}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 pr-10 border-2 border-orange-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-300"
+                        className="pl-10 pr-10 border-2 transition-all duration-300"
+                        style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'white' }}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = 'var(--tb-teal)';
+                          e.target.style.boxShadow = '0 0 0 3px rgba(45, 212, 191, 0.1)';
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = 'var(--tb-mint)';
+                          e.target.style.boxShadow = 'none';
+                        }}
                       />
                       {/* Bouton X pour effacer la recherche */}
                       {searchQuery && (
                         <button
                           onClick={() => setSearchQuery("")}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors"
+                          style={{ color: 'var(--tb-teal)' }}
                           title="Effacer la recherche"
                         >
                           <svg
@@ -931,7 +941,7 @@ function App() {
                         {/* Indicateur de scroll en bas */}
                         {filteredTemplates.length > 6 && (
                           <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-10 flex items-end justify-center pb-1">
-                            <div className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full shadow-sm border">
+                            <div className="text-xs px-2 py-1 rounded-full shadow-sm border-2" style={{ color: 'var(--tb-navy)', backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}>
                               ↓ {filteredTemplates.length - 6}+ autres modèles
                             </div>
                           </div>
@@ -940,18 +950,18 @@ function App() {
                           <div
                             key={template.id}
                             onClick={() => setSelectedTemplate(template)}
-                            className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102 ${
-                              selectedTemplate?.id === template.id
-                                ? "border-blue-400 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg transform scale-102"
-                                : "border-gray-200 hover:border-blue-300 bg-white"
-                            }`}
+                            className="p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102"
+                            style={{
+                              borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)',
+                              backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white'
+                            }}
                           >
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
-                                <h3 className="font-bold text-gray-900 text-sm mb-1">
+                                <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>
                                   {template.title[templateLanguage]}
                                 </h3>
-                                <p className="text-xs text-gray-600 mb-2 leading-relaxed">
+                                <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>
                                   {template.description[templateLanguage]}
                                 </p>
                                 <Badge
