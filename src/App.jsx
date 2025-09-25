@@ -163,7 +163,7 @@ const customEditorStyles = `
     font-weight: 400;
     letter-spacing: 0.01em;
   }
-  
+
   /* Input field typography improvements */
   input, textarea {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
@@ -181,7 +181,9 @@ const customEditorStyles = `
 function App() {
   // Track sticky header shadow state
   const [isHeaderStuck, setIsHeaderStuck] = useState(false);
-
+  // Key to force remount of resizable layout when resetting
+  const [remountKey, setRemountKey] = useState(0);
+  
   useEffect(() => {
     const onScroll = () => {
       setIsHeaderStuck(window.scrollY > 8);
@@ -874,8 +876,26 @@ function App() {
 
           {/* Contenu principal */}
           <main className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 py-6" style={{ backgroundColor: 'var(--background)', borderRadius: '20px' }}>
+            {/* Controls row: optional Reset layout */}
+            <div className="flex items-center justify-end mb-3">
+              <Button
+                variant="ghost"
+                className="text-sm text-[var(--tb-navy)] hover:text-[var(--tb-teal)] hover:bg-[var(--tb-light-blue)]"
+                onClick={() => {
+                  // Clear saved split and remount PanelGroup via key change
+                  saveState({ ...loadState(), splitH: undefined });
+                  // Force remount by toggling a transient key in state
+                  setRemountKey((k) => k + 1);
+                }}
+                title={interfaceLanguage === 'fr' ? 'Réinitialiser la mise en page' : 'Reset layout'}
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                {interfaceLanguage === 'fr' ? 'Réinitialiser la mise en page' : 'Reset layout'}
+              </Button>
+            </div>
             <div>
               <PanelGroup
+                key={remountKey}
                 direction="horizontal"
                 className="h-full gap-2 lg:gap-3"
                 onLayout={(sizes) => {

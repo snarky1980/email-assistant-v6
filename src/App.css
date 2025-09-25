@@ -206,11 +206,13 @@ input::-webkit-clear-button {
   height: 100%;
   border-radius: 1px;
   background-color: rgba(31, 138, 153, 0.22); /* soft teal */
+  opacity: 0.08; /* nearly invisible at rest */
   transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 .ResizeHandleX:hover::before,
 .ResizeHandleX:focus-visible::before {
   background-color: rgba(31, 138, 153, 0.5);
+  opacity: 1; /* fade in on hover/focus */
 }
 .ResizeHandleY {
   height: 8px;
