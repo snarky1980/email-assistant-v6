@@ -14,6 +14,8 @@ import {
   Link,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.jsx";
+import { Switch } from "@/components/ui/switch.jsx";
+import { Label } from "@/components/ui/label.jsx";
 import { Input } from "@/components/ui/input.jsx";
 import { Textarea } from "@/components/ui/textarea.jsx";
 import HighlightingEditor from "./components/HighlightingEditor";
@@ -36,6 +38,8 @@ import { ScrollArea } from "@/components/ui/scroll-area.jsx";
 import { Toaster } from "@/components/ui/sonner.jsx";
 import { toast } from "sonner";
 import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible.jsx";
+import { ChevronDown } from "lucide-react";
 import "./App.css";
 
 // Custom CSS for modern typography and variable highlighting
@@ -223,6 +227,11 @@ function App() {
   const [finalBody, setFinalBody] = useState(""); // Version finale éditable
   const [variables, setVariables] = useState(savedState.variables || {});
   const [copySuccess, setCopySuccess] = useState(false);
+  // Compact mode and Variables panel open state
+  const [compact, setCompact] = useState(savedState.compact || false);
+  const [varsOpen, setVarsOpen] = useState(
+    savedState.varsOpen !== undefined ? savedState.varsOpen : true
+  );
 
   // Palette-based styles for category badges
   const getCategoryBadgeStyle = (category) => {
@@ -253,6 +262,8 @@ function App() {
       searchQuery,
       selectedCategory,
       variables,
+      compact,
+      varsOpen,
     });
   }, [
     interfaceLanguage,
@@ -260,6 +271,8 @@ function App() {
     searchQuery,
     selectedCategory,
     variables,
+    compact,
+    varsOpen,
   ]);
 
   // Textes de l'interface selon la langue
@@ -746,7 +759,7 @@ function App() {
   };
 
   return (
-  <div className="min-h-screen" style={{ backgroundColor: 'var(--tb-light-blue)' }}>
+  <div className={`min-h-screen ${compact ? "compact" : ""}`} style={{ backgroundColor: 'var(--tb-light-blue)' }}>
     <Toaster richColors position="top-right" />
       {loading ? (
         <div className="flex items-center justify-center min-h-screen">
@@ -875,9 +888,15 @@ function App() {
           </header>
 
           {/* Contenu principal */}
-          <main className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 py-6" style={{ backgroundColor: 'var(--background)', borderRadius: '20px' }}>
-            {/* Controls row: optional Reset layout */}
-            <div className="flex items-center justify-end mb-3">
+          <main className={`max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 ${compact ? 'py-4' : 'py-6'}`} style={{ backgroundColor: 'var(--background)', borderRadius: '20px' }}>
+            {/* Controls row: Compact + Reset layout */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 text-[var(--tb-navy)]">
+                <Switch id="compact-mode" checked={compact} onCheckedChange={setCompact} />
+                <Label htmlFor="compact-mode" className="cursor-pointer select-none">
+                  {interfaceLanguage === 'fr' ? 'Mode compact' : 'Compact mode'}
+                </Label>
+              </div>
               <Button
                 variant="ghost"
                 className="text-sm text-[var(--tb-navy)] hover:text-[var(--tb-teal)] hover:bg-[var(--tb-light-blue)]"
@@ -897,7 +916,7 @@ function App() {
               <PanelGroup
                 key={remountKey}
                 direction="horizontal"
-                className="h-full gap-2 lg:gap-3"
+                className={`h-full ${compact ? 'gap-1 lg:gap-2' : 'gap-2 lg:gap-3'}`}
                 onLayout={(sizes) => {
                   saveState({
                     ...loadState(),
@@ -1051,7 +1070,7 @@ function App() {
 
                   <CardContent className="p-0">
                     <ScrollArea className="h-[55vh] sm:h-[60vh] md:h-[65vh] lg:h-[70vh]" style={{ "--scrollbar-width": "8px" }}>
-                      <div className="space-y-3 p-4 relative">
+                      <div className={`relative ${compact ? 'space-y-2 p-3' : 'space-y-3 p-4'}`}>
                         {/* Indicateur de scroll en bas */}
                         {filteredTemplates.length > 6 && (
                           <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none z-10 flex items-end justify-center pb-1" style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}>
@@ -1064,7 +1083,7 @@ function App() {
                           <div
                             key={template.id}
                             onClick={() => setSelectedTemplate(template)}
-                            className="p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102"
+                            className={`${compact ? 'p-3' : 'p-4'} rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102`}
                             style={{
                               borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)',
                               backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white'
@@ -1108,14 +1127,21 @@ function App() {
                         <Card className="shadow-xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
                           {/* Fill header gap with teal to match editors */}
                           <div className="absolute inset-x-0 top-0" style={{ height: '68px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
-                          <CardHeader className="relative z-10" style={{ backgroundColor: 'transparent' }}>
-                            <CardTitle className="text-xl font-bold text-white flex items-center">
-                              <Edit3 className="h-6 w-6 mr-2 text-white" />
-                              {t.variables}
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <Collapsible open={varsOpen} onOpenChange={(v) => { setVarsOpen(v); }}>
+                            <CardHeader className={`relative z-10 ${compact ? 'py-3' : ''}`} style={{ backgroundColor: 'transparent' }}>
+                              <CollapsibleTrigger asChild>
+                                <button className="w-full flex items-center justify-between group text-left">
+                                  <CardTitle className="text-xl font-bold text-white flex items-center">
+                                    <Edit3 className="h-6 w-6 mr-2 text-white" />
+                                    {t.variables}
+                                  </CardTitle>
+                                  <ChevronDown className={`h-5 w-5 text-white transition-transform duration-200 ${varsOpen ? '' : '-rotate-90'}`} />
+                                </button>
+                              </CollapsibleTrigger>
+                            </CardHeader>
+                <CollapsibleContent>
+                  <CardContent className={`p-4 ${compact ? 'pt-2' : ''}`}>
+                                <div className={`grid grid-cols-1 md:grid-cols-2 ${compact ? 'gap-2' : 'gap-3'}`}>
                               {selectedTemplate.variables.map((varName) => {
                                 const varInfo =
                                   templatesData.variables[varName];
@@ -1134,7 +1160,7 @@ function App() {
                                 return (
                                   <div
                                     key={varName}
-                                    className="rounded-md p-3 border-2 transition-all duration-200"
+                                    className={`rounded-md ${compact ? 'p-2' : 'p-3'} border-2 transition-all duration-200`}
                                     style={{ backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}
                                   >
                                     {/* En-tête compact */}
@@ -1181,6 +1207,8 @@ function App() {
                               })}
                             </div>
                           </CardContent>
+                            </CollapsibleContent>
+                          </Collapsible>
                         </Card>
                       )}
 
@@ -1188,16 +1216,16 @@ function App() {
                         <Card className="shadow-2xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
                       {/* Fill header gap on editors card */}
                       <div className="absolute inset-x-0 top-0" style={{ height: '76px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
-                      <CardHeader className="relative z-10" style={{ backgroundColor: 'transparent' }}>
-                        <CardTitle className="text-2xl font-bold text-white flex items-center">
+                      <CardHeader className={`relative z-10 ${compact ? 'py-3' : ''}`} style={{ backgroundColor: 'transparent' }}>
+                        <CardTitle className={`font-bold text-white flex items-center ${compact ? 'text-xl' : 'text-2xl'}`}>
                           <Mail className="h-7 w-7 mr-3 text-white" />
                           {t.editEmail}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="p-6 space-y-5 lg:space-y-6">
+                      <CardContent className={`space-y-5 lg:space-y-6 ${compact ? 'p-4' : 'p-6'}`}>
                         {/* Objet éditable avec aperçu surlignement */}
                         <div className="space-y-3">
-                          <label className="text-lg font-bold text-[var(--tb-navy)]">
+                          <label className={`${compact ? 'text-base' : 'text-lg'} font-bold text-[var(--tb-navy)]`}>
                             {t.subject}
                           </label>
                           <HighlightingEditor
@@ -1205,14 +1233,14 @@ function App() {
                             onChange={(e) => setFinalSubject(e.target.value)}
                             variables={variables}
                             placeholder={t.subject}
-                            minHeight="60px"
+                            minHeight={compact ? "48px" : "60px"}
                             style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
                           />
                         </div>
 
                         {/* Corps éditable avec aperçu surlignement */}
                         <div className="space-y-3">
-                          <label className="text-lg font-bold text-[var(--tb-navy)]">
+                          <label className={`${compact ? 'text-base' : 'text-lg'} font-bold text-[var(--tb-navy)]`}>
                             {t.body}
                           </label>
                           <HighlightingEditor
@@ -1220,7 +1248,7 @@ function App() {
                             onChange={(e) => setFinalBody(e.target.value)}
                             variables={variables}
                             placeholder={t.body}
-                            minHeight="260px"
+                            minHeight={compact ? "200px" : "260px"}
                             style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
                           />
                         </div>
