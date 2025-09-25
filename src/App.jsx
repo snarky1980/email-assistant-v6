@@ -825,13 +825,13 @@ function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Panneau de gauche - Liste des modèles */}
               <div className="lg:col-span-1">
-                <Card className="h-fit shadow-xl border-0 bg-gradient-to-br from-white to-gray-50 overflow-hidden">
-                  <CardHeader className="pb-4 bg-gradient-to-r from-gray-50 to-blue-50">
-                    <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
-                      <FileText className="h-6 w-6 mr-2 text-blue-600" />
+                <Card className="h-fit shadow-xl border-2 overflow-hidden" style={{ backgroundColor: 'white', borderColor: 'var(--tb-mint)' }}>
+                  <CardHeader className="pb-4" style={{ backgroundColor: 'var(--tb-teal)' }}>
+                    <CardTitle className="text-xl font-bold text-white flex items-center">
+                      <FileText className="h-6 w-6 mr-2 text-white" />
                       {t.selectTemplate}
                     </CardTitle>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-white/90">
                       {filteredTemplates.length} {t.templatesCount}
                     </p>
 
