@@ -997,14 +997,14 @@ function App() {
               </div>
 
               {/* Panneau de droite - Édition */}
-              <div className="lg:col-span-2 space-y-6 h-full">
+              <div className="lg:col-span-2 space-y-6">
                 {selectedTemplate ? (
                   <>
                     {/* Variables avec style moderne */}
                     {selectedTemplate.variables &&
                       selectedTemplate.variables.length > 0 && (
-                        <Card className="shadow-xl border-2 overflow-hidden h-full" style={{ backgroundColor: 'white', borderColor: 'var(--tb-teal)' }}>
-                          <CardHeader style={{ backgroundColor: 'var(--tb-teal)' }}>
+                        <Card className="shadow-xl border-2 overflow-hidden" style={{ backgroundColor: 'white', borderColor: '#2dd4bf' }}>
+                          <CardHeader style={{ backgroundColor: '#2dd4bf' }}>
                             <CardTitle className="text-xl font-bold text-white flex items-center">
                               <Edit3 className="h-6 w-6 mr-2 text-white" />
                               {t.variables}
@@ -1022,7 +1022,7 @@ function App() {
                                 // Couleur selon le type de variable
                                 const getInputStyle = () => {
                                   return {
-                                    borderColor: 'var(--tb-mint)',
+                                    borderColor: '#a7f3d0',
                                     backgroundColor: 'white'
                                   };
                                 };
@@ -1031,15 +1031,14 @@ function App() {
                                   <div
                                     key={varName}
                                     className="rounded-md p-3 border-2 transition-all duration-200"
-                                    style={{ backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}
+                                    style={{ backgroundColor: '#dbeafe', borderColor: '#a7f3d0' }}
                                   >
                                     {/* En-tête compact */}
                                     <div className="flex items-center justify-between mb-2">
-                                      <label className="text-xs font-semibold flex items-center" style={{ color: 'var(--tb-navy)' }}>
+                                      <label className="text-xs font-semibold flex items-center" style={{ color: '#1e3a5f' }}>
                                         <span
-                                          className={`w-2 h-2 rounded-full mr-1.5 ${
-                                            'bg-teal-400'
-                                          }`}
+                                          className="w-2 h-2 rounded-full mr-1.5"
+                                          style={{ backgroundColor: '#c4d97b' }}
                                         ></span>
                                         {varInfo.description[interfaceLanguage]}
                                       </label>
@@ -1162,7 +1161,20 @@ function App() {
                           <Button
                             onClick={() => copyToClipboard("subject")}
                             variant="outline"
-                            className="font-medium px-4 py-2 border-2 border-blue-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 group"
+                            className="font-medium px-4 py-2 border-2 transition-all duration-300 group"
+                            style={{
+                              borderColor: '#dbeafe',
+                              backgroundColor: 'white',
+                              color: '#1e3a5f'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.backgroundColor = '#a7f3d0';
+                              e.target.style.borderColor = '#2dd4bf';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.backgroundColor = 'white';
+                              e.target.style.borderColor = '#dbeafe';
+                            }}
                             title="Copier l'objet seulement (Ctrl+J)"
                           >
                             <Mail className="h-4 w-4 mr-2 group-hover:text-blue-600" />
@@ -1173,7 +1185,20 @@ function App() {
                           <Button
                             onClick={() => copyToClipboard("body")}
                             variant="outline"
-                            className="font-medium px-4 py-2 border-2 border-green-300 hover:border-green-500 hover:bg-green-50 transition-all duration-300 group"
+                            className="font-medium px-4 py-2 border-2 transition-all duration-300 group"
+                            style={{
+                              borderColor: '#c4d97b',
+                              backgroundColor: 'white',
+                              color: '#1e3a5f'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.backgroundColor = '#dbeafe';
+                              e.target.style.borderColor = '#2dd4bf';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.backgroundColor = 'white';
+                              e.target.style.borderColor = '#c4d97b';
+                            }}
                             title="Copier le corps seulement (Ctrl+B)"
                           >
                             <Edit3 className="h-4 w-4 mr-2 group-hover:text-green-600" />
@@ -1183,11 +1208,19 @@ function App() {
                           {/* 🚀 Bouton Copie Complète - Gradient (action principale) */}
                           <Button
                             onClick={() => copyToClipboard("all")}
-                            className={`font-bold px-6 py-3 transition-all duration-300 shadow-lg ${
-                              copySuccess
-                                ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 transform scale-105"
-                                : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-105"
-                            }`}
+                            className="font-bold px-6 py-3 transition-all duration-300 shadow-lg transform"
+                            style={{
+                              backgroundColor: copySuccess ? '#c4d97b' : '#1e3a5f',
+                              color: copySuccess ? '#1e3a5f' : 'white'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.backgroundColor = copySuccess ? '#a7f3d0' : '#0f172a';
+                              e.target.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.backgroundColor = copySuccess ? '#c4d97b' : '#1e3a5f';
+                              e.target.style.transform = 'scale(1)';
+                            }}
                             title="Copier tout l'email (Ctrl+Enter)"
                           >
                             <Copy className="h-5 w-5 mr-2" />
