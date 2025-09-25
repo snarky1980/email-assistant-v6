@@ -822,9 +822,9 @@ function App() {
 
           {/* Contenu principal */}
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
               {/* Panneau de gauche - Liste des modèles */}
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-2 lg:max-w-md">
                 <Card className="h-full shadow-xl border-0 overflow-hidden" style={{ backgroundColor: 'white' }}>
                   <CardHeader className="pb-4" style={{ backgroundColor: 'var(--tb-teal)' }}>
                     <CardTitle className="text-xl font-bold text-white flex items-center">
@@ -997,7 +997,7 @@ function App() {
               </div>
 
               {/* Panneau de droite - Édition */}
-              <div className="lg:col-span-2 space-y-6">
+              <div className="lg:col-span-3 space-y-6">
                 {selectedTemplate ? (
                   <>
                     {/* Variables avec style moderne */}
