@@ -37,6 +37,17 @@ import "./App.css";
 
 // Custom CSS for modern typography and variable highlighting
 const customEditorStyles = `
+  /* Translation Bureau Brand Colors */
+  :root {
+    --tb-navy: #1e3a5f;          /* Deep navy blue (primary) */
+    --tb-teal: #2dd4bf;          /* Bright teal (accent) */
+    --tb-mint: #a7f3d0;          /* Light mint green (secondary) */
+    --tb-lime: #bef264;          /* Soft yellow-green (highlight) */
+    --tb-cream: #fefefe;         /* Clean white/cream (neutral) */
+    --tb-gray: #6b7280;          /* Supporting gray */
+    --tb-light-gray: #f8fafc;   /* Very light gray for backgrounds */
+  }
+
   /* Modern typography base */
   * {
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
@@ -675,26 +686,28 @@ function App() {
         </div>
       ) : (
         <>
-          {/* En-tête simplifié et accueillant */}
-          <header className="bg-white shadow-sm border-b border-gray-200">
+          {/* En-tête avec identité visuelle Bureau de la traduction */}
+          <header style={{ backgroundColor: 'var(--tb-navy)' }} className="shadow-lg">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="bg-blue-100 rounded-full p-3">
-                    <Mail className="h-8 w-8 text-blue-600" />
+                  <div style={{ backgroundColor: 'var(--tb-teal)' }} className="rounded-full p-3 shadow-md">
+                    <Mail className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">
+                    <h1 className="text-2xl font-semibold text-white">
                       {t.title}
                     </h1>
-                    <p className="text-gray-600 text-sm">{t.subtitle}</p>
+                    <p style={{ color: 'var(--tb-mint)' }} className="text-sm font-medium">
+                      {t.subtitle}
+                    </p>
                   </div>
                 </div>
 
-                {/* Langue de l'interface avec style simplifié */}
-                <div className="flex items-center space-x-3 bg-gray-50 rounded-lg px-4 py-2">
-                  <Globe className="h-5 w-5 text-gray-600" />
-                  <span className="text-gray-700 font-medium text-sm">
+                {/* Langue de l'interface avec couleurs Bureau de la traduction */}
+                <div style={{ backgroundColor: 'var(--tb-mint)', color: 'var(--tb-navy)' }} className="flex items-center space-x-3 rounded-lg px-4 py-2 shadow-sm">
+                  <Globe className="h-5 w-5" style={{ color: 'var(--tb-navy)' }} />
+                  <span className="font-medium text-sm">
                     {t.interfaceLanguage}:
                   </span>
                   <div className="flex bg-white rounded-md p-1 shadow-sm">
@@ -702,9 +715,10 @@ function App() {
                       onClick={() => setInterfaceLanguage("fr")}
                       className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
                         interfaceLanguage === "fr"
-                          ? "bg-blue-600 text-white"
-                          : "text-gray-600 hover:bg-gray-100"
+                          ? "text-white shadow-sm"
+                          : "hover:bg-gray-100"
                       }`}
+                      style={interfaceLanguage === "fr" ? { backgroundColor: 'var(--tb-teal)' } : { color: 'var(--tb-navy)' }}
                     >
                       FR
                     </button>
@@ -712,9 +726,10 @@ function App() {
                       onClick={() => setInterfaceLanguage("en")}
                       className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
                         interfaceLanguage === "en"
-                          ? "bg-blue-600 text-white"
-                          : "text-gray-600 hover:bg-gray-100"
+                          ? "text-white shadow-sm"
+                          : "hover:bg-gray-100"
                       }`}
+                      style={interfaceLanguage === "en" ? { backgroundColor: 'var(--tb-teal)' } : { color: 'var(--tb-navy)' }}
                     >
                       EN
                     </button>
