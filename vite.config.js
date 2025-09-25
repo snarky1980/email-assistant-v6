@@ -23,15 +23,13 @@ export default defineConfig(({ command, mode }) => {
     },
     server: {
       host: "0.0.0.0",
-      // Utiliser un port différent pour éviter les conflits locaux.
-      port: 5174,
+      // Port 5000 requis pour Replit
+      port: 5000,
       // En définissant strictPort à false, Vite passera à un port
-      // disponible (par exemple 5175) si 5174 est déjà utilisé.
+      // disponible si 5000 est déjà utilisé.
       strictPort: false,
-      allowedHosts: [
-        "all",
-        "5174-i368787dyvmhm5wx7wcdx-6ecd0654.manusvm.computer",
-      ],
+      // Permettre toutes les origines pour Replit proxy
+      allowedHosts: "all",
     },
     // Spécifier un port différent pour l'aperçu de production
     preview: {
