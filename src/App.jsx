@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/select.jsx";
 import { Separator } from "@/components/ui/separator.jsx";
 import { ScrollArea } from "@/components/ui/scroll-area.jsx";
+import { Toaster } from "@/components/ui/sonner.jsx";
+import { toast } from "sonner";
 import "./App.css";
 
 // Custom CSS for modern typography and variable highlighting
@@ -380,6 +382,9 @@ function App() {
    */
   useEffect(() => {
     const handleKeyDown = (e) => {
+      const tag = (e.target && e.target.tagName) || "";
+      const isTyping = ["INPUT", "TEXTAREA"].includes(tag) || (e.target && e.target.isContentEditable);
+      if (isTyping) return; // don't trigger global shortcuts while typing
       // 🚀 Ctrl/Cmd + Enter : Copier tout (action rapide principale)
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         e.preventDefault();
@@ -633,6 +638,24 @@ function App() {
       // ✅ Feedback visuel de succès (2 secondes)
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
+
+      // ✅ Toast non-intrusif
+      const toastMsgs = {
+        fr: {
+          subject: "Objet copié dans le presse-papiers",
+          body: "Corps copié dans le presse-papiers",
+          all: "Objet + Corps copiés",
+        },
+        en: {
+          subject: "Subject copied to clipboard",
+          body: "Body copied to clipboard",
+          all: "Subject + Body copied",
+        },
+      };
+      const lang = interfaceLanguage === "en" ? "en" : "fr";
+      toast.success(toastMsgs[lang][type] || toastMsgs[lang].all, {
+        duration: 2000,
+      });
     } catch (error) {
       console.error("Erreur lors de la copie:", error);
       // 🚨 Gestion d'erreur avec message utilisateur
@@ -715,6 +738,7 @@ function App() {
 
   return (
   <div className="min-h-screen" style={{ backgroundColor: 'var(--tb-light-blue)' }}>
+    <Toaster richColors position="top-right" />
       {loading ? (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -885,14 +909,16 @@ function App() {
 
                     {/* Recherche avec bouton d'effacement */}
                     <div className="relative group">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors" style={{ color: 'var(--tb-teal)' }} />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors pointer-events-none" style={{ color: 'var(--tb-teal)' }} />
                       <Input
                         ref={searchRef}
                         type="text"
                         placeholder={t.searchPlaceholder}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 pr-10 border-2 transition-all duration-300"
+                        className="pl-10 pr-10 border-2 transition-all duration-300 teal-focus"
+                        aria-label={t.searchPlaceholder}
+                        role="searchbox"
                         style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'white' }}
                         onFocus={(e) => {
                           e.target.style.borderColor = 'var(--tb-teal)';
@@ -906,10 +932,12 @@ function App() {
                       {/* Bouton X pour effacer la recherche */}
                       {searchQuery && (
                         <button
+                          type="button"
                           onClick={() => setSearchQuery("")}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors button-ripple"
                           style={{ color: 'var(--tb-teal)' }}
                           title="Effacer la recherche"
+                          aria-label="Effacer la recherche"
                         >
                           <svg
                             className="h-4 w-4"
@@ -937,7 +965,7 @@ function App() {
                       <div className="flex bg-white rounded-lg p-1 shadow-sm">
                         <button
                           onClick={() => setTemplateLanguage("fr")}
-                          className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300`}
+                          className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 button-ripple teal-focus`}
                           style={{
                             backgroundColor: templateLanguage === "fr" ? 'var(--tb-teal)' : 'transparent',
                             color: templateLanguage === "fr" ? 'white' : 'var(--tb-navy)',
@@ -948,7 +976,7 @@ function App() {
                         </button>
                         <button
                           onClick={() => setTemplateLanguage("en")}
-                          className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300`}
+                          className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 button-ripple teal-focus`}
                           style={{
                             backgroundColor: templateLanguage === "en" ? 'var(--tb-teal)' : 'transparent',
                             color: templateLanguage === "en" ? 'white' : 'var(--tb-navy)',
