@@ -35,6 +35,7 @@ import { Separator } from "@/components/ui/separator.jsx";
 import { ScrollArea } from "@/components/ui/scroll-area.jsx";
 import { Toaster } from "@/components/ui/sonner.jsx";
 import { toast } from "sonner";
+import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 import "./App.css";
 
 // Custom CSS for modern typography and variable highlighting
@@ -873,10 +874,22 @@ function App() {
 
           {/* Contenu principal */}
           <main className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 py-6" style={{ backgroundColor: 'var(--background)', borderRadius: '20px' }}>
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
-              {/* Panneau de gauche - Liste des modèles */}
-              <div className="lg:col-span-2 lg:max-w-[420px]">
-                <Card className="h-full shadow-xl border-0 overflow-hidden relative viewport-panel" style={{ backgroundColor: 'white' }}>
+            <div>
+              <PanelGroup
+                direction="horizontal"
+                className="h-full gap-2 lg:gap-3"
+                onLayout={(sizes) => {
+                  saveState({
+                    ...loadState(),
+                    splitH: sizes,
+                  });
+                }}
+                defaultLayout={loadState()?.splitH || [40, 60]}
+              >
+                {/* Panneau de gauche - Liste des modèles */}
+                <Panel minSize={25} maxSize={55} className="min-w-[320px]">
+                  <div>
+                <Card className="shadow-xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
                   {/* Backdrop to fill rounded top corners with teal */}
                   <div className="absolute inset-x-0 top-0" style={{ height: '96px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
                   <CardHeader className="pb-4 relative z-10" style={{ backgroundColor: 'transparent' }}>
@@ -914,17 +927,17 @@ function App() {
                     </Select>
 
                     {/* Recherche avec bouton d'effacement */}
-                    <div className="relative group">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+                    <div className="relative group w-full">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center search-adornment">
                         <Search className="h-4 w-4 transition-colors" style={{ color: 'var(--tb-teal)' }} />
                       </div>
                       <Input
                         ref={searchRef}
-                        type="search"
+                        type="text"
                         placeholder={t.searchPlaceholder}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 pr-10 border-2 transition-all duration-300 teal-focus py-2"
+                        className="h-10 pl-10 pr-10 border-2 transition-all duration-300 teal-focus"
                         aria-label={t.searchPlaceholder}
                         role="searchbox"
                         autoComplete="off"
@@ -955,29 +968,31 @@ function App() {
                       />
                       {/* Bouton X pour effacer la recherche */}
                       {searchQuery && (
-                        <button
-                          type="button"
-                          onClick={() => setSearchQuery("")}
-                          className="absolute inset-y-0 right-3 flex items-center h-4 w-4 transition-colors button-ripple search-clear-btn"
-                          style={{ color: 'var(--tb-teal)' }}
-                          title="Effacer la recherche"
-                          aria-label="Effacer la recherche"
-                          onMouseDown={(e) => { e.preventDefault(); }}
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                          <button
+                            type="button"
+                            onClick={() => setSearchQuery("")}
+                            className="h-5 w-5 transition-colors button-ripple search-clear-btn"
+                            style={{ color: 'var(--tb-teal)' }}
+                            title="Effacer la recherche"
+                            aria-label="Effacer la recherche"
+                            onMouseDown={(e) => { e.preventDefault(); }}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
                       )}
                     </div>
 
@@ -1014,8 +1029,8 @@ function App() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="p-0 viewport-scroll">
-                    <ScrollArea className="h-full" style={{ "--scrollbar-width": "8px" }}>
+                  <CardContent className="p-0">
+                    <ScrollArea className="h-[55vh] sm:h-[60vh] md:h-[65vh] lg:h-[70vh]" style={{ "--scrollbar-width": "8px" }}>
                       <div className="space-y-3 p-4 relative">
                         {/* Indicateur de scroll en bas */}
                         {filteredTemplates.length > 6 && (
@@ -1058,10 +1073,13 @@ function App() {
                     </ScrollArea>
                   </CardContent>
                 </Card>
-              </div>
+                  </div>
+                </Panel>
+                <PanelResizeHandle className="ResizeHandleX" />
 
               {/* Panneau de droite - Édition */}
-              <div className="lg:col-span-3 space-y-5 lg:space-y-6">
+              <Panel minSize={45} className="min-w-[420px]">
+                <div className="space-y-5 lg:space-y-6">
                 {selectedTemplate ? (
                   <>
                     {/* Variables avec style moderne */}
@@ -1147,7 +1165,7 @@ function App() {
                       )}
 
                     {/* Version éditable - ZONE PRINCIPALE */}
-                        <Card className="shadow-2xl border-0 overflow-hidden relative viewport-panel" style={{ backgroundColor: 'white' }}>
+                        <Card className="shadow-2xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
                       {/* Fill header gap on editors card */}
                       <div className="absolute inset-x-0 top-0" style={{ height: '76px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
                       <CardHeader className="relative z-10" style={{ backgroundColor: 'transparent' }}>
@@ -1156,7 +1174,7 @@ function App() {
                           {t.editEmail}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="p-6 space-y-5 lg:space-y-6 viewport-scroll">
+                      <CardContent className="p-6 space-y-5 lg:space-y-6">
                         {/* Objet éditable avec aperçu surlignement */}
                         <div className="space-y-3">
                           <label className="text-lg font-bold text-[var(--tb-navy)]">
@@ -1182,7 +1200,7 @@ function App() {
                             onChange={(e) => setFinalBody(e.target.value)}
                             variables={variables}
                             placeholder={t.body}
-                            minHeight="340px"
+                            minHeight="260px"
                             style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
                           />
                         </div>
@@ -1303,7 +1321,9 @@ function App() {
                     </CardContent>
                   </Card>
                 )}
-              </div>
+                </div>
+              </Panel>
+              </PanelGroup>
             </div>
           </main>
         </>

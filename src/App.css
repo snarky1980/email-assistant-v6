@@ -151,6 +151,11 @@ input::-webkit-clear-button {
   box-shadow: 0 0 0 3px rgba(31, 138, 153, 0.28) !important; /* var(--tb-teal) */
 }
 
+/* Normalize input height and adornment alignment */
+.search-adornment {
+  height: 2.5rem; /* match h-10 on input */
+}
+
 .button-ripple {
   position: relative;
   overflow: hidden;
@@ -181,4 +186,34 @@ input::-webkit-clear-button {
 .chip-hover:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 12px rgba(26, 54, 93, 0.12);
+}
+
+/* Resize handles for resizable panels */
+.ResizeHandleX {
+  position: relative;
+  width: 10px; /* comfortable hit area */
+  cursor: col-resize;
+  background: transparent; /* no blocky bar */
+  user-select: none;
+}
+.ResizeHandleX::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px; /* subtle visible line */
+  height: 100%;
+  border-radius: 1px;
+  background-color: rgba(31, 138, 153, 0.22); /* soft teal */
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.ResizeHandleX:hover::before,
+.ResizeHandleX:focus-visible::before {
+  background-color: rgba(31, 138, 153, 0.5);
+}
+.ResizeHandleY {
+  height: 8px;
+  cursor: row-resize;
+  background: linear-gradient(to right, transparent 0%, rgba(31,138,153,0.35) 20%, rgba(31,138,153,0.55) 50%, rgba(31,138,153,0.35) 80%, transparent 100%);
 }

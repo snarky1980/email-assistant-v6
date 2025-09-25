@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { Edit3, Eye } from "lucide-react";
 
 const HighlightingEditor = ({
   value,
@@ -10,42 +11,44 @@ const HighlightingEditor = ({
   style = {},
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const textareaRef = useRef(null);
 
-  // Générer le contenu avec surlignage des variables
+  // Focus textarea and place caret at end when entering edit mode
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      const len = (value || "").length;
+      textareaRef.current.focus();
+      try {
+        textareaRef.current.setSelectionRange(len, len);
+      } catch (_) {
+        // Ignore if not supported
+      }
+    }
+  }, [isEditing, value]);
+
+  // Generate highlighted HTML for variables
   const generateHighlightedContent = (text) => {
     if (!text || !variables || Object.keys(variables).length === 0) {
-      return text;
+      return text || "";
     }
 
     let highlightedText = text;
 
-    // Créer un tableau des valeurs de variables non vides, triées par longueur décroissante
     const variableValues = Object.values(variables)
-      .filter(
-        (value) => value && typeof value === "string" && value.trim() !== ""
-      )
+      .filter((v) => v && typeof v === "string" && v.trim() !== "")
       .sort((a, b) => b.length - a.length);
 
-    // Remplacer chaque valeur par sa version surlignée
-    variableValues.forEach((value) => {
-      const escapedValue = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-      // Pour les nombres courts, utiliser un pattern plus spécifique
+    variableValues.forEach((val) => {
+      const escapedValue = val.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       let pattern;
-      if (/^\d+$/.test(value)) {
-        // Pour les nombres purs, chercher le nombre entouré d'espaces, ponctuation ou symboles
+      if (/^\d+$/.test(val)) {
         pattern = `(?<=\\s|^|\\$|\\()(${escapedValue})(?=\\s|$|\\)|\\.|,|\\$)`;
       } else {
-        // Pour les autres valeurs, utiliser word boundaries
         pattern = `\\b(${escapedValue})\\b`;
       }
-
       const regex = new RegExp(pattern, "g");
       highlightedText = highlightedText.replace(regex, (match) => {
-        // Éviter de surligner si déjà surligné
-        if (match.includes('<span class="variable-highlight">')) {
-          return match;
-        }
+        if (match.includes('<span class="variable-highlight">')) return match;
         return `<span class="variable-highlight">${match}</span>`;
       });
     });
@@ -62,7 +65,7 @@ const HighlightingEditor = ({
     minHeight,
     padding: "12px",
     width: "100%",
-  border: "none",
+    border: "none",
     borderRadius: "var(--radius)",
     backgroundColor: "#ffffff",
     color: "var(--tb-navy)",
@@ -71,7 +74,7 @@ const HighlightingEditor = ({
 
   const readOnlyStyle = {
     ...baseStyle,
-    cursor: "pointer",
+    cursor: "text",
     transition: "all 0.2s ease-in-out",
     whiteSpace: "pre-wrap",
     wordWrap: "break-word",
@@ -82,35 +85,69 @@ const HighlightingEditor = ({
     ...baseStyle,
     resize: "vertical",
     outline: "none",
-  boxShadow: "none",
+    boxShadow: "none",
   };
-
-  if (isEditing) {
-    return (
-      <textarea
-        value={value}
-        onChange={onChange}
-        onBlur={() => setIsEditing(false)}
-        placeholder={placeholder}
-        className={className}
-        style={editStyle}
-        autoFocus
-      />
-    );
-  }
 
   return (
     <>
-      <div
-        onClick={() => setIsEditing(true)}
-        className={className}
-        style={readOnlyStyle}
-        dangerouslySetInnerHTML={{
-          __html: value
-            ? generateHighlightedContent(value)
-            : `<span style="color: var(--tb-gray);">${placeholder}</span>`,
-        }}
-      />
+      <div className="relative group">
+        {isEditing ? (
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={onChange}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                e.preventDefault();
+                setIsEditing(false);
+              }
+            }}
+            placeholder={placeholder}
+            className={className}
+            style={editStyle}
+            autoFocus
+          />
+        ) : (
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => setIsEditing(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setIsEditing(true);
+              }
+            }}
+            className={className}
+            style={readOnlyStyle}
+            dangerouslySetInnerHTML={{
+              __html: value
+                ? generateHighlightedContent(value)
+                : `<span style=\"color: var(--tb-gray);\">${placeholder}</span>`,
+            }}
+          />
+        )}
+
+        {/* Small toggle button in the corner */}
+        <button
+          type="button"
+          onClick={() => setIsEditing((v) => !v)}
+          aria-label={isEditing ? "Preview" : "Edit"}
+          title={isEditing ? "Preview" : "Edit"}
+          className="absolute top-2 right-2 h-7 w-7 rounded-md shadow-sm border-2 transition-colors opacity-90 hover:opacity-100"
+          style={{
+            backgroundColor: "white",
+            borderColor: "var(--tb-mint)",
+            color: "var(--tb-teal)",
+          }}
+        >
+          {isEditing ? (
+            <Eye className="h-4 w-4 mx-auto" />
+          ) : (
+            <Edit3 className="h-4 w-4 mx-auto" />
+          )}
+        </button>
+      </div>
 
       <style jsx>{`
         .variable-highlight {
