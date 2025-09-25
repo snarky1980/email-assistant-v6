@@ -86,7 +86,7 @@ const EmailPreview = ({
         line.includes("Bureau de la traduction")
       ) {
         return (
-          <p key={index} className="text-gray-700 font-medium">
+          <p key={index} className="font-bold" style={{ color: 'var(--tb-navy)' }}>
             {line}
           </p>
         );
@@ -106,7 +106,7 @@ const EmailPreview = ({
 
       // Ligne normale
       return (
-        <p key={index} className="text-gray-800 leading-relaxed">
+        <p key={index} className="leading-relaxed" style={{ color: 'var(--tb-navy)' }}>
           {line}
         </p>
       );
@@ -139,19 +139,29 @@ const EmailPreview = ({
 
   if (!generatedEmail) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-lg shadow-lg p-8 border-2" style={{ borderColor: 'var(--tb-mint)' }}>
         <div className="text-center py-12">
           <div className="text-6xl mb-4">📧</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--tb-navy)' }}>
             Aucun email généré
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="mb-4" style={{ color: 'var(--tb-teal)' }}>
             Remplissez le formulaire et cliquez sur "Générer l'email" pour voir
             la prévisualisation.
           </p>
           <button
             onClick={onBackToForm}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="px-6 py-3 text-white font-bold rounded-lg transition-all duration-200 hover:scale-105 shadow-lg"
+            style={{
+              backgroundColor: 'var(--tb-teal)',
+              boxShadow: '0 4px 12px rgba(8, 145, 178, 0.3)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = 'var(--tb-navy)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'var(--tb-teal)';
+            }}
           >
             ← Retour au formulaire
           </button>
@@ -219,7 +229,7 @@ const EmailPreview = ({
 
       {/* Simulation de l'interface email */}
       <div className="p-6">
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="border-2 rounded-lg overflow-hidden" style={{ borderColor: 'var(--tb-mint)' }}>
           {/* En-tête de l'email simulé */}
           <div className="px-4 py-3 border-b-2" style={{ backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}>
             <div className="space-y-2 text-sm">
@@ -230,20 +240,20 @@ const EmailPreview = ({
                 </span>
               </div>
               <div className="flex">
-                <span className="text-gray-600 w-16">À:</span>
-                <span className="text-gray-900">
+                <span className="font-medium w-16" style={{ color: 'var(--tb-teal)' }}>À:</span>
+                <span className="font-bold" style={{ color: 'var(--tb-navy)' }}>
                   {formData.clientName || "[Nom du client]"}
                 </span>
               </div>
               <div className="flex">
-                <span className="text-gray-600 w-16">Sujet:</span>
-                <span className="text-gray-900 font-medium">
+                <span className="font-medium w-16" style={{ color: 'var(--tb-teal)' }}>Sujet:</span>
+                <span className="font-bold" style={{ color: 'var(--tb-navy)' }}>
                   {formData.subject || "[Sujet]"}
                 </span>
               </div>
               <div className="flex">
-                <span className="text-gray-600 w-16">Date:</span>
-                <span className="text-gray-900">
+                <span className="font-medium w-16" style={{ color: 'var(--tb-teal)' }}>Date:</span>
+                <span className="font-bold" style={{ color: 'var(--tb-navy)' }}>
                   {new Date().toLocaleDateString("fr-CA", {
                     year: "numeric",
                     month: "long",
@@ -263,19 +273,52 @@ const EmailPreview = ({
                 <textarea
                   value={editedContent}
                   onChange={(e) => setEditedContent(e.target.value)}
-                  className="w-full h-96 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                  className="w-full h-96 px-4 py-3 border-2 rounded-lg focus:outline-none font-mono text-sm transition-all"
+                  style={{
+                    borderColor: 'var(--tb-mint)',
+                    backgroundColor: 'white'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'var(--tb-teal)';
+                    e.target.style.boxShadow = `0 0 0 3px rgba(8, 145, 178, 0.1)`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'var(--tb-mint)';
+                    e.target.style.boxShadow = 'none';
+                  }}
                   placeholder="Contenu de l'email..."
                 />
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={handleCancelEdit}
-                    className="px-3 py-1 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 hover:scale-105 border-2"
+                    style={{
+                      color: 'var(--tb-navy)',
+                      backgroundColor: 'white',
+                      borderColor: 'var(--tb-mint)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = 'var(--tb-light-blue)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = 'white';
+                    }}
                   >
                     Annuler
                   </button>
                   <button
                     onClick={handleSaveEdit}
-                    className="px-3 py-1 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                    className="px-4 py-2 text-sm font-bold text-white rounded-lg transition-all duration-200 hover:scale-105 shadow-lg"
+                    style={{
+                      backgroundColor: 'var(--tb-teal)',
+                      boxShadow: '0 4px 12px rgba(8, 145, 178, 0.3)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = 'var(--tb-navy)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = 'var(--tb-teal)';
+                    }}
                   >
                     Sauvegarder
                   </button>
@@ -291,13 +334,24 @@ const EmailPreview = ({
       </div>
 
       {/* Actions */}
-      <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+      <div className="px-6 py-4 border-t-2" style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'var(--tb-light-blue)' }}>
         <div className="flex justify-between items-center">
           <div className="flex space-x-2">
             <button
               onClick={handleEdit}
               disabled={isEditing}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 hover:scale-105 border-2"
+              style={{
+                color: 'var(--tb-navy)',
+                backgroundColor: 'white',
+                borderColor: 'var(--tb-mint)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'var(--tb-light-blue)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'white';
+              }}
             >
               ✏️ Modifier
             </button>
@@ -314,7 +368,7 @@ const EmailPreview = ({
             </button>
           </div>
 
-          <div className="text-sm text-gray-500">
+          <div className="text-sm" style={{ color: 'var(--tb-teal)' }}>
             Prêt à être utilisé dans votre client email
           </div>
         </div>

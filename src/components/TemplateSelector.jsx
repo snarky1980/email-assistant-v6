@@ -98,7 +98,10 @@ const TemplateSelector = ({
       case "low":
         return "bg-green-100 text-green-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        // Fallback avec couleurs Bureau de la traduction
+        return `text-white`;
+      case 'unknown':
+        return `text-white`;
     }
   };
 
@@ -211,7 +214,7 @@ const TemplateSelector = ({
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="space-y-1">
             {filteredTemplates.map((template, index) => (
               <div
                 key={template.id || index}
@@ -310,8 +313,8 @@ const TemplateSelector = ({
       </div>
 
       {/* Pied de page avec statistiques */}
-      <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
-        <div className="flex justify-between items-center text-sm text-gray-600">
+      <div className="px-4 py-3 border-t-2" style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'var(--tb-light-blue)' }}>
+        <div className="flex justify-between items-center text-sm font-medium" style={{ color: 'var(--tb-navy)' }}>
           <span>
             {filteredTemplates.length} modèle
             {filteredTemplates.length !== 1 ? "s" : ""}

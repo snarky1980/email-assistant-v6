@@ -150,10 +150,10 @@ const EmailForm = ({
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="text-center py-12">
           <div className="text-6xl mb-4">📧</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--tb-navy)' }}>
             Sélectionnez un modèle d'email
           </h3>
-          <p className="text-gray-600">
+          <p style={{ color: 'var(--tb-teal)' }}>
             Choisissez un modèle dans la liste de gauche pour commencer à
             rédiger votre email.
           </p>
@@ -257,11 +257,11 @@ const EmailForm = ({
             {fieldErrors.subject ? (
               <p className="text-sm text-red-600">{fieldErrors.subject}</p>
             ) : (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm" style={{ color: 'var(--tb-teal)' }}>
                 Sujet clair et professionnel
               </p>
             )}
-            <p className="text-sm text-gray-400">
+            <p className="text-sm" style={{ color: 'var(--tb-teal)' }}>
               {(formData.subject || "").length}/100
             </p>
           </div>
@@ -271,7 +271,8 @@ const EmailForm = ({
         <div>
           <label
             htmlFor="customMessage"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-bold mb-2"
+            style={{ color: 'var(--tb-navy)' }}
           >
             Message personnalisé (optionnel)
           </label>
@@ -283,9 +284,23 @@ const EmailForm = ({
             placeholder="Ajoutez des informations spécifiques à ce client ou cette situation..."
             rows={4}
             maxLength={500}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical ${
-              fieldErrors.customMessage ? "border-red-500" : "border-gray-300"
-            }`}
+            className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all resize-vertical"
+            style={{
+              borderColor: fieldErrors.customMessage ? '#dc2626' : 'var(--tb-mint)',
+              backgroundColor: 'white'
+            }}
+            onFocus={(e) => {
+              if (!fieldErrors.customMessage) {
+                e.target.style.borderColor = 'var(--tb-teal)';
+                e.target.style.boxShadow = `0 0 0 3px rgba(8, 145, 178, 0.1)`;
+              }
+            }}
+            onBlur={(e) => {
+              if (!fieldErrors.customMessage) {
+                e.target.style.borderColor = 'var(--tb-mint)';
+                e.target.style.boxShadow = 'none';
+              }
+            }}
           />
           <div className="flex justify-between mt-1">
             {fieldErrors.customMessage ? (
@@ -293,11 +308,11 @@ const EmailForm = ({
                 {fieldErrors.customMessage}
               </p>
             ) : (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm" style={{ color: 'var(--tb-teal)' }}>
                 Ce message sera inséré dans le modèle
               </p>
             )}
-            <p className="text-sm text-gray-400">
+            <p className="text-sm" style={{ color: 'var(--tb-teal)' }}>
               {(formData.customMessage || "").length}/500
             </p>
           </div>
@@ -429,7 +444,7 @@ const EmailForm = ({
               <h3 className="text-sm font-bold" style={{ color: 'var(--tb-navy)' }}>
                 Conseils pour un email efficace
               </h3>
-              <div className="mt-2 text-sm text-blue-700">
+              <div className="mt-2 text-sm" style={{ color: 'var(--tb-navy)' }}>
                 <ul className="list-disc list-inside space-y-1">
                   <li>Utilisez un nom de client complet et respectueux</li>
                   <li>Rédigez un sujet clair et informatif</li>
