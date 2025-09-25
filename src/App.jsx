@@ -37,15 +37,23 @@ import "./App.css";
 
 // Custom CSS for modern typography and variable highlighting
 const customEditorStyles = `
-  /* Translation Bureau Brand Colors */
+  /* Translation Bureau Brand Colors - Exact Match from Brand Identity */
   :root {
-    --tb-navy: #1e3a5f;          /* Deep navy blue (primary) */
-    --tb-teal: #2dd4bf;          /* Bright teal (accent) */
-    --tb-mint: #a7f3d0;          /* Light mint green (secondary) */
-    --tb-lime: #bef264;          /* Soft yellow-green (highlight) */
-    --tb-cream: #fefefe;         /* Clean white/cream (neutral) */
+    --tb-navy: #1a365d;          /* Deep navy (from brand image) */
+    --tb-teal: #0891b2;          /* Bright teal (from brand image) */  
+    --tb-mint: #a7f3d0;          /* Light mint (from brand image) */
+    --tb-lime: #bef264;          /* Soft lime yellow (from brand image) */
+    --tb-light-blue: #e0f2fe;    /* Very light blue (from brand image) */
+    --tb-cream: #fefefe;         /* Clean white */
     --tb-gray: #6b7280;          /* Supporting gray */
-    --tb-light-gray: #f8fafc;   /* Very light gray for backgrounds */
+  }
+
+  /* Organic Header with Curved Shapes */
+  .organic-header {
+    background: var(--tb-light-blue);
+    position: relative;
+    overflow: hidden;
+    min-height: 140px;
   }
 
   /* Modern typography base */
@@ -686,52 +694,128 @@ function App() {
         </div>
       ) : (
         <>
-          {/* En-tête avec identité visuelle Bureau de la traduction */}
-          <header style={{ backgroundColor: 'var(--tb-navy)' }} className="shadow-lg">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {/* En-tête avec formes organiques inspirées de l'identité Bureau de la traduction */}
+          <header className="organic-header relative shadow-lg">
+            {/* Formes organiques inspirées de l'image de marque */}
+            <div className="absolute inset-0 overflow-hidden">
+              {/* Forme pill navy à gauche */}
+              <div 
+                className="absolute -left-8 top-4 w-32 h-20 opacity-90"
+                style={{ 
+                  backgroundColor: 'var(--tb-navy)',
+                  borderRadius: '60px',
+                  transform: 'rotate(-15deg)'
+                }}
+              ></div>
+              
+              {/* Forme pill teal au centre */}
+              <div 
+                className="absolute left-1/4 -top-6 w-24 h-32 opacity-80"
+                style={{ 
+                  backgroundColor: 'var(--tb-teal)',
+                  borderRadius: '60px',
+                  transform: 'rotate(10deg)'
+                }}
+              ></div>
+              
+              {/* Forme pill lime à droite */}
+              <div 
+                className="absolute right-8 top-8 w-28 h-16 opacity-70"
+                style={{ 
+                  backgroundColor: 'var(--tb-lime)',
+                  borderRadius: '50px',
+                  transform: 'rotate(-25deg)'
+                }}
+              ></div>
+              
+              {/* Grande forme pill mint en arrière-plan */}
+              <div 
+                className="absolute right-16 -bottom-4 w-40 h-24 opacity-60"
+                style={{ 
+                  backgroundColor: 'var(--tb-mint)',
+                  borderRadius: '70px',
+                  transform: 'rotate(35deg)'
+                }}
+              ></div>
+            </div>
+            
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div style={{ backgroundColor: 'var(--tb-teal)' }} className="rounded-full p-3 shadow-md">
-                    <Mail className="h-8 w-8 text-white" />
+                <div className="flex items-center space-x-6">
+                  {/* Icône avec style organique */}
+                  <div className="relative">
+                    <div 
+                      className="p-4 shadow-lg"
+                      style={{ 
+                        backgroundColor: 'var(--tb-teal)',
+                        borderRadius: '28px',
+                      }}
+                    >
+                      <Mail className="h-10 w-10 text-white" />
+                    </div>
+                    <div 
+                      className="absolute -top-2 -right-2 w-6 h-6"
+                      style={{ 
+                        backgroundColor: 'var(--tb-lime)',
+                        borderRadius: '50%'
+                      }}
+                    ></div>
                   </div>
+                  
+                  {/* Textes avec contraste élevé */}
                   <div>
-                    <h1 className="text-2xl font-semibold text-white">
+                    <h1 className="text-3xl font-bold" style={{ color: 'var(--tb-navy)' }}>
                       {t.title}
                     </h1>
-                    <p style={{ color: 'var(--tb-mint)' }} className="text-sm font-medium">
+                    <p className="text-lg font-medium" style={{ color: 'var(--tb-teal)' }}>
                       {t.subtitle}
                     </p>
                   </div>
                 </div>
 
-                {/* Langue de l'interface avec couleurs Bureau de la traduction */}
-                <div style={{ backgroundColor: 'var(--tb-mint)', color: 'var(--tb-navy)' }} className="flex items-center space-x-3 rounded-lg px-4 py-2 shadow-sm">
-                  <Globe className="h-5 w-5" style={{ color: 'var(--tb-navy)' }} />
-                  <span className="font-medium text-sm">
+                {/* Sélecteur de langue avec style organique */}
+                <div 
+                  className="flex items-center space-x-4 px-6 py-4 shadow-lg"
+                  style={{ 
+                    backgroundColor: 'var(--tb-mint)',
+                    borderRadius: '25px',
+                    color: 'var(--tb-navy)'
+                  }}
+                >
+                  <Globe className="h-6 w-6" style={{ color: 'var(--tb-navy)' }} />
+                  <span className="font-bold text-sm">
                     {t.interfaceLanguage}:
                   </span>
-                  <div className="flex bg-white rounded-md p-1 shadow-sm">
+                  <div className="flex bg-white p-1 shadow-sm" style={{ borderRadius: '15px' }}>
                     <button
                       onClick={() => setInterfaceLanguage("fr")}
-                      className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                      className={`px-4 py-2 text-sm font-bold transition-all duration-200 ${
                         interfaceLanguage === "fr"
                           ? "text-white shadow-sm"
-                          : "hover:bg-gray-100"
+                          : ""
                       }`}
-                      style={interfaceLanguage === "fr" ? { backgroundColor: 'var(--tb-teal)' } : { color: 'var(--tb-navy)' }}
+                      style={{
+                        backgroundColor: interfaceLanguage === "fr" ? 'var(--tb-navy)' : 'transparent',
+                        color: interfaceLanguage === "fr" ? 'white' : 'var(--tb-navy)',
+                        borderRadius: '12px'
+                      }}
                     >
-                      FR
+                      🇫🇷 FR
                     </button>
                     <button
                       onClick={() => setInterfaceLanguage("en")}
-                      className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                      className={`px-4 py-2 text-sm font-bold transition-all duration-200 ${
                         interfaceLanguage === "en"
                           ? "text-white shadow-sm"
-                          : "hover:bg-gray-100"
+                          : ""
                       }`}
-                      style={interfaceLanguage === "en" ? { backgroundColor: 'var(--tb-teal)' } : { color: 'var(--tb-navy)' }}
+                      style={{
+                        backgroundColor: interfaceLanguage === "en" ? 'var(--tb-navy)' : 'transparent',
+                        color: interfaceLanguage === "en" ? 'white' : 'var(--tb-navy)',
+                        borderRadius: '12px'
+                      }}
                     >
-                      EN
+                      🇬🇧 EN
                     </button>
                   </div>
                 </div>
