@@ -59,12 +59,12 @@
   --accent: #bef264;                  /* Lime accent */
   --accent-foreground: #1a365d;
   
-  /* Translation Bureau specific brand colors */
-  --tb-navy: #1a365d;                 /* Primary navy blue */
-  --tb-teal: #0891b2;                 /* Bright teal */
-  --tb-mint: #a7f3d0;                 /* Light mint green */
-  --tb-lime: #d3d3a0;                 /* Soft sage yellow-green */
-  --tb-light-blue: #e0f2fe;           /* Very light blue */
+  /* Translation Bureau specific brand colors - from official palette */
+  --tb-navy: #1e3a5f;                 /* Deep navy blue */
+  --tb-teal: #2dd4bf;                 /* Bright teal */
+  --tb-mint: #a7f3d0;                 /* Light mint */
+  --tb-lime: #c4d97b;                 /* Sage yellow-green */
+  --tb-light-blue: #dbeafe;           /* Very light blue */
   --tb-gray: #6b7280;                 /* Supporting gray */
   --destructive: oklch(0.577 0.245 27.325);
   --border: #a7f3d0;                  /* Light mint borders */

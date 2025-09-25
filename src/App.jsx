@@ -684,7 +684,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, #e0f2fe, #a7f3d0, #d3d3a0)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#f0f8ff' }}>
       {loading ? (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
