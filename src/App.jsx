@@ -918,13 +918,18 @@ function App() {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors pointer-events-none" style={{ color: 'var(--tb-teal)' }} />
                       <Input
                         ref={searchRef}
-                        type="text"
+                        type="search"
                         placeholder={t.searchPlaceholder}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10 pr-10 border-2 transition-all duration-300 teal-focus"
                         aria-label={t.searchPlaceholder}
                         role="searchbox"
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="none"
+                        spellCheck={false}
+                        inputMode="search"
                         style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'white' }}
                         onFocus={(e) => {
                           e.target.style.borderColor = 'var(--tb-teal)';
@@ -934,16 +939,28 @@ function App() {
                           e.target.style.borderColor = 'var(--tb-mint)';
                           e.target.style.boxShadow = 'none';
                         }}
+                        onKeyDown={(e) => {
+                          // Avoid global shortcuts while in the search box
+                          if ((e.ctrlKey || e.metaKey) && (e.key === 'Enter' || e.key.toLowerCase() === 'b')) {
+                            e.stopPropagation();
+                          }
+                          // Escape clears the search
+                          if (e.key === 'Escape' && searchQuery) {
+                            e.preventDefault();
+                            setSearchQuery('');
+                          }
+                        }}
                       />
                       {/* Bouton X pour effacer la recherche */}
                       {searchQuery && (
                         <button
                           type="button"
                           onClick={() => setSearchQuery("")}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors button-ripple"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors button-ripple search-clear-btn"
                           style={{ color: 'var(--tb-teal)' }}
                           title="Effacer la recherche"
                           aria-label="Effacer la recherche"
+                          onMouseDown={(e) => { e.preventDefault(); }}
                         >
                           <svg
                             className="h-4 w-4"

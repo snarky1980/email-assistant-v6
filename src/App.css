@@ -141,6 +141,11 @@ input::-webkit-clear-button {
   -webkit-appearance: none !important;
 }
 
+/* Prevent custom clear button from stealing focus */
+.search-clear-btn {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .teal-focus:focus-visible {
   outline: none !important;
   box-shadow: 0 0 0 3px rgba(31, 138, 153, 0.28) !important; /* var(--tb-teal) */
