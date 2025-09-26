@@ -13,7 +13,7 @@
  * @author Bureau de la traduction
  */
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 
 const TemplateSelector = ({
   templates,
@@ -104,7 +104,7 @@ const TemplateSelector = ({
     }
   };
 
-  const filteredTemplates = getFilteredTemplates();
+  const filteredTemplates = useMemo(() => getFilteredTemplates(), [templates, searchFilter, categoryFilter]);
   const availableCategories = getAvailableCategories();
 
   return (
@@ -153,7 +153,7 @@ const TemplateSelector = ({
         </div>
 
         {/* Filtre par catégorie */}
-        <div>
+        <div className="flex flex-col" style={{alignItems:'flex-start'}}>
           <label
             htmlFor="category"
             className="block text-xs font-bold mb-1"
@@ -165,8 +165,9 @@ const TemplateSelector = ({
             id="category"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full px-4 py-3 text-sm border-2 rounded-lg focus:outline-none transition-all"
+            className="px-4 py-3 text-sm border-2 rounded-lg focus:outline-none transition-all"
             style={{
+              width: '75%',
               borderColor: 'var(--tb-mint)',
               backgroundColor: 'white'
             }}

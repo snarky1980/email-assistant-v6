@@ -1079,13 +1079,7 @@ function App() {
         backgroundImage: 'linear-gradient(to left, var(--background), transparent)'
       }}
     />
-    <div
-      aria-hidden
-      className="fixed left-0 right-0 bottom-0 h-10 pointer-events-none z-30"
-      style={{
-        backgroundImage: 'linear-gradient(to top, var(--background), transparent)'
-      }}
-    />
+    {/* Removed bottom fade haze for cleaner edge */}
     <Toaster richColors position="top-right" />
       {loading ? (
         <div className="flex items-center justify-center min-h-screen">
@@ -1114,8 +1108,7 @@ function App() {
             {/* subtle inner highlight and soft glows to make banner stand out */}
             <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
               <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '2px', background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent)' }} />
-              <div style={{ position: 'absolute', left: '-8%', top: '-24%', width: '40%', height: '120%', background: 'radial-gradient(40% 40% at 30% 30%, rgba(255,255,255,0.28), transparent 70%)' }} />
-              <div style={{ position: 'absolute', right: '-6%', top: '-18%', width: '32%', height: '110%', background: 'radial-gradient(38% 38% at 70% 30%, rgba(255,255,255,0.24), transparent 72%)' }} />
+              {/* Removed radial highlight glows to eliminate white haze */}
             </div>
             {/* Grandes capsules inspirées de l'identité Bureau de la traduction */}
             <div className="absolute inset-0 overflow-hidden">
