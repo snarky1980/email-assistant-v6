@@ -12,6 +12,7 @@ import {
   Mail,
   Edit3,
   Link,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.jsx";
 import { Input } from "@/components/ui/input.jsx";
@@ -226,6 +227,11 @@ function App() {
   const [variables, setVariables] = useState(savedState.variables || {});
   const [copySuccess, setCopySuccess] = useState(false);
   const [varsOpen, setVarsOpen] = useState(false);
+  // NEW: Favorites and Recents (local-only)
+  const [favorites, setFavorites] = useState(savedState.favorites || []); // array of template ids
+  const [recents, setRecents] = useState(savedState.recents || []); // MRU array of template ids
+  const [favoritesOpen, setFavoritesOpen] = useState(true);
+  const [recentsOpen, setRecentsOpen] = useState(true);
 
   // Palette-based styles for category badges
   const getCategoryBadgeStyle = (category) => {
@@ -258,6 +264,8 @@ function App() {
       templateLanguage,
       searchQuery,
       variables,
+      favorites,
+      recents,
     };
     if (hasInteractedRef.current.categoryChanged) {
       toSave.selectedCategory = selectedCategory;
@@ -266,7 +274,7 @@ function App() {
       toSave.varsOpen = varsOpen;
     }
     saveState(toSave);
-  }, [interfaceLanguage, templateLanguage, searchQuery, selectedCategory, variables, varsOpen]);
+  }, [interfaceLanguage, templateLanguage, searchQuery, selectedCategory, variables, varsOpen, favorites, recents]);
 
   // Textes de l'interface selon la langue
   const interfaceTexts = {
@@ -297,6 +305,8 @@ function App() {
       copyAll: "Copier Tout",
       copied: "Copié !",
       noTemplate: "Sélectionnez un modèle pour commencer",
+      favorites: "Favoris",
+      recents: "Récents",
     },
     en: {
       title: "Email Writing Assistant for Clients",
@@ -325,6 +335,8 @@ function App() {
       copyAll: "Copy All",
       copied: "Copied!",
       noTemplate: "Select a template to get started",
+      favorites: "Favorites",
+      recents: "Recents",
     },
   };
 
@@ -340,6 +352,14 @@ function App() {
         }
         const data = await response.json();
         setTemplatesData(data);
+        // Prune favorites/recents to existing template IDs
+        try {
+          const ids = new Set(data.templates.map((t) => t.id));
+          const prunedFav = (savedState.favorites || []).filter((id) => ids.has(id));
+          const prunedRec = (savedState.recents || []).filter((id) => ids.has(id));
+          if (JSON.stringify(prunedFav) !== JSON.stringify(favorites)) setFavorites(prunedFav);
+          if (JSON.stringify(prunedRec) !== JSON.stringify(recents)) setRecents(prunedRec);
+        } catch {}
       } catch (error) {
         console.error("Error loading templates data:", error);
       } finally {
@@ -364,26 +384,20 @@ function App() {
    */
   useEffect(() => {
     if (!templatesData) return;
-
-    // 📖 Lire les paramètres de l'URL actuelle
     const params = new URLSearchParams(window.location.search);
     const templateId = params.get("id");
     const langParam = params.get("lang");
-
-    // 🌐 Appliquer la langue depuis l'URL si spécifiée et valide
     if (langParam && ["fr", "en"].includes(langParam)) {
       setTemplateLanguage(langParam);
       setInterfaceLanguage(langParam);
     }
-
-    // 🎯 Pré-sélectionner le template depuis l'URL
     if (templateId) {
       const template = templatesData.templates.find((t) => t.id === templateId);
       if (template) {
-        setSelectedTemplate(template);
+        selectTemplate(template);
       }
     }
-  }, [templatesData]); // Se déclenche quand les templates sont chargés
+  }, [templatesData]);
 
   /**
    * ⌨️ RACCOURCIS CLAVIER POUR UNE UX PROFESSIONNELLE
@@ -457,6 +471,44 @@ function App() {
     return filtered;
   }, [templatesData, searchQuery, selectedCategory, templateLanguage]);
 
+  // Derive ordered Favorites and Recents lists from filteredTemplates
+  const { favoriteTemplates, recentTemplates, otherTemplates } = useMemo(() => {
+    const byId = new Map();
+    filteredTemplates.forEach((t) => byId.set(t.id, t));
+    const favList = favorites.map((id) => byId.get(id)).filter(Boolean);
+    const recList = recents
+      .map((id) => byId.get(id))
+      .filter(Boolean)
+      .filter((t) => !favList.some((f) => f.id === t.id));
+    const excludeIds = new Set([...favList.map((t) => t.id), ...recList.map((t) => t.id)]);
+    const rest = filteredTemplates.filter((t) => !excludeIds.has(t.id));
+    return { favoriteTemplates: favList, recentTemplates: recList, otherTemplates: rest };
+  }, [filteredTemplates, favorites, recents]);
+
+  // Toggle favorite handler
+  const toggleFavorite = (templateId) => {
+    setFavorites((prev) => {
+      const set = new Set(prev);
+      if (set.has(templateId)) set.delete(templateId);
+      else set.add(templateId);
+      const arr = Array.from(set);
+      saveState({ favorites: arr });
+      return arr;
+    });
+  };
+
+  // When selecting a template, update recents MRU
+  const selectTemplate = (template) => {
+    setSelectedTemplate(template);
+    if (!template?.id) return;
+    setRecents((prev) => {
+      const arr = [template.id, ...prev.filter((id) => id !== template.id)];
+      const capped = arr.slice(0, 20);
+      saveState({ recents: capped });
+      return capped;
+    });
+  };
+
   // Obtenir les catégories uniques
   const categories = useMemo(() => {
     if (!templatesData) return [];
@@ -477,7 +529,7 @@ function App() {
   /**
    * 🎨 SURBRILLANCE DES VARIABLES DANS LE TEXTE
    *
-   * Convertit le texte avec variables en JSX avec surbrillance colorée
+   * Convertit le texte avec variables en JSX avec surlignage colorée
    * - Variables remplies : fond vert clair
    * - Variables vides : fond orange clair avec bordure
    * - Couleurs distinctes pour faciliter l'identification
@@ -1352,10 +1404,107 @@ function App() {
                     </div>
                     <ScrollArea className="h-[55vh] sm:h-[60vh] md:h-[65vh] lg:h-[70vh]" style={{ "--scrollbar-width": "8px" }}>
                       <div className="relative space-y-2 p-3 pt-8 pb-9">
-                        {filteredTemplates.map((template) => (
+                        {/* Favorites section */}
+                        {favoriteTemplates.length > 0 && (
+                          <div className="mb-2">
+                            <div className="flex items-center justify-between px-1 mb-1">
+                              <span className="text-xs font-bold" style={{ color: 'var(--tb-navy)' }}>{t.favorites}</span>
+                            </div>
+                            <div className="space-y-2">
+                              {favoriteTemplates.map((template) => (
+                                <div
+                                  key={template.id}
+                                  onClick={() => selectTemplate(template)}
+                                  className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102"
+                                  style={{
+                                    borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)',
+                                    backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white'
+                                  }}
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>
+                                        {template.title[templateLanguage]}
+                                      </h3>
+                                      <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>
+                                        {template.description[templateLanguage]}
+                                      </p>
+                                      <Badge
+                                        variant="secondary"
+                                        className={`text-xs font-medium border-2`}
+                                        style={getCategoryBadgeStyle(template.category)}
+                                      >
+                                        {template.category}
+                                      </Badge>
+                                    </div>
+                                    <button
+                                      className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center"
+                                      style={{ borderColor: 'var(--tb-mint)', color: 'var(--tb-teal)', backgroundColor: 'white' }}
+                                      title="Toggle favorite"
+                                      onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}
+                                    >
+                                      <Star className="h-4 w-4" style={{ fill: 'currentColor' }} />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Recents section */}
+                        {recentTemplates.length > 0 && (
+                          <div className="mb-2">
+                            <div className="flex items-center justify-between px-1 mb-1">
+                              <span className="text-xs font-bold" style={{ color: 'var(--tb-navy)' }}>{t.recents}</span>
+                            </div>
+                            <div className="space-y-2">
+                              {recentTemplates.map((template) => (
+                                <div
+                                  key={template.id}
+                                  onClick={() => selectTemplate(template)}
+                                  className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102"
+                                  style={{
+                                    borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)',
+                                    backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white'
+                                  }}
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>
+                                        {template.title[templateLanguage]}
+                                      </h3>
+                                      <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>
+                                        {template.description[templateLanguage]}
+                                      </p>
+                                      <Badge
+                                        variant="secondary"
+                                        className={`text-xs font-medium border-2`}
+                                        style={getCategoryBadgeStyle(template.category)}
+                                      >
+                                        {template.category}
+                                      </Badge>
+                                    </div>
+                                    <button
+                                      className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center"
+                                      style={{ borderColor: 'var(--tb-mint)', color: favorites.includes(template.id) ? 'var(--tb-teal)' : 'var(--tb-gray)', backgroundColor: 'white' }}
+                                      title="Toggle favorite"
+                                      onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}
+                                    >
+                                      <Star className="h-4 w-4" style={{ fill: favorites.includes(template.id) ? 'currentColor' : 'transparent' }} />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Remaining templates */}
+                        {otherTemplates.map((template) => (
                           <div
                             key={template.id}
-                            onClick={() => setSelectedTemplate(template)}
+                            onClick={() => selectTemplate(template)}
                             className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102"
                             style={{
                               borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)',
@@ -1378,13 +1527,21 @@ function App() {
                                   {template.category}
                                 </Badge>
                               </div>
+                              <button
+                                className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center"
+                                style={{ borderColor: 'var(--tb-mint)', color: favorites.includes(template.id) ? 'var(--tb-teal)' : 'var(--tb-gray)', backgroundColor: 'white' }}
+                                title="Toggle favorite"
+                                onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}
+                              >
+                                <Star className="h-4 w-4" style={{ fill: favorites.includes(template.id) ? 'currentColor' : 'transparent' }} />
+                              </button>
                             </div>
                           </div>
                         ))}
                       </div>
                     </ScrollArea>
                   </CardContent>
-                </Card>
+                  </Card>
                   </div>
                 </Panel>
                 <PanelResizeHandle className="ResizeHandleX" />
