@@ -351,6 +351,7 @@ function App() {
       recents: "Recents",
       noResults: "No results",
       tryDifferentSearch: "Try different keywords or clear the search.",
+      exportEml: "Export .eml (Outlook)",
     },
   };
 
@@ -898,6 +899,62 @@ function App() {
         "Erreur lors de la copie du lien. Veuillez copier manuellement l'URL depuis la barre d'adresse."
       );
     }
+  };
+
+  // Export current email as EML (openable in Outlook; users can Save As .oft)
+  const exportAsEML = () => {
+    if (!selectedTemplate) return;
+
+    const toCRLF = (s) => (s || "").replace(/\r?\n/g, "\r\n");
+
+    // RFC 2047: encode non-ASCII subject as UTF-8 Base64
+    const encodeRFC2047 = (str) => {
+      try {
+        const utf8 = new TextEncoder().encode(str || "");
+        let binary = "";
+        for (const b of utf8) binary += String.fromCharCode(b);
+        const b64 = btoa(binary);
+        return `=?UTF-8?B?${b64}?=`;
+      } catch {
+        return str || "";
+      }
+    };
+
+    const subjectHeader = encodeRFC2047(finalSubject || "");
+    const bodyText = toCRLF(finalBody || "");
+    const dateStr = new Date().toUTCString();
+    const msgId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@email-assistant>`;
+
+    const headers = [
+      "From:",
+      "To:",
+      `Subject: ${subjectHeader}`,
+      `Date: ${dateStr}`,
+      "MIME-Version: 1.0",
+      "Content-Type: text/plain; charset=UTF-8",
+      "Content-Transfer-Encoding: 8bit",
+    ].join("\r\n");
+
+    const eml = `${headers}\r\nMessage-ID: ${msgId}\r\n\r\n${bodyText}`;
+    const blob = new Blob([eml], { type: "message/rfc822" });
+
+    const title = selectedTemplate.title?.[templateLanguage] || "email-template";
+    const safeName = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "email-template";
+    const filename = `${safeName}.eml`;
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(a.href);
+      a.remove();
+    }, 0);
   };
 
   // Réinitialiser le formulaire
@@ -1833,7 +1890,18 @@ function App() {
                         Copier le lien
                       </Button>
 
-                      <div className="flex space-x-4">
+                      <div className="flex space-x-4 items-center">
+                        {/* Export .eml for Outlook */}
+                        <Button
+                          variant="outline"
+                          onClick={exportAsEML}
+                          className="border-2 transition-all duration-300 font-semibold"
+                          style={{ borderColor: 'var(--tb-mint)', color: 'var(--tb-navy)', backgroundColor: 'white' }}
+                          title={t.exportEml || "Export .eml (Outlook)"}
+                        >
+                          {t.exportEml || "Export .eml (Outlook)"}
+                        </Button>
+
                         <Button
                           variant="outline"
                           onClick={resetForm}
