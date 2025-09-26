@@ -1158,7 +1158,7 @@ function App() {
             
             <div className="w-full mx-auto px-4 sm:px-8 lg:px-10 py-4 relative z-10">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-6 -ml-[2in]">
                   {/* Icône avec bold impact - solide */}
                   <div className="relative">
                     {/* halo behind the icon */}
@@ -1190,10 +1190,10 @@ function App() {
                   
                   {/* Textes avec contraste élevé */}
                   <div>
-                    <h1 className="text-2xl font-bold" style={{ color: 'var(--tb-navy)' }}>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight" style={{ color: 'var(--tb-navy)' }}>
                       {t.title}
                     </h1>
-                    <p className="text-base font-medium" style={{ color: 'var(--tb-teal)' }}>
+                    <p className="text-lg md:text-xl font-semibold" style={{ color: 'var(--tb-teal)' }}>
                       {t.subtitle}
                     </p>
                   </div>
@@ -1247,192 +1247,18 @@ function App() {
             </div>
           </header>
 
-          {/* Contenu principal wrapper to place side patterns outside work area */}
+          {/* Contenu principal wrapper (clean, blue backdrop only) */}
           <div className="relative max-w-[calc(100vw-2in)] w-full mx-auto">
-            {/* Faint organic side patterns outside the work area */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute hidden md:block"
-              style={{
-                width: '320px',
-                right: 'calc(100% + 36px)',
-                top: '-10px',
-                bottom: '-48px',
-                zIndex: 0,
-                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 52%, black 100%)',
-                maskImage: 'linear-gradient(to right, transparent 0%, black 52%, black 100%)',
-              }}
-            >
-              <svg viewBox="0 0 340 640" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%' }}>
-                {/* Asymmetric, layered capsules with varied opacities */}
-                <rect x="12" y="36" width="134" height="520" rx="67" fill="var(--tb-light-blue)" fillOpacity="0.38" />
-                <rect x="96" y="150" width="96" height="430" rx="48" fill="var(--tb-navy)" fillOpacity="0.18" />
-                <rect x="58" y="260" width="110" height="290" rx="55" fill="var(--tb-teal)" fillOpacity="0.24" />
-                <rect x="194" y="90" width="68" height="480" rx="34" fill="var(--tb-light-blue)" fillOpacity="0.22" />
-                <rect x="10" y="454" width="160" height="152" rx="80" fill="var(--tb-mint)" fillOpacity="0.26" />
-                {/* Additional vertical accents for composite layering */}
-                <rect x="236" y="248" width="70" height="240" rx="35" fill="var(--tb-teal)" fillOpacity="0.20" />
-                <rect x="216" y="210" width="48" height="200" rx="24" fill="var(--tb-sage-muted)" fillOpacity="0.20" />
-                {/* Stems and dots */}
-                <line x1="116" y1="260" x2="116" y2="612" stroke="rgba(26,54,93,0.25)" strokeWidth="1.5" strokeLinecap="round" />
-                <circle cx="116" cy="332" r="6.5" fill="var(--tb-navy)" fillOpacity="0.9" />
-                <line x1="216" y1="90" x2="216" y2="420" stroke="rgba(26,54,93,0.22)" strokeWidth="1.5" strokeLinecap="round" />
-                <circle cx="216" cy="168" r="7" fill="white" fillOpacity="0.95" />
-              </svg>
-            </div>
-            <div
-              aria-hidden
-              className="pointer-events-none absolute hidden md:block"
-              style={{
-                width: '320px',
-                left: 'calc(100% + 48px)',
-                top: '-18px',
-                bottom: '-56px',
-                zIndex: 0,
-                WebkitMaskImage: 'linear-gradient(to left, transparent 0%, black 66%, black 100%)',
-                maskImage: 'linear-gradient(to left, transparent 0%, black 66%, black 100%)',
-              }}
-            >
-              <svg viewBox="0 0 320 640" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%' }}>
-                {/* Different composition for asymmetry */}
-                <rect x="188" y="24" width="123" height="560" rx="61" fill="var(--tb-light-blue)" fillOpacity="0.34" />
-                <rect x="126" y="160" width="92" height="420" rx="46" fill="var(--tb-navy)" fillOpacity="0.22" />
-                <rect x="144" y="262" width="102" height="298" rx="51" fill="var(--tb-teal)" fillOpacity="0.26" />
-                <rect x="58" y="100" width="60" height="480" rx="30" fill="var(--tb-light-blue)" fillOpacity="0.20" />
-                <rect x="168" y="440" width="156" height="148" rx="78" fill="var(--tb-mint)" fillOpacity="0.24" />
-                {/* Additional soft accent */}
-                <rect x="24" y="310" width="72" height="214" rx="36" fill="var(--tb-teal)" fillOpacity="0.20" />
-                {/* Subtle sage accent vertical */}
-                <rect x="98" y="218" width="44" height="244" rx="22" fill="var(--tb-sage-muted)" fillOpacity="0.22" />
-                {/* Stems and dots with different placement */}
-                <line x1="196" y1="210" x2="196" y2="590" stroke="rgba(26,54,93,0.24)" strokeWidth="1.5" strokeLinecap="round" />
-                <circle cx="196" cy="300" r="6" fill="var(--tb-navy)" fillOpacity="0.9" />
-                <line x1="86" y1="140" x2="86" y2="500" stroke="rgba(26,54,93,0.2)" strokeWidth="1.5" strokeLinecap="round" />
-                <circle cx="86" cy="200" r="6.5" fill="white" fillOpacity="0.95" />
-                {/* Small mint dot for balance (very subtle) */}
-                <circle cx="251" cy="468" r="5" fill="var(--tb-mint)" fillOpacity="0.7" />
-              </svg>
-            </div>
-
-            {/* The work area container - now blending with page background */}
             <main className="relative z-10 overflow-hidden w-full px-3 sm:px-5 lg:px-6 py-3">
-              {/* Background pills that disappear under cards for seamless theme */}
-              <div aria-hidden className="absolute inset-0 z-0 pointer-events-none">
-                {/* Left side bold sage vertical pill (full, higher toward banner) */}
-                <div
-                  className="absolute"
-                  style={{
-                    left: '22px',
-                    top: '36px',
-                    width: '140px',
-                    height: '560px',
-                    backgroundColor: 'var(--tb-sage-muted)',
-                    opacity: 0.95,
-                    borderRadius: '80px',
-                  }}
-                />
-                {/* Left side pills behind Template picker */}
-                <div
-                  className="absolute"
-                  style={{
-                    left: '28px',
-                    top: '128px',
-                    width: '280px',
-                    height: '56px',
-                    backgroundColor: 'var(--tb-light-blue)',
-                    opacity: 0.9,
-                    borderRadius: '9999px',
-                  }}
-                />
-                <div
-                  className="absolute"
-                  style={{
-                    left: '56px',
-                    top: '240px',
-                    width: '180px',
-                    height: '280px',
-                    backgroundColor: 'var(--tb-mint)',
-                    opacity: 0.3,
-                    borderRadius: '110px',
-                  }}
-                />
-                {/* Right side pills behind Editors */}
-                <div
-                  className="absolute"
-                  style={{
-                    right: '72px',
-                    top: '176px',
-                    width: '460px',
-                    height: '60px',
-                    backgroundColor: 'var(--tb-light-blue)',
-                    opacity: 0.55,
-                    borderRadius: '9999px',
-                    WebkitMaskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
-                    maskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
-                  }}
-                />
-                <div
-                  className="absolute"
-                  style={{
-                    right: '88px',
-                    top: '260px',
-                    width: '260px',
-                    height: '420px',
-                    backgroundColor: 'var(--tb-teal)',
-                    opacity: 0.25,
-                    borderRadius: '140px',
-                    WebkitMaskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
-                    maskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
-                  }}
-                />
-                {/* Right side continuation vertical light-blue pill (full capsule under content) */}
-                <div
-                  className="absolute"
-                  style={{
-                    right: '64px',
-                    top: '140px',
-                    width: '200px',
-                    height: '560px',
-                    backgroundColor: 'var(--tb-light-blue)',
-                    opacity: 0.4,
-                    borderRadius: '100px',
-                    WebkitMaskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
-                    maskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
-                  }}
-                />
-                {/* Subtle vertical accent under cards, very faint */}
-                <div
-                  className="absolute"
-                  style={{
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    top: '360px',
-                    width: '86px',
-                    height: '420px',
-                    backgroundColor: 'var(--tb-light-blue)',
-                    opacity: 0.18,
-                    borderRadius: '43px',
-                  }}
-                />
-              </div>
-              {/* Bottom blend to remove any visible seam */}
-              <div
-                aria-hidden
-                className="absolute left-0 right-0 bottom-0 h-12 z-[5] pointer-events-none"
-                style={{
-                  backgroundImage: 'linear-gradient(to bottom, transparent, var(--background))',
-                }}
-              />
-            
             <div className="relative z-10">
               <PanelGroup
                 key={remountKey}
                 direction="horizontal"
                 className="h-full gap-1 lg:gap-2"
-                defaultLayout={[18, 82]}
+                defaultLayout={[26, 74]}
               >
                 {/* Panneau de gauche - Liste des modèles */}
-                <Panel minSize={14} maxSize={40} defaultSize={18} className="min-w-[260px]">
+                <Panel minSize={18} maxSize={50} defaultSize={26} className="min-w-[300px]">
                   <div>
                 <Card className="shadow-xl border-0 overflow-hidden relative gap-0 py-0" style={{ backgroundColor: 'white', boxShadow: '0 12px 28px rgba(26, 54, 93, 0.08)' }}>
                   {/* Solid teal header (no washout) to match Variables */}
@@ -1736,7 +1562,7 @@ function App() {
                 <PanelResizeHandle className="ResizeHandleX" />
 
               {/* Panneau de droite - Édition */}
-              <Panel minSize={60} maxSize={100} defaultSize={82} className="min-w-[420px]">
+              <Panel minSize={50} maxSize={100} defaultSize={74} className="min-w-[420px]">
                 <div className="space-y-4 lg:space-y-5 w-full">
                 {selectedTemplate ? (
                   <>
