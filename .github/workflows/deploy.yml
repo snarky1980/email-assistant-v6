@@ -30,13 +30,22 @@ jobs:
           node-version: "20"
           cache: "npm"
 
+      - name: Show Node & npm versions
+        run: |
+          node --version
+          npm --version
+
       # Using npm in CI to avoid pnpm PATH issues on some runners
 
       - name: Install dependencies (npm)
-        run: npm install --no-audit --fund=false
+        run: npm install --no-optional --no-audit --fund=false
 
       - name: Build (npm)
         run: npm run build
+
+      - name: Verify build output
+        run: |
+          echo "Contents of dist/" && ls -la dist || true
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
