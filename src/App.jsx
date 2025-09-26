@@ -1158,7 +1158,7 @@ function App() {
             
             <div className="w-full mx-auto px-4 sm:px-8 lg:px-10 py-4 relative z-10">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-6 ml-[2in]">
+                <div className="flex items-center space-x-6" style={{ marginLeft: '2in' }}>
                   {/* Icône avec bold impact - solide */}
                   <div className="relative">
                     {/* halo behind the icon */}
@@ -1190,10 +1190,10 @@ function App() {
                   
                   {/* Textes avec contraste élevé */}
                   <div>
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight" style={{ color: 'var(--tb-navy)' }}>
+                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight" style={{ color: 'var(--tb-navy)' }}>
                       {t.title}
                     </h1>
-                    <p className="text-lg md:text-xl font-semibold" style={{ color: 'var(--tb-teal)' }}>
+                    <p className="text-xl md:text-2xl font-semibold" style={{ color: 'var(--tb-teal)' }}>
                       {t.subtitle}
                     </p>
                   </div>
