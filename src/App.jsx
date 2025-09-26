@@ -480,32 +480,80 @@ function App() {
     const nq = normalize(q);
     const tokens = nq.split(/\s+/).filter(Boolean);
 
+    // Language-aware synonyms (normalized)
+    const SYNONYMS = {
+      en: {
+        quote: ["estimate", "quotation"],
+        quotes: ["estimate", "quotation"],
+        quotation: ["quote", "estimate"],
+        quotations: ["quote", "estimate"],
+        estimate: ["quote", "quotation"],
+        estimates: ["quote", "quotation"],
+        proposal: ["quote", "estimate"],
+        proposals: ["quote", "estimate"],
+      },
+      fr: {
+        devis: ["soumission", "estimation"],
+        soumission: ["devis", "estimation"],
+        estimation: ["devis", "soumission"],
+      },
+    };
+    const langKey = templateLanguage === "en" ? "en" : "fr";
+    const langSyn = SYNONYMS[langKey] || {};
+
+    const singularize = (s) => (s.endsWith("s") ? s.slice(0, -1) : s);
+    const pluralize = (s) => (s.endsWith("s") ? s : s + "s");
+
+    const expandToken = (tok) => {
+      const set = new Set();
+      const base = singularize(tok);
+      set.add(base);
+      set.add(pluralize(base));
+
+      const syns = langSyn[tok] || langSyn[base] || [];
+      for (const s of syns) {
+        const ns = normalize(s);
+        const sb = singularize(ns);
+        set.add(sb);
+        set.add(pluralize(sb));
+      }
+      return Array.from(set);
+    };
+    const expandedTokens = tokens.map(expandToken).filter((arr) => arr.length);
+
     const scoreField = (fieldText, weight = 1) => {
       const nt = normalize(fieldText);
       if (!nt) return 0;
       let score = 0;
-      // match complet
+      // match complet sur la requête entière
       if (nt.includes(nq)) {
         score += 50 * weight;
         if (nt.startsWith(nq)) score += 20 * weight;
       }
-      // correspondance par tokens
-      for (const tok of tokens) {
-        const idx = nt.indexOf(tok);
-        if (idx >= 0) {
-          score += 10 * weight;
-          // bonus au début de mot
-          if (idx === 0 || /\W/.test(nt[idx - 1])) score += 4 * weight;
-        } else {
-          // très léger fallback « sous-séquence » (premières lettres)
-          let i = 0;
-          for (const ch of tok) {
-            i = nt.indexOf(ch, i);
-            if (i === -1) break;
-            i++;
+      // correspondance par groupes de tokens (avec synonymes)
+      for (const group of expandedTokens) {
+        let bestForGroup = 0;
+        for (const tok of group) {
+          const idx = nt.indexOf(tok);
+          if (idx >= 0) {
+            let s = 10 * weight;
+            // bonus au début de mot
+            if (idx === 0 || /\W/.test(nt[idx - 1])) s += 4 * weight;
+            // léger bonus si longueur du token >= 5
+            if (tok.length >= 5) s += 2 * weight;
+            if (s > bestForGroup) bestForGroup = s;
+          } else {
+            // très léger fallback « sous-séquence » (premières lettres)
+            let i = 0;
+            for (const ch of tok) {
+              i = nt.indexOf(ch, i);
+              if (i === -1) break;
+              i++;
+            }
+            if (i !== -1) bestForGroup = Math.max(bestForGroup, 3 * weight);
           }
-          if (i !== -1) score += 3 * weight;
         }
+        score += bestForGroup;
       }
       return score;
     };
