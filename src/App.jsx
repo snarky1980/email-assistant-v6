@@ -480,26 +480,22 @@ function App() {
     const nq = normalize(q);
     const tokens = nq.split(/\s+/).filter(Boolean);
 
-    // Language-aware synonyms (normalized)
-    const SYNONYMS = {
-      en: {
-        quote: ["estimate", "quotation"],
-        quotes: ["estimate", "quotation"],
-        quotation: ["quote", "estimate"],
-        quotations: ["quote", "estimate"],
-        estimate: ["quote", "quotation"],
-        estimates: ["quote", "quotation"],
-        proposal: ["quote", "estimate"],
-        proposals: ["quote", "estimate"],
-      },
-      fr: {
-        devis: ["soumission", "estimation"],
-        soumission: ["devis", "estimation"],
-        estimation: ["devis", "soumission"],
-      },
+    // Language-aware synonyms (normalized), both EN and FR
+    const SYN_EN = {
+      quote: ["estimate", "quotation"],
+      quotes: ["estimate", "quotation"],
+      quotation: ["quote", "estimate"],
+      quotations: ["quote", "estimate"],
+      estimate: ["quote", "quotation"],
+      estimates: ["quote", "quotation"],
+      proposal: ["quote", "estimate"],
+      proposals: ["quote", "estimate"],
     };
-    const langKey = templateLanguage === "en" ? "en" : "fr";
-    const langSyn = SYNONYMS[langKey] || {};
+    const SYN_FR = {
+      devis: ["soumission", "estimation"],
+      soumission: ["devis", "estimation"],
+      estimation: ["devis", "soumission"],
+    };
 
     const singularize = (s) => (s.endsWith("s") ? s.slice(0, -1) : s);
     const pluralize = (s) => (s.endsWith("s") ? s : s + "s");
@@ -510,7 +506,13 @@ function App() {
       set.add(base);
       set.add(pluralize(base));
 
-      const syns = langSyn[tok] || langSyn[base] || [];
+      // Pull synonyms from BOTH languages
+      const syns = [
+        ...(SYN_EN[tok] || []),
+        ...(SYN_EN[base] || []),
+        ...(SYN_FR[tok] || []),
+        ...(SYN_FR[base] || []),
+      ];
       for (const s of syns) {
         const ns = normalize(s);
         const sb = singularize(ns);
@@ -558,15 +560,21 @@ function App() {
       return score;
     };
 
-    // Calculer un score par template à partir de titre/description/catégorie
+    // Calculer un score par template à partir de titre/description (FR & EN)/catégorie
     const ranked = list
       .map((t) => {
-        const title = t.title?.[templateLanguage] || "";
-        const desc = t.description?.[templateLanguage] || "";
+        const titleFR = t.title?.fr || "";
+        const titleEN = t.title?.en || "";
+        const descFR = t.description?.fr || "";
+        const descEN = t.description?.en || "";
         const cat = t.category || "";
+        // Slightly favor the currently selected display language
+        const langBoost = (lang) => (lang === templateLanguage ? 1.0 : 0.92);
         const score =
-          scoreField(title, 2.5) + // titre prioritaire
-          scoreField(desc, 1.2) +
+          scoreField(titleFR, 2.5 * langBoost("fr")) +
+          scoreField(titleEN, 2.5 * langBoost("en")) +
+          scoreField(descFR, 1.2 * langBoost("fr")) +
+          scoreField(descEN, 1.2 * langBoost("en")) +
           scoreField(cat, 1.0);
         return { t, score };
       })
