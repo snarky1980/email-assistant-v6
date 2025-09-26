@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-deploy-gh-pages:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     concurrency:
       group: pages-gh-branch
       cancel-in-progress: true
