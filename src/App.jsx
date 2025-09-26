@@ -1156,7 +1156,7 @@ function App() {
             </div>
             
             
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative z-10">
+            <div className="w-full mx-auto px-4 sm:px-8 lg:px-10 py-4 relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-6">
                   {/* Icône avec bold impact - solide */}
@@ -1248,7 +1248,7 @@ function App() {
           </header>
 
           {/* Contenu principal wrapper to place side patterns outside work area */}
-          <div className="relative max-w-7xl mx-auto">
+          <div className="relative max-w-[calc(100vw-2in)] w-full mx-auto">
             {/* Faint organic side patterns outside the work area */}
             <div
               aria-hidden
@@ -1429,10 +1429,10 @@ function App() {
                 key={remountKey}
                 direction="horizontal"
                 className="h-full gap-1 lg:gap-2"
-                defaultLayout={[30, 70]}
+                defaultLayout={[18, 82]}
               >
                 {/* Panneau de gauche - Liste des modèles */}
-                <Panel minSize={20} maxSize={55} defaultSize={30} className="min-w-[320px]">
+                <Panel minSize={14} maxSize={40} defaultSize={18} className="min-w-[260px]">
                   <div>
                 <Card className="shadow-xl border-0 overflow-hidden relative gap-0 py-0" style={{ backgroundColor: 'white', boxShadow: '0 12px 28px rgba(26, 54, 93, 0.08)' }}>
                   {/* Solid teal header (no washout) to match Variables */}
@@ -1736,8 +1736,8 @@ function App() {
                 <PanelResizeHandle className="ResizeHandleX" />
 
               {/* Panneau de droite - Édition */}
-              <Panel minSize={45} maxSize={100} defaultSize={70} className="min-w-[420px]">
-                <div className="space-y-4 lg:space-y-5">
+              <Panel minSize={60} maxSize={100} defaultSize={82} className="min-w-[420px]">
+                <div className="space-y-4 lg:space-y-5 w-full">
                 {selectedTemplate ? (
                   <>
                     {/* Variables avec style moderne */}
