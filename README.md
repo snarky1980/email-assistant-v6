@@ -4,7 +4,7 @@
 
 > Application React moderne pour la gestion et la génération de modèles de courriels professionnels avec surlignage des variables et typographie moderne
 
-[![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-19.x-blue.svg)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.3.5-646CFF.svg)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.16-38B2AC.svg)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -215,13 +215,14 @@ Les modèles d'email se trouvent dans `src/assets/complete_email_templates.json`
 
 ## 🌐 Déploiement
 
-Ce projet est configuré pour un déploiement automatique sur GitHub Pages via GitHub Actions.
+Déploiement automatique sur **GitHub Pages** via GitHub Actions (`deploy.yml`).
 
-Chaque push sur la branche `main` déclenche automatiquement :
+Pipeline (succession des jobs) :
 
-1. Installation des dépendances
-2. Build de production
-3. Déploiement sur GitHub Pages
+1. `smoke` : build rapide + assertions (présence `dist/index.html`, balise `<title>`)
+2. `build-and-deploy` : build production complet + diagnostics + publication Pages
+
+Le badge en haut reflète l'état du workflow. Toute erreur coupe avant la publication.
 
 ## 📝 Licence
 

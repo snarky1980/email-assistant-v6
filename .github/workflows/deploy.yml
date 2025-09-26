@@ -1,12 +1,44 @@
 name: Deploy to GitHub Pages
-
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: pages-deploy-main
+  cancel-in-progress: true
+
 jobs:
+  smoke:
+    name: Smoke Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install (ci or install)
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --fund=false || npm install --no-audit --fund=false
+          else
+            npm install --no-audit --fund=false
+          fi
+      - name: Build
+        run: npm run build
+      - name: Smoke assertions
+        run: |
+          test -f dist/index.html || (echo "Missing dist/index.html" && exit 1)
+          grep -q "<title" dist/index.html || (echo "Title tag missing" && head -40 dist/index.html && exit 1)
+          echo "Index size:" $(wc -c < dist/index.html)
+          echo "OK"
+
   build-and-deploy:
+    needs: smoke
     runs-on: ubuntu-latest
     concurrency:
       group: pages
@@ -47,6 +79,13 @@ jobs:
 
       - name: Build (npm)
         run: npm run build
+
+      - name: Extra diagnostics
+        run: |
+          echo "Dist tree:" && find dist -maxdepth 2 -type f | head -50
+          echo "Homepage from package.json:" $(node -p "require('./package.json').homepage")
+          echo "Computed Vite base should equal /${GITHUB_REPOSITORY#*/}/"
+          grep -Eo '/${GITHUB_REPOSITORY#*/}/assets/.+\.js' dist/index.html | head -5 || true
 
       - name: Verify build output
         run: |
