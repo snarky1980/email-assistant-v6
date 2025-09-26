@@ -3,8 +3,11 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 
+// We lint browser code by default but also have Node based config/build scripts.
+// Provide a lightweight override for those to avoid false positives (process, __dirname, etc.).
+
 export default [
-  { ignores: ["dist"] },
+  { ignores: ["dist", "assets", "**/assets/**"] },
   {
     files: ["**/*.{js,jsx}"],
     languageOptions: {
@@ -28,6 +31,20 @@ export default [
         "warn",
         { allowConstantExport: true },
       ],
+    },
+  },
+  // Node specific overrides for build/config scripts
+  {
+    files: ["vite.config.*.{js,jsx}", "**/scripts/**/*.{js,jsx}"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+      },
+    },
+    rules: {
+      // Allow dev config files to have unused vars for clarity (like command/mode)
+      "no-unused-vars": ["warn", { varsIgnorePattern: "^[A-Z_]" }],
     },
   },
 ];

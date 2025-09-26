@@ -25,9 +25,7 @@ const VariableEditor = ({
     if (!text) return "";
 
     // Replace variables with highlighted spans
-    return text.replace(/<<([^>]+)>>/g, (match, variable) => {
-      return `<span class="variable">${match}</span>`;
-    });
+    return text.replace(/<<([^>]+)>>/g, (match) => `<span class="variable">${match}</span>`);
   };
 
   // Handle textarea changes

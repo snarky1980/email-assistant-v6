@@ -25,8 +25,7 @@ const EmailForm = ({
   // État local pour la validation des champs
   const [fieldErrors, setFieldErrors] = useState({});
 
-  // État pour indiquer si le formulaire a été soumis
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  // NOTE: Removed unused isSubmitted state to appease lint.
 
   /**
    * Valide un champ spécifique
@@ -122,11 +121,7 @@ const EmailForm = ({
    */
   const handleSubmit = (event) => {
     event.preventDefault();
-    setIsSubmitted(true);
-
-    if (validateForm()) {
-      onGenerate();
-    }
+    if (validateForm()) onGenerate();
   };
 
   /**
@@ -141,7 +136,6 @@ const EmailForm = ({
       language: "fr",
     });
     setFieldErrors({});
-    setIsSubmitted(false);
   };
 
   // Si aucun modèle n'est sélectionné, afficher un message

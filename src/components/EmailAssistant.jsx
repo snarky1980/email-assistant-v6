@@ -125,6 +125,8 @@ const EmailAssistant = () => {
     if (selectedTemplate && formData.clientName) {
       generateEmail();
     }
+    // generateEmail re-created each render; dependencies covered by selectedTemplate/formData
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTemplate, formData]);
 
   return (

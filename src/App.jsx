@@ -14,6 +14,7 @@ import {
   Link,
   Star,
   MoreHorizontal,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.jsx";
 import { Input } from "@/components/ui/input.jsx";
@@ -169,6 +170,8 @@ const customEditorStyles = `
     letter-spacing: 0.01em;
   }
 
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
   /* Input field typography improvements */
   input, textarea {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
@@ -186,8 +189,7 @@ const customEditorStyles = `
 function App() {
   // Track sticky header shadow state
   const [isHeaderStuck, setIsHeaderStuck] = useState(false);
-  // Key to force remount of resizable layout when resetting
-  const [remountKey, setRemountKey] = useState(0);
+  // layout stabilization complete (legacy remountKey removed)
   // Initial layout preference (uncontrolled PanelGroup for reliable defaults)
   // Right pane should start wide
   
@@ -231,13 +233,14 @@ function App() {
   const [variables, setVariables] = useState(savedState.variables || {});
   const [copySuccess, setCopySuccess] = useState(false);
   const [varsOpen, setVarsOpen] = useState(false);
+  // Always in editing mode now
+  const editingAreaRef = useRef(null);
   // Debounced query to avoid filtering on every keystroke
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
   // NEW: Favorites and Recents (local-only)
   const [favorites, setFavorites] = useState(savedState.favorites || []); // array of template ids
   const [recents, setRecents] = useState(savedState.recents || []); // MRU array of template ids
-  const [favoritesOpen, setFavoritesOpen] = useState(true);
-  const [recentsOpen, setRecentsOpen] = useState(true);
+  // legacy favoritesOpen / recentsOpen removed – listMode governs visibility
 
   // Palette-based styles for category badges
   const getCategoryBadgeStyle = (category) => {
@@ -388,10 +391,12 @@ function App() {
         try {
           const ids = new Set(data.templates.map((t) => t.id));
           const prunedFav = (savedState.favorites || []).filter((id) => ids.has(id));
-          const prunedRec = (savedState.recents || []).filter((id) => ids.has(id));
+          const prunedRec = (savedState.recents || []).filter((id) => ids.has(id)).slice(0,10); // cap to 10
           if (JSON.stringify(prunedFav) !== JSON.stringify(favorites)) setFavorites(prunedFav);
           if (JSON.stringify(prunedRec) !== JSON.stringify(recents)) setRecents(prunedRec);
-        } catch {}
+        } catch (e) {
+          console.warn('Prune favorites/recents failed', e);
+        }
       } catch (error) {
         console.error("Error loading templates data:", error);
       } finally {
@@ -400,6 +405,8 @@ function App() {
     };
 
     loadTemplatesData();
+    // deps intentionally empty: initial load + localStorage pruning only once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -469,12 +476,20 @@ function App() {
           searchRef.current.focus();
         }
       }
+      // Number keys for quick list mode switch (optional UX enhancement)
+      if (["1","2","3"].includes(e.key)) {
+        if (e.key === "1") setListMode('all');
+        if (e.key === "2" && favorites.length) setListMode('favorites');
+        if (e.key === "3" && recents.length) setListMode('recents');
+      }
     };
 
     // 🎯 Attacher les événements clavier globalement
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [selectedTemplate]); // Re-bind quand le template change
+    // selectedTemplate affects shortcut availability; favorites/recents counts accessed but acceptable stale values
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTemplate]);
 
   // Filtrer et classer les modèles avec une recherche floue simple
   const filteredTemplates = useMemo(() => {
@@ -636,31 +651,30 @@ function App() {
     });
   };
 
+  // NEW: list mode (all, favorites only, recents only) with persistence
+  const [listMode, setListMode] = useState(() => {
+    try { return localStorage.getItem('ea_listMode') || 'all'; } catch { return 'all'; }
+  });
+  useEffect(() => { try { localStorage.setItem('ea_listMode', listMode); } catch { /* ignore persistence errors */ } }, [listMode]);
+
   // When selecting a template, update recents MRU
   const selectTemplate = (template) => {
     setSelectedTemplate(template);
     if (!template?.id) return;
     setRecents((prev) => {
       const arr = [template.id, ...prev.filter((id) => id !== template.id)];
-      const capped = arr.slice(0, 20);
+      const capped = arr.slice(0, 10); // cap to 10
       saveState({ recents: capped });
       return capped;
     });
-    // Ensure the selected template becomes visible at the top of the list
-    // If user was scrolled far down, bring them back to the top to see it highlighted
-    try {
-      const vp = listViewportRef.current;
-      if (vp && typeof vp.scrollTo === 'function') {
-        vp.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    } catch (_) { /* no-op */ }
+    // Removed auto-scroll to top (not needed now that Recents tab exists)
   };
 
   // Obtenir les catégories uniques
   const categories = useMemo(() => {
     if (!templatesData) return [];
-    const cats = [...new Set(templatesData.templates.map((t) => t.category))];
-    return ["favorites", ...cats];
+    const realCats = [...new Set(templatesData.templates.map((t) => t.category))];
+    return ['favorites', ...realCats];
   }, [templatesData]);
 
   // Remplacer les variables dans le texte
@@ -673,96 +687,9 @@ function App() {
     return result;
   };
 
-  /**
-   * 🎨 SURBRILLANCE DES VARIABLES DANS LE TEXTE
-   *
-   * Convertit le texte avec variables en JSX avec surlignage colorée
-   * - Variables remplies : fond vert clair
-   * - Variables vides : fond orange clair avec bordure
-   * - Couleurs distinctes pour faciliter l'identification
-   */
-  /**
-   * 🎨 FONCTION DE SURLIGNAGE DES VARIABLES - VERSION DISCRÈTE
-   *
-   * Applique un surlignage doux et discret aux variables dans le texte
-   * Utilise des couleurs pastel pour une meilleure lisibilité
-   *
-   * @param {string} text - Texte contenant des variables au format <<variable>>
-   * @returns {JSX.Element[]} - Tableau d'éléments React avec surlignage
-   */
-  const highlightVariables = (text) => {
-    if (!text) return text;
+  // variable highlighting handled by editor overlay (legacy helper removed)
 
-    /**
-     * 🎨 PALETTE DE COULEURS DISCRÈTES
-     * Couleurs pastel pour un rendu professionnel et agréable
-     */
-    const VARIABLE_COLORS = {
-      email: "bg-blue-50 text-blue-700 border-blue-200", // Bleu doux pour emails
-      phone: "bg-green-50 text-green-700 border-green-200", // Vert doux pour téléphones
-      date: "bg-purple-50 text-purple-700 border-purple-200", // Violet doux pour dates
-      number: "bg-amber-50 text-amber-700 border-amber-200", // Ambre doux pour nombres
-      default: "bg-indigo-50 text-indigo-700 border-indigo-200", // Indigo par défaut
-      unknown: "bg-gray-50 text-gray-600 border-gray-200", // Gris pour variables inconnues
-    };
-
-    /**
-     * 🎯 STYLES DE BASE POUR LE SURLIGNAGE
-     * Classes Tailwind pour un rendu discret et élégant
-     */
-    const BASE_HIGHLIGHT_CLASSES =
-      "inline px-1.5 py-0.5 rounded text-xs font-medium border transition-all duration-200";
-
-    // Fonction pour obtenir la couleur selon le type de variable
-    const getVariableColor = (variableName) => {
-      const variableInfo = templatesData?.variables?.[variableName];
-
-      if (!variableInfo) {
-        return VARIABLE_COLORS.unknown;
-      }
-
-      // Retourner la couleur selon le type, ou la couleur par défaut
-      return VARIABLE_COLORS[variableInfo.type] || VARIABLE_COLORS.default;
-    };
-
-    // Diviser le texte en parties pour identifier les variables (format <<variable>>)
-    const textParts = text.split(/(<<[^>]+>>)/g);
-
-    return textParts.map((part, index) => {
-      // Vérifier si cette partie est une variable
-      const variableMatch = part.match(/^<<([^>]+)>>$/);
-
-      if (variableMatch) {
-        const variableName = variableMatch[1];
-        const variableValue = variables[variableName];
-        const colorClasses = getVariableColor(variableName);
-        const isEmptyValue = !variableValue || variableValue.trim() === "";
-
-        // Classes pour l'état vide (animation pulse + bordure pointillée)
-        const emptyStateClasses = isEmptyValue
-          ? "animate-pulse border-dashed"
-          : "border-solid";
-
-        // Tooltip informatif
-        const tooltipText = `Variable: ${variableName}${
-          isEmptyValue ? " (vide)" : ` = ${variableValue}`
-        }`;
-
-        return (
-          <span
-            key={index}
-            className={`${BASE_HIGHLIGHT_CLASSES} ${colorClasses} ${emptyStateClasses}`}
-            title={tooltipText}
-          >
-            {variableValue || `<<${variableName}>>`}
-          </span>
-        );
-      }
-
-      // Retourner le texte normal sans modification
-      return part;
-    });
-  };
+  // Preview mode removed
 
   // Charger un modèle sélectionné
   useEffect(() => {
@@ -787,6 +714,8 @@ function App() {
       setFinalSubject(subjectWithVars);
       setFinalBody(bodyWithVars);
     }
+  // selectedTemplate/templateLanguage are sufficient; replaceVariables derived from vars
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTemplate, templateLanguage]);
 
   // Mettre à jour les versions finales quand les variables changent
@@ -801,6 +730,7 @@ function App() {
       setFinalSubject(subjectWithVars);
       setFinalBody(bodyWithVars);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [variables, selectedTemplate, templateLanguage]);
 
   /**
@@ -1070,7 +1000,7 @@ function App() {
   };
 
   return (
-  <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
+  <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--background)' }}>
     {/* Page-edge blending layers to fully fade edges */}
     <div
       aria-hidden
@@ -1090,8 +1020,8 @@ function App() {
         </div>
       ) : (
         <>
-          {/* En-tête avec formes organiques inspirées de l'identité Bureau de la traduction */}
-          <header className="organic-header relative sticky top-0 z-40" style={{ boxShadow: isHeaderStuck ? '0 10px 34px rgba(26,54,93,0.18)' : '0 4px 16px rgba(26,54,93,0.10)', borderBottom: '4px solid rgba(31,138,153,0.26)' }}>
+          {/* Sticky header moved OUTSIDE scrollable main area */}
+          <header className="organic-header relative top-0 z-50 sticky" style={{ boxShadow: isHeaderStuck ? '0 10px 34px rgba(26,54,93,0.18)' : '0 4px 16px rgba(26,54,93,0.10)', borderBottom: '4px solid rgba(31,138,153,0.26)', backdropFilter: 'blur(4px)', background:'rgba(255,255,255,0.96)'}}>
             {/* under-glow that appears only on scroll */}
             <div
               aria-hidden
@@ -1110,8 +1040,8 @@ function App() {
               <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '2px', background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent)' }} />
               {/* Removed radial highlight glows to eliminate white haze */}
             </div>
-            {/* Grandes capsules inspirées de l'identité Bureau de la traduction */}
-            <div className="absolute inset-0 overflow-hidden">
+            {/* Capsules et motifs (amplifiés) */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {/* Staff lines variant: gentle, asymmetrical horizontal lines behind header */}
               <div
                 aria-hidden
@@ -1160,15 +1090,12 @@ function App() {
                   borderRadius: '56px'
                 }}
               ></div>
-              
-              {/* Grande capsule teal verticale au centre (bolder, vertical) */}
-              <div 
-                className="absolute left-28 top-2 w-20 h-64 opacity-95"
-                style={{ 
-                  backgroundColor: 'var(--tb-teal)',
-                  borderRadius: '48px'
-                }}
-              ></div>
+              {/* Additional vertical capsule accents */}
+              <div className="absolute -left-10 top-4 w-32 h-40 rounded-full" style={{background:'var(--tb-light-blue)', opacity:0.9}}></div>
+              <div className="absolute left-1/4 -top-8 w-24 h-56 rounded-full" style={{background:'var(--tb-mint)', opacity:0.85}}></div>
+              <div className="absolute right-1/4 -top-6 w-28 h-60 rounded-full" style={{background:'var(--tb-sage-muted)', opacity:0.8}}></div>
+              <div className="absolute right-10 top-2 w-20 h-44 rounded-full" style={{background:'var(--tb-navy)', opacity:0.55}}></div>
+              <div className="absolute left-1/2 top-8 w-40 h-40 rounded-full" style={{background:'var(--tb-teal)', opacity:0.18, filter:'blur(12px)'}}></div>
               
               {/* Énorme capsule verticale à droite (light-blue) */}
               <div 
@@ -1234,8 +1161,14 @@ function App() {
             </div>
             
             
-            <div className="w-full mx-auto max-w-none page-wrap py-4 relative z-10">
-              <div className="flex items-center justify-between">
+            <div className="w-full mx-auto max-w-none page-wrap py-4 relative z-50 sticky top-0 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b" style={{backgroundColor:'rgba(255,255,255,0.92)', borderColor:'var(--tb-mint)'}}>
+              {/* Decorative background capsules restored inside sticky banner */}
+              <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+                <div className="absolute left-8 -top-10 w-72 h-24 opacity-70" style={{ backgroundColor: 'var(--tb-light-blue)', borderRadius: '9999px', filter:'blur(2px)' }}></div>
+                <div className="absolute left-1/3 top-6 w-64 h-14 opacity-80" style={{ backgroundColor: 'var(--tb-mint)', borderRadius: '9999px', filter:'blur(1px)' }}></div>
+                <div className="absolute right-10 top-4 w-80 h-16 opacity-60" style={{ backgroundColor: 'var(--tb-sage-muted)', borderRadius: '9999px', filter:'blur(1px)' }}></div>
+              </div>
+              <div className="flex items-center justify-between relative">
                 <div className="flex items-center space-x-6" style={{ marginLeft: '2in' }}>
                   {/* Icône avec bold impact - solide */}
                   <div className="relative">
@@ -1287,7 +1220,7 @@ function App() {
                 >
                   <Globe className="h-8 w-8 text-white" />
                   <span className="font-bold text-base text-white">
-                    {t.interfaceLanguage}
+                    {t.interfaceLanguage.replace(/:?$/,'')}
                   </span>
                   <div className="flex bg-white p-1.5 shadow-lg" style={{ borderRadius: '18px' }}>
                     <button
@@ -1325,18 +1258,17 @@ function App() {
             </div>
           </header>
 
-          {/* Contenu principal wrapper (clean, blue backdrop only) */}
-          <div className="relative w-full mx-auto page-wrap max-w-none">
+          {/* Contenu principal scrollable */}
+          <div className="relative w-full mx-auto page-wrap max-w-none flex-1 overflow-x-hidden">
             <main className="relative z-10 overflow-visible w-full px-0 py-3">
             <div className="relative z-10">
               <PanelGroup
-                key={remountKey}
                 direction="horizontal"
                 className="h-full gap-1 lg:gap-1.5"
                 defaultLayout={[20, 80]}
               >
                 {/* Panneau de gauche - Liste des modèles */}
-                <Panel minSize={16} maxSize={46} defaultSize={22} className="min-w-[280px]" style={{ overflowAnchor: 'none', scrollbarGutter: 'stable both-edges' }}>
+                <Panel minSize={22} maxSize={50} defaultSize={28} className="min-w-[300px] basis-[320px]" style={{ overflowAnchor: 'none', scrollbarGutter: 'stable both-edges', flexBasis:'320px' }}>
                   <div>
                 <Card className="shadow-xl border-0 overflow-hidden relative gap-0 py-0" style={{ backgroundColor: 'white', boxShadow: '0 12px 28px rgba(26, 54, 93, 0.08)' }}>
                   {/* Solid teal header (no washout) to match Variables */}
@@ -1373,7 +1305,12 @@ function App() {
                             <SelectItem value="all" className="cursor-pointer data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]">
                               {t.allCategories}
                             </SelectItem>
-                            {categories.map((category) => (
+                            {categories.includes('favorites') && (
+                              <SelectItem value="favorites" className="cursor-pointer data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]">
+                                {t.favorites}
+                              </SelectItem>
+                            )}
+                            {categories.filter(c => c !== 'favorites').map((category) => (
                               <SelectItem
                                 key={category}
                                 value={category}
@@ -1460,7 +1397,7 @@ function App() {
                       <div className="flex items-center space-x-3 rounded-lg p-3" style={{ backgroundColor: 'var(--tb-light-blue)' }}>
                         <Languages className="h-5 w-5" style={{ color: 'var(--tb-teal)' }} />
                         <span className="text-sm font-semibold" style={{ color: 'var(--tb-navy)' }}>
-                          {t.templateLanguage}:
+                          {t.templateLanguage.replace(/:?$/,'')}
                         </span>
                         <div className="flex bg-white rounded-lg p-1 shadow-sm">
                           <button
@@ -1498,140 +1435,130 @@ function App() {
                           </div>
                         )}
 
-                        {/* Favorites section */}
-                        {favoriteTemplates.length > 0 && (
-                          <div className="mb-2">
-                            <div className="flex items-center justify-between px-1 mb-1">
-                              <span className="text-xs font-bold" style={{ color: 'var(--tb-navy)' }}>{t.favorites}</span>
-                            </div>
-                            <div className="space-y-2">
-                              {favoriteTemplates.map((template) => (
-                                <div
-                                  key={template.id}
-                                  onClick={() => selectTemplate(template)}
-                                  className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102"
+                        {/* Segmented control + conditional lists injected here */}
+                        <div className="sticky top-0 z-10 mb-2 pb-1 pt-0" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.97), rgba(255,255,255,0.85), rgba(255,255,255,0.4) 92%, rgba(255,255,255,0))' }}>
+                          <div className="inline-flex items-stretch rounded-md overflow-hidden border shadow-sm" style={{ borderColor: 'var(--tb-mint)' }}>
+                            {[
+                              { key: 'all', label: 'All', icon: Search },
+                              { key: 'favorites', label: t.favorites, icon: Star, disabled: favoriteTemplates.length === 0 },
+                              { key: 'recents', label: t.recents, icon: Clock, disabled: recentTemplates.length === 0 },
+                            ].map(({ key, label, icon, disabled }) => {
+                              const active = listMode === key;
+                              return (
+                                <button
+                                  key={key}
+                                  type="button"
+                                  onClick={() => !disabled && setListMode(key)}
+                                  className="px-2 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold flex items-center gap-1 transition-all focus:outline-none hover:bg-[var(--tb-light-blue)] hover:-translate-y-0.5 active:translate-y-0"
                                   style={{
-                                    borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)',
-                                    backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white'
+                                    backgroundColor: active ? 'white' : 'white',
+                                    color: active ? 'var(--tb-teal)' : disabled ? 'var(--tb-gray)' : 'var(--tb-navy)',
+                                    opacity: disabled ? 0.45 : 1,
+                                    borderRight: key !== 'recents' ? '1px solid var(--tb-mint)' : 'none'
                                   }}
+                                  aria-pressed={active}
+                                  disabled={disabled}
                                 >
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                      <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>
-                                        {template.title[templateLanguage]}
-                                      </h3>
-                                      <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>
-                                        {template.description[templateLanguage]}
-                                      </p>
-                                      <Badge
-                                        variant="secondary"
-                                        className={`text-xs font-medium border-2`}
-                                        style={getCategoryBadgeStyle(template.category)}
-                                      >
-                                        {template.category}
-                                      </Badge>
-                                    </div>
-                                    <button
-                                      className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center"
-                                      style={{ borderColor: 'var(--tb-mint)', color: 'var(--tb-teal)', backgroundColor: 'white' }}
-                                      title="Toggle favorite"
-                                      onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}
-                                    >
-                                      <Star className="h-4 w-4" style={{ fill: 'currentColor' }} />
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
+                                  {React.createElement(icon, { className: "h-3.5 w-3.5" })}
+                                  <span className="hidden sm:inline flex items-center gap-1">{label}{key==='favorites' && favoriteTemplates.length>0 && (<span className="inline-block min-w-[16px] ml-0.5 px-[6px] py-[2px] rounded-full text-[9px] font-bold translate-x-[2px]" style={{background:'var(--tb-teal)', color:'white'}}>{favoriteTemplates.length}</span>)}</span>
+                                </button>
+                              );
+                            })}
                           </div>
-                        )}
+                        </div>
 
-                        {/* Recents section */}
-                        {recentTemplates.length > 0 && (
-                          <div className="mb-2">
-                            <div className="flex items-center justify-between px-1 mb-1">
-                              <span className="text-xs font-bold" style={{ color: 'var(--tb-navy)' }}>{t.recents}</span>
-                            </div>
-                            <div className="space-y-2">
-                              {recentTemplates.map((template) => (
-                                <div
-                                  key={template.id}
-                                  onClick={() => selectTemplate(template)}
-                                  className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102"
-                                  style={{
-                                    borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)',
-                                    backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white'
-                                  }}
-                                >
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                      <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>
-                                        {template.title[templateLanguage]}
-                                      </h3>
-                                      <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>
-                                        {template.description[templateLanguage]}
-                                      </p>
-                                      <Badge
-                                        variant="secondary"
-                                        className={`text-xs font-medium border-2`}
-                                        style={getCategoryBadgeStyle(template.category)}
-                                      >
-                                        {template.category}
-                                      </Badge>
-                                    </div>
-                                    <button
-                                      className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center"
-                                      style={{ borderColor: 'var(--tb-mint)', color: favorites.includes(template.id) ? 'var(--tb-teal)' : 'var(--tb-gray)', backgroundColor: 'white' }}
-                                      title="Toggle favorite"
-                                      onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}
-                                    >
-                                      <Star className="h-4 w-4" style={{ fill: favorites.includes(template.id) ? 'currentColor' : 'transparent' }} />
-                                    </button>
+                        {listMode === 'favorites' && (
+                          <div className="space-y-2">
+                            {favoriteTemplates.map((template) => (
+                              <div key={template.id} onClick={() => selectTemplate(template)} className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102" style={{ borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)', backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white' }}>
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>{template.title[templateLanguage]}</h3>
+                                    <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>{template.description[templateLanguage]}</p>
+                                    <Badge variant="secondary" className="text-xs font-medium border-2" style={getCategoryBadgeStyle(template.category)}>{template.category}</Badge>
                                   </div>
+                                  <button className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center" style={{ borderColor: 'var(--tb-mint)', color: 'var(--tb-teal)', backgroundColor: 'white' }} title="Toggle favorite" onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}>
+                                    <Star className="h-4 w-4" style={{ fill: 'currentColor' }} />
+                                  </button>
                                 </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Remaining templates */}
-                        {otherTemplates.map((template) => (
-                          <div
-                            key={template.id}
-                            onClick={() => selectTemplate(template)}
-                            className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102"
-                            style={{
-                              borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)',
-                              backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white'
-                            }}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>
-                                  {template.title[templateLanguage]}
-                                </h3>
-                                <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>
-                                  {template.description[templateLanguage]}
-                                </p>
-                                <Badge
-                                  variant="secondary"
-                                  className={`text-xs font-medium border-2`}
-                                  style={getCategoryBadgeStyle(template.category)}
-                                >
-                                  {template.category}
-                                </Badge>
                               </div>
-                              <button
-                                className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center"
-                                style={{ borderColor: 'var(--tb-mint)', color: favorites.includes(template.id) ? 'var(--tb-teal)' : 'var(--tb-gray)', backgroundColor: 'white' }}
-                                title="Toggle favorite"
-                                onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}
-                              >
-                                <Star className="h-4 w-4" style={{ fill: favorites.includes(template.id) ? 'currentColor' : 'transparent' }} />
-                              </button>
-                            </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
+
+                        {listMode === 'recents' && (
+                          <div className="space-y-2">
+                            {recentTemplates.map((template) => (
+                              <div key={template.id} onClick={() => selectTemplate(template)} className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102" style={{ borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)', backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white' }}>
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>{template.title[templateLanguage]}</h3>
+                                    <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>{template.description[templateLanguage]}</p>
+                                    <Badge variant="secondary" className="text-xs font-medium border-2" style={getCategoryBadgeStyle(template.category)}>{template.category}</Badge>
+                                  </div>
+                                  <button className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center" style={{ borderColor: 'var(--tb-mint)', color: favorites.includes(template.id) ? 'var(--tb-teal)' : 'var(--tb-gray)', backgroundColor: 'white' }} title="Toggle favorite" onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}>
+                                    <Star className="h-4 w-4" style={{ fill: favorites.includes(template.id) ? 'currentColor' : 'transparent' }} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {listMode === 'all' && (
+                          <>
+                            {favoriteTemplates.length > 0 && (
+                              <div className="mb-2 space-y-2">
+                                {favoriteTemplates.map((template) => (
+                                    <div key={template.id} onClick={() => selectTemplate(template)} className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102" style={{ borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)', backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white' }}>
+                                      <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                          <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>{template.title[templateLanguage]}</h3>
+                                          <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>{template.description[templateLanguage]}</p>
+                                          <Badge variant="secondary" className="text-xs font-medium border-2" style={getCategoryBadgeStyle(template.category)}>{template.category}</Badge>
+                                        </div>
+                                        <button className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center" style={{ borderColor: 'var(--tb-mint)', color: 'var(--tb-teal)', backgroundColor: 'white' }} title="Toggle favorite" onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}>
+                                          <Star className="h-4 w-4" style={{ fill: 'currentColor' }} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                              </div>
+                            )}
+                            {recentTemplates.length > 0 && (
+                              <div className="mb-2 space-y-2">
+                                {recentTemplates.map((template) => (
+                                    <div key={template.id} onClick={() => selectTemplate(template)} className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102" style={{ borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)', backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white' }}>
+                                      <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                          <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>{template.title[templateLanguage]}</h3>
+                                          <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>{template.description[templateLanguage]}</p>
+                                          <Badge variant="secondary" className="text-xs font-medium border-2" style={getCategoryBadgeStyle(template.category)}>{template.category}</Badge>
+                                        </div>
+                                        <button className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center" style={{ borderColor: 'var(--tb-mint)', color: favorites.includes(template.id) ? 'var(--tb-teal)' : 'var(--tb-gray)', backgroundColor: 'white' }} title="Toggle favorite" onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}>
+                                          <Star className="h-4 w-4" style={{ fill: favorites.includes(template.id) ? 'currentColor' : 'transparent' }} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                              </div>
+                            )}
+                            {otherTemplates.map((template) => (
+                              <div key={template.id} onClick={() => selectTemplate(template)} className="p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-102" style={{ borderColor: selectedTemplate?.id === template.id ? 'var(--tb-teal)' : 'var(--tb-mint)', backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white' }}>
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--tb-navy)' }}>{template.title[templateLanguage]}</h3>
+                                    <p className="text-xs mb-2 leading-relaxed" style={{ color: 'var(--tb-teal)' }}>{template.description[templateLanguage]}</p>
+                                    <Badge variant="secondary" className="text-xs font-medium border-2" style={getCategoryBadgeStyle(template.category)}>{template.category}</Badge>
+                                  </div>
+                                  <button className="ml-2 shrink-0 h-7 w-7 rounded-md border-2 flex items-center justify-center" style={{ borderColor: 'var(--tb-mint)', color: favorites.includes(template.id) ? 'var(--tb-teal)' : 'var(--tb-gray)', backgroundColor: 'white' }} title="Toggle favorite" onClick={(e) => { e.stopPropagation(); toggleFavorite(template.id); }}>
+                                    <Star className="h-4 w-4" style={{ fill: favorites.includes(template.id) ? 'currentColor' : 'transparent' }} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </>
+                        )}
                       </div>
                     </ScrollArea>
                   </CardContent>
@@ -1740,53 +1667,54 @@ function App() {
                         </Card>
                       )}
 
-                    {/* Version éditable - ZONE PRINCIPALE */}
+                    {/* Version éditable / preview toggle zone */}
                         <Card className="shadow-2xl border-0 overflow-hidden relative gap-0 py-0" style={{ backgroundColor: 'white', boxShadow: '0 12px 28px rgba(26, 54, 93, 0.08)' }}>
                       {/* Solid teal header (no washout) to match Variables */}
                       <div className="absolute inset-x-0 top-0" style={{ height: '56px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
                       <CardHeader className="relative z-10 py-2.5" style={{ backgroundColor: 'transparent' }}>
-                        <CardTitle className="font-bold text-white flex items-center text-xl">
-                          <Mail className="h-6 w-6 mr-3 text-white" />
-                          {t.editEmail}
-                        </CardTitle>
+                        <div className="flex items-center">
+                          <CardTitle className="font-bold text-white flex items-center text-xl">
+                            <Mail className="h-6 w-6 mr-3 text-white" />
+                            {t.editEmail}
+                          </CardTitle>
+                        </div>
                       </CardHeader>
                       <CardContent className="space-y-5 lg:space-y-6 p-4">
-                        {/* Objet éditable avec aperçu surlignement */}
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center">
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
-                            </span>
-                            <span className="text-base font-bold text-[var(--tb-navy)]">{t.subject}</span>
+                        <div ref={editingAreaRef} className="space-y-6" style={{ background:'rgba(31,138,153,0.03)', padding:'4px 4px 12px', borderRadius:'12px' }}>
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex items-center">
+                                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
+                              </span>
+                              <span className="text-base font-bold text-[var(--tb-navy)]">{t.subject}</span>
+                            </div>
+                            <HighlightingEditor
+                              value={finalSubject}
+                              onChange={(e) => setFinalSubject(e.target.value)}
+                              variables={variables}
+                              templateWithPlaceholders={selectedTemplate.subject[templateLanguage] || ""}
+                              placeholder={t.subject}
+                              minHeight="48px"
+                              style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
+                            />
                           </div>
-                          <HighlightingEditor
-                            value={finalSubject}
-                            onChange={(e) => setFinalSubject(e.target.value)}
-                            variables={variables}
-                            templateWithPlaceholders={selectedTemplate.subject[templateLanguage] || ""}
-                            placeholder={t.subject}
-                            minHeight="48px"
-                            style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
-                          />
-                        </div>
-
-                        {/* Corps éditable avec aperçu surlignement */}
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center">
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
-                            </span>
-                            <span className="text-base font-bold text-[var(--tb-navy)]">{t.body}</span>
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex items-center">
+                                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
+                              </span>
+                              <span className="text-base font-bold text-[var(--tb-navy)]">{t.body}</span>
+                            </div>
+                            <HighlightingEditor
+                              value={finalBody}
+                              onChange={(e) => setFinalBody(e.target.value)}
+                              variables={variables}
+                              templateWithPlaceholders={selectedTemplate.body[templateLanguage] || ""}
+                              placeholder={t.body}
+                              minHeight="200px"
+                              style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
+                            />
                           </div>
-                          <HighlightingEditor
-                            value={finalBody}
-                            onChange={(e) => setFinalBody(e.target.value)}
-                            variables={variables}
-                            templateWithPlaceholders={selectedTemplate.body[templateLanguage] || ""}
-                            placeholder={t.body}
-                            minHeight="200px"
-                            style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
-                          />
                         </div>
                       </CardContent>
                     </Card>

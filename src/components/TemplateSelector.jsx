@@ -32,33 +32,7 @@ const TemplateSelector = ({
   // État pour le filtre par catégorie
   const [categoryFilter, setCategoryFilter] = useState("all");
 
-  /**
-   * Filtre les modèles selon les critères de recherche et de catégorie
-   * @returns {Array} Liste des modèles filtrés
-   */
-  const getFilteredTemplates = () => {
-    if (!templates) return [];
-
-    return templates.filter((template) => {
-      // Filtre par recherche textuelle
-      const matchesSearch =
-        searchFilter === "" ||
-        template.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
-        template.description
-          .toLowerCase()
-          .includes(searchFilter.toLowerCase()) ||
-        (template.tags &&
-          template.tags.some((tag) =>
-            tag.toLowerCase().includes(searchFilter.toLowerCase())
-          ));
-
-      // Filtre par catégorie
-      const matchesCategory =
-        categoryFilter === "all" || template.category === categoryFilter;
-
-      return matchesSearch && matchesCategory;
-    });
-  };
+  // Filtering logic inlined directly in useMemo to keep dependencies straightforward
 
   /**
    * Obtient toutes les catégories disponibles
@@ -110,7 +84,19 @@ const TemplateSelector = ({
     }
   };
 
-  const filteredTemplates = useMemo(() => getFilteredTemplates(), [templates, searchFilter, categoryFilter]);
+  const filteredTemplates = useMemo(() => {
+    if (!templates) return [];
+    return templates.filter((template) => {
+      const s = searchFilter.toLowerCase();
+      const matchesSearch =
+        !s ||
+        template.name.toLowerCase().includes(s) ||
+        template.description.toLowerCase().includes(s) ||
+        (template.tags && template.tags.some((tag) => tag.toLowerCase().includes(s)));
+      const matchesCategory = categoryFilter === 'all' || template.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [templates, searchFilter, categoryFilter]);
   const listContainerRef = useRef(null);
 
   // Gestion sélection + scroll dans la vue

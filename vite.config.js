@@ -1,7 +1,12 @@
+/* eslint-env node */
+/* global process */
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+
+// ESM-safe __dirname
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 // https://vite.dev/config/
 // Ce fichier de configuration définit les paramètres pour Vite.
@@ -9,10 +14,10 @@ import path from "path";
 // est déjà démarré ailleurs (par ex. port 5173 utilisé par un autre
 // projet), nous définissons ici un port alternatif et autorisons Vite
 // à basculer automatiquement vers un autre port si nécessaire.
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ mode }) => {
   // Configuration de base pour GitHub Pages - utilise le nom du repo depuis package.json
-  const repoName = process.env.GITHUB_REPOSITORY ? 
-    process.env.GITHUB_REPOSITORY.split('/')[1] : 
+  const repoName = process.env.GITHUB_REPOSITORY ?
+    process.env.GITHUB_REPOSITORY.split('/')[1] :
     null; // pas de base path pour développement local
   const base = mode === "production" && repoName ? `/${repoName}/` : "/";
   // Port de développement strict et configurable

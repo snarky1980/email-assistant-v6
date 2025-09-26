@@ -26,7 +26,7 @@ function ScrollArea({ className, children, showOverflowHint = true, showBottomHi
       setAtBottom(scrollTop >= maxTop);
       setAtTop(scrollTop <= 1);
     }
-  }, []);
+  }, [viewportRef]);
 
   React.useEffect(() => {
     const vp = viewportRef.current;
@@ -42,7 +42,7 @@ function ScrollArea({ className, children, showOverflowHint = true, showBottomHi
       vp.removeEventListener("scroll", onScroll);
       ro.disconnect();
     };
-  }, [recalc]);
+  }, [recalc, viewportRef]);
 
   return (
     <ScrollAreaPrimitive.Root
