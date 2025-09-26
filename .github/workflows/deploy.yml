@@ -29,6 +29,9 @@ jobs:
         with:
           version: 10.15.1
 
+      - name: Ensure pnpm on PATH (fallback)
+        run: npm i -g pnpm@10.15.1
+
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
