@@ -299,6 +299,7 @@ function App() {
         "Problèmes techniques": "Problèmes techniques",
         "Communications générales": "Communications générales",
         "Services spécialisés": "Services spécialisés",
+        favorites: "Favoris",
       },
       templateLanguage: "Langue du modèle:",
       interfaceLanguage: "Langue de l'interface:",
@@ -331,6 +332,7 @@ function App() {
         "Problèmes techniques": "Technical issues",
         "Communications générales": "General communications",
         "Services spécialisés": "Specialized services",
+        favorites: "Favorites",
       },
       templateLanguage: "Template language:",
       interfaceLanguage: "Interface language:",
@@ -461,8 +463,11 @@ function App() {
     if (!templatesData) return [];
     let list = templatesData.templates;
 
-    // Filtre par catégorie en premier
-    if (selectedCategory !== "all") {
+    // Filtre par catégorie en premier (inclut catégorie spéciale "favorites")
+    if (selectedCategory === "favorites") {
+      const favSet = new Set(favorites);
+      list = list.filter((t) => favSet.has(t.id));
+    } else if (selectedCategory !== "all") {
       list = list.filter((t) => t.category === selectedCategory);
     }
 
@@ -585,7 +590,7 @@ function App() {
       .map((r) => r.t);
 
     return ranked;
-  }, [templatesData, debouncedQuery, selectedCategory, templateLanguage]);
+  }, [templatesData, debouncedQuery, selectedCategory, templateLanguage, favorites]);
 
   // Derive ordered Favorites and Recents lists from filteredTemplates
   const { favoriteTemplates, recentTemplates, otherTemplates } = useMemo(() => {
@@ -629,7 +634,7 @@ function App() {
   const categories = useMemo(() => {
     if (!templatesData) return [];
     const cats = [...new Set(templatesData.templates.map((t) => t.category))];
-    return cats;
+    return ["favorites", ...cats];
   }, [templatesData]);
 
   // Remplacer les variables dans le texte
