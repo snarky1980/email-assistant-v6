@@ -318,6 +318,8 @@ function App() {
       recents: "Récents",
       noResults: "Aucun résultat",
       tryDifferentSearch: "Essayez d'autres mots-clés ou effacez la recherche.",
+      exportEml: "Exporter .eml (Outlook)",
+      exportEmlShort: "Exporter .eml",
     },
     en: {
       title: "Email Writing Assistant for Clients",
@@ -352,6 +354,7 @@ function App() {
       noResults: "No results",
       tryDifferentSearch: "Try different keywords or clear the search.",
       exportEml: "Export .eml (Outlook)",
+      exportEmlShort: "Export .eml",
     },
   };
 
@@ -1878,34 +1881,35 @@ function App() {
                     </Card>
 
                     {/* Actions avec style moderne */}
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-wrap justify-between items-center gap-2">
                       {/* Bouton Copier le lien - Discret à gauche */}
                       <Button
                         variant="ghost"
                         onClick={() => copyTemplateLink()}
-                        className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 font-medium text-sm"
+                        className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 font-medium text-sm px-2 py-1"
                         title="Copier le lien direct vers ce template"
                       >
                         <Link className="h-4 w-4 mr-2" />
                         Copier le lien
                       </Button>
 
-                      <div className="flex space-x-4 items-center">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
                         {/* Export .eml for Outlook */}
                         <Button
                           variant="outline"
                           onClick={exportAsEML}
-                          className="border-2 transition-all duration-300 font-semibold"
+                          className="border-2 transition-all duration-300 font-semibold text-sm px-3 py-2"
                           style={{ borderColor: 'var(--tb-mint)', color: 'var(--tb-navy)', backgroundColor: 'white' }}
                           title={t.exportEml || "Export .eml (Outlook)"}
                         >
-                          {t.exportEml || "Export .eml (Outlook)"}
+                          <span className="sm:hidden">{t.exportEmlShort || t.exportEml || "Export .eml"}</span>
+                          <span className="hidden sm:inline">{t.exportEml || "Export .eml (Outlook)"}</span>
                         </Button>
 
                         <Button
                           variant="outline"
                           onClick={resetForm}
-                          className="border-2 transition-all duration-300 font-semibold"
+                          className="border-2 transition-all duration-300 font-semibold text-sm px-3 py-2"
                           style={{ borderColor: 'var(--tb-teal)', color: 'var(--tb-navy)' }}
                         >
                           <RotateCcw className="h-4 w-4 mr-2" />
@@ -1926,7 +1930,7 @@ function App() {
                           <Button
                             onClick={() => copyToClipboard("subject")}
                             variant="outline"
-                className="font-medium px-4 py-2 border-2 transition-all duration-300 group"
+                className="font-medium text-sm px-3 py-2 border-2 transition-all duration-300 group"
                 style={{ borderColor: 'var(--tb-sage-muted)', backgroundColor: 'var(--tb-sage-muted)', color: 'var(--tb-navy)' }}
                             onMouseEnter={(e) => {
                   e.target.style.backgroundColor = '#8f9d49';
@@ -1946,7 +1950,7 @@ function App() {
                           <Button
                             onClick={() => copyToClipboard("body")}
                             variant="outline"
-                            className="font-medium px-4 py-2 border-2 transition-all duration-300 group"
+                            className="font-medium text-sm px-3 py-2 border-2 transition-all duration-300 group"
                             style={{ borderColor: 'var(--tb-sage-muted)', backgroundColor: 'var(--tb-sage-muted)', color: 'var(--tb-navy)' }}
                             onMouseEnter={(e) => {
                               e.target.style.backgroundColor = '#8f9d49';
@@ -1965,7 +1969,7 @@ function App() {
                           {/* 🚀 Bouton Copie Complète - Gradient (action principale) */}
                           <Button
                             onClick={() => copyToClipboard("all")}
-                            className="font-bold px-6 py-3 transition-all duration-300 shadow-lg transform"
+                            className="font-bold text-sm px-4 py-2.5 transition-all duration-300 shadow-lg transform"
                             style={{
                               backgroundColor: copySuccess ? 'var(--tb-sage-muted)' : 'var(--tb-teal)',
                               color: copySuccess ? '#1e3a5f' : 'white'
