@@ -1158,7 +1158,7 @@ function App() {
             
             <div className="w-full mx-auto px-4 sm:px-8 lg:px-10 py-4 relative z-10">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-6 -ml-[2in]">
+                <div className="flex items-center space-x-6 ml-[2in]">
                   {/* Icône avec bold impact - solide */}
                   <div className="relative">
                     {/* halo behind the icon */}
