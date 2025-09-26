@@ -7,6 +7,24 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [7.1.0] - 2025-09-25
 
+## [7.2.0] - 2025-09-26
+
+### ✨ Ajouté
+
+- Favoris (local uniquement) avec étoile sur chaque modèle et section dédiée en haut de la liste
+- Récents (local uniquement) avec logique MRU; exclus des Favoris pour éviter les doublons
+- Persistance des Favoris/Récents via localStorage; nettoyage automatique si des modèles disparaissent
+
+### 🎨 Amélioré
+
+- Sélection via lien profond (paramètre `?id=`) met maintenant à jour la liste des Récents
+- Icône « étoile » cohérente (remplie quand en favori) dans toutes les sections
+
+### 🐛 Corrigé
+
+- Correction d’un déséquilibre JSX (<CardContent>) introduit lors de l’intégration des sections
+
+
 ### ✨ Ajouté
 
 - Indicateurs de débordement en haut et en bas des listes (fades discrets)
