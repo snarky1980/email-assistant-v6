@@ -28,8 +28,13 @@ jobs:
           node --version
           npm --version
 
-      - name: Install dependencies
-        run: npm install --no-optional --no-audit --fund=false
+      - name: Install dependencies (npm ci or install)
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --fund=false || npm install --no-optional --no-audit --fund=false
+          else
+            npm install --no-optional --no-audit --fund=false
+          fi
 
       - name: Build
         run: npm run build
