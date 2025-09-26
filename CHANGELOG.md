@@ -24,6 +24,20 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Correction d’un déséquilibre JSX (<CardContent>) introduit lors de l’intégration des sections
 
+## [7.2.1] - 2025-09-26
+
+### ✨ Ajouté
+
+- Catégorie spéciale « Favoris » dans le filtre, affichant uniquement les modèles étoilés
+
+### 🎨 Amélioré
+
+- Recherche plus intelligente et rapide (débounce 200ms) avec tri par pertinence
+- Recherche multilingue: analyse les titres/descriptions FR et EN simultanément (léger bonus à la langue affichée)
+- Synonymes courants intégrés: EN (quote ↔ estimate ↔ quotation, proposals) et FR (devis ↔ soumission ↔ estimation)
+- Résultats robustes pour pluriels, accents et débuts de mots
+- Message « Aucun résultat » convivial avec suggestion
+
 
 ### ✨ Ajouté
 
