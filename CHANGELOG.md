@@ -5,6 +5,26 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+_Aucune modification pour le moment._
+
+## [7.2.3] - 2025-09-26
+
+### ✨ Ajouté
+
+- Export HTML du courriel courant (fichier .html téléchargeable et copie HTML dans le presse‑papiers)
+- Regroupement des actions d'export dans un menu « Plus » discret (EML, HTML, Copier HTML) pour réduire la charge visuelle
+
+### 🎨 Amélioré
+
+- Barre d’actions sous l’éditeur simplifiée avec un bouton « Plus » et icônes
+- Largeur et marges de la zone de travail stabilisées (~1" de chaque côté) pour préserver la lisibilité
+
+### 🐛 Corrigé
+
+- Léger décalage horizontal lors de l’ouverture du filtre de catégories (stabilisation de la scrollbar, Select non‑modal, neutralisation du scroll‑lock)
+
 ## [7.1.0] - 2025-09-25
 
 ## [7.2.0] - 2025-09-26

@@ -43,6 +43,8 @@
 
 :root {
   --radius: 0.875rem;
+  /* Consistent page-side padding, slightly under 1in to widen the columns */
+  --page-side-pad: 0.5in;
   /* Translation Bureau Brand Color Palette */
   --background: var(--tb-light-blue);  /* Unified background matches light-blue */
   --foreground: #1a365d;              /* Navy text */
@@ -242,4 +244,66 @@ html, body, #root {
 html, body {
   margin: 0;
   overflow-x: clip; /* prevent horizontal scroll gaps showing white */
+}
+
+#root {
+  /* Reserve space for vertical scrollbar so content width never changes */
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Ensure controls rows don't resize width when popovers/menus open */
+.controls-row,
+.filters-row {
+  contain: layout paint;
+}
+
+/* Extra stability when select/dropdown is open */
+[data-slot="select-trigger"][data-state="open"],
+[data-slot="dropdown-menu-trigger"][data-state="open"] {
+  transition: none !important;
+}
+[data-slot="select-content"],
+[data-slot="dropdown-menu-content"] {
+  will-change: transform;
+  transform: translateZ(0);
+  contain: layout paint;
+}
+
+/* Disable scroll anchoring in filter area to prevent subtle page nudges */
+.filters-row,
+.filters-row * {
+  overflow-anchor: none;
+}
+
+/* Shared wrapper for consistent side padding */
+.page-wrap {
+  box-sizing: border-box;
+  padding-left: var(--page-side-pad);
+  padding-right: var(--page-side-pad);
+  scrollbar-gutter: stable both-edges;
+  overflow-x: clip;
+}
+
+/* Prevent layout shift when scrollbars appear/disappear */
+html { scrollbar-gutter: stable both-edges; }
+/* Always reserve space for the vertical scrollbar to prevent layout shift */
+body { overflow-y: scroll; }
+
+/* Some Radix primitives use react-remove-scroll and toggle body scroll with padding-right.
+   Keep layout stable by neutralizing the padding and maintaining a scrollbar. */
+body[data-scroll-locked] {
+  padding-right: 0 !important;
+  overflow-y: scroll !important;
+}
+
+/* Extra guard: some libraries set inline styles directly without data attrs */
+html[style*="padding-right"], body[style*="padding-right"] {
+  padding-right: 0 !important;
+}
+html[style*="margin-right"], body[style*="margin-right"] {
+  margin-right: 0 !important;
+}
+html[style*="overflow: hidden"], body[style*="overflow: hidden"] {
+  overflow: visible !important;
+  overflow-y: scroll !important;
 }

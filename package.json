@@ -1,7 +1,7 @@
 {
   "name": "email-assistant-v7",
   "private": false,
-  "version": "7.2.2",
+  "version": "7.2.3",
   "type": "module",
   "description": "Application React moderne pour la génération d'emails professionnels avec surlignage intelligent des variables",
   "homepage": "https://snarky1980.github.io/email-assistant-v6",
@@ -20,6 +20,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
+    "dev:strict": "VITE_PORT=5173 vite",
+    "dev:lan": "VITE_PORT=5173 VITE_HOST=0.0.0.0 vite",
+    "clean:dev": "pkill -f vite || true",
     "build": "vite build",
     "build:prod": "vite build --config vite.config.prod.js",
     "lint": "eslint .",

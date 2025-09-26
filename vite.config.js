@@ -15,6 +15,8 @@ export default defineConfig(({ command, mode }) => {
     process.env.GITHUB_REPOSITORY.split('/')[1] : 
     null; // pas de base path pour développement local
   const base = mode === "production" && repoName ? `/${repoName}/` : "/";
+  // Port de développement strict et configurable
+  const selectedPort = Number(process.env.VITE_PORT || process.env.PORT || 5173);
 
   return {
     base,
@@ -25,12 +27,12 @@ export default defineConfig(({ command, mode }) => {
       },
     },
     server: {
-      host: "0.0.0.0",
-      // Port 5000 requis pour Replit
-      port: 5000,
-      // En définissant strictPort à false, Vite passera à un port
-      // disponible si 5000 est déjà utilisé.
-      strictPort: false,
+      host: process.env.VITE_HOST || process.env.HOST || "0.0.0.0",
+      // Utiliser un port strict configurable (par défaut 5173).
+      // Vous pouvez surcharger avec `VITE_PORT` ou `PORT`.
+      port: selectedPort,
+      // strictPort à true empêche Vite de basculer sur un autre port
+      strictPort: true,
       // Permettre toutes les origines pour Replit proxy
       allowedHosts: true,
     },

@@ -13,6 +13,7 @@ import {
   Edit3,
   Link,
   Star,
+  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.jsx";
 import { Input } from "@/components/ui/input.jsx";
@@ -39,6 +40,7 @@ import { toast } from "sonner";
 import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible.jsx";
 import { ChevronDown } from "lucide-react";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu.jsx";
 import "./App.css";
 
 // Custom CSS for modern typography and variable highlighting
@@ -207,6 +209,8 @@ function App() {
 
   // Charger l'état sauvegardé
   const savedState = loadState();
+  // Ref to templates list viewport for programmatic scrolling
+  const listViewportRef = useRef(null);
 
   // État pour les données des templates
   const [templatesData, setTemplatesData] = useState(null);
@@ -320,6 +324,11 @@ function App() {
       tryDifferentSearch: "Essayez d'autres mots-clés ou effacez la recherche.",
       exportEml: "Exporter .eml (Outlook)",
       exportEmlShort: "Exporter .eml",
+      exportHtml: "Exporter HTML",
+      exportHtmlShort: "HTML",
+      copyHtml: "Copier HTML",
+      more: "Plus",
+      moreActions: "Plus d’actions",
     },
     en: {
       title: "Email Writing Assistant for Clients",
@@ -355,6 +364,11 @@ function App() {
       tryDifferentSearch: "Try different keywords or clear the search.",
       exportEml: "Export .eml (Outlook)",
       exportEmlShort: "Export .eml",
+      exportHtml: "Export HTML",
+      exportHtmlShort: "HTML",
+      copyHtml: "Copy HTML",
+      more: "More",
+      moreActions: "More actions",
     },
   };
 
@@ -632,6 +646,14 @@ function App() {
       saveState({ recents: capped });
       return capped;
     });
+    // Ensure the selected template becomes visible at the top of the list
+    // If user was scrolled far down, bring them back to the top to see it highlighted
+    try {
+      const vp = listViewportRef.current;
+      if (vp && typeof vp.scrollTo === 'function') {
+        vp.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch (_) { /* no-op */ }
   };
 
   // Obtenir les catégories uniques
@@ -960,6 +982,69 @@ function App() {
     }, 0);
   };
 
+  // --- HTML export & copy helpers ---
+  const escapeHtml = (str) =>
+    String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  const buildHtml = () => {
+    const title = escapeHtml(finalSubject || "");
+    const bodyText = finalBody || "";
+    const paragraphs = escapeHtml(bodyText)
+      .split(/\n\n+/)
+      .map((p) => `<p>${p.replace(/\n/g, '<br/>' )}</p>`) // single newlines -> <br/>
+      .join("\n");
+    const styles = `:root{--tb-navy:#1a365d;--tb-teal:#1f8a99;--tb-mint:#bfe7e3;--tb-sage:#d8e2b0}body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;margin:24px;color:#0f172a;line-height:1.7}h1{color:var(--tb-navy);font-size:22px;margin:0 0 12px;font-weight:800}p{margin:0 0 12px}`;
+    return `<!doctype html>\n<html lang="${interfaceLanguage}">\n<head>\n  <meta charset="utf-8" />\n  <meta name="viewport" content="width=device-width, initial-scale=1" />\n  <title>${title}</title>\n  <style>${styles}</style>\n  <meta name="generator" content="email-assistant-v7" />\n</head>\n<body>\n  ${title ? `<h1>${title}</h1>` : ''}\n  ${paragraphs}\n</body>\n</html>`;
+  };
+
+  const exportAsHTML = () => {
+    try {
+      const html = buildHtml();
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const safeTitle = (finalSubject || 'email').replace(/[^a-z0-9\-_.]+/gi, '_').slice(0, 80);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${safeTitle}.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success(interfaceLanguage === 'fr' ? 'HTML exporté' : 'HTML exported');
+    } catch (e) {
+      console.error(e);
+      toast.error(interfaceLanguage === 'fr' ? "Échec de l'export HTML" : 'HTML export failed');
+    }
+  };
+
+  const copyHtmlToClipboard = async () => {
+    try {
+      const html = buildHtml();
+      if (navigator.clipboard && window.ClipboardItem) {
+        const item = new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }) });
+        await navigator.clipboard.write([item]);
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(html);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = html;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      toast.success(interfaceLanguage === 'fr' ? 'HTML copié' : 'HTML copied');
+    } catch (e) {
+      console.error(e);
+      toast.error(interfaceLanguage === 'fr' ? 'Copie HTML échouée' : 'Copy HTML failed');
+    }
+  };
+
   // Réinitialiser le formulaire
   const resetForm = () => {
     if (selectedTemplate) {
@@ -989,7 +1074,7 @@ function App() {
     {/* Page-edge blending layers to fully fade edges */}
     <div
       aria-hidden
-      className="fixed right-0 top-0 bottom-0 w-12 pointer-events-none z-30"
+      className="fixed right-0 top-0 bottom-0 w-6 pointer-events-none z-30"
       style={{
         backgroundImage: 'linear-gradient(to left, var(--background), transparent)'
       }}
@@ -1156,7 +1241,7 @@ function App() {
             </div>
             
             
-            <div className="w-full mx-auto px-4 sm:px-8 lg:px-10 py-4 relative z-10">
+            <div className="w-full mx-auto max-w-none page-wrap py-4 relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-6" style={{ marginLeft: '2in' }}>
                   {/* Icône avec bold impact - solide */}
@@ -1190,7 +1275,7 @@ function App() {
                   
                   {/* Textes avec contraste élevé */}
                   <div>
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight" style={{ color: 'var(--tb-navy)' }}>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight" style={{ color: 'var(--tb-navy)' }}>
                       {t.title}
                     </h1>
                     <p className="text-xl md:text-2xl font-semibold" style={{ color: 'var(--tb-teal)' }}>
@@ -1248,17 +1333,17 @@ function App() {
           </header>
 
           {/* Contenu principal wrapper (clean, blue backdrop only) */}
-          <div className="relative max-w-[calc(100vw-2in)] w-full mx-auto">
-            <main className="relative z-10 overflow-hidden w-full px-3 sm:px-5 lg:px-6 py-3">
+          <div className="relative w-full mx-auto page-wrap max-w-none">
+            <main className="relative z-10 overflow-visible w-full px-0 py-3">
             <div className="relative z-10">
               <PanelGroup
                 key={remountKey}
                 direction="horizontal"
-                className="h-full gap-1 lg:gap-2"
-                defaultLayout={[26, 74]}
+                className="h-full gap-1 lg:gap-1.5"
+                defaultLayout={[20, 80]}
               >
                 {/* Panneau de gauche - Liste des modèles */}
-                <Panel minSize={18} maxSize={50} defaultSize={26} className="min-w-[300px]">
+                <Panel minSize={16} maxSize={46} defaultSize={22} className="min-w-[280px]" style={{ overflowAnchor: 'none', scrollbarGutter: 'stable both-edges' }}>
                   <div>
                 <Card className="shadow-xl border-0 overflow-hidden relative gap-0 py-0" style={{ backgroundColor: 'white', boxShadow: '0 12px 28px rgba(26, 54, 93, 0.08)' }}>
                   {/* Solid teal header (no washout) to match Variables */}
@@ -1279,14 +1364,15 @@ function App() {
 
                   <CardContent className="p-0">
                     {/* Controls moved under the teal header for alignment with right pane */}
-                    <div className="px-6 pt-3 space-y-2">
+                    <div className="px-6 pt-3 space-y-2 filters-row">
                       {/* Filtre par catégorie avec style */}
                       <div>
                         <Select
+                          modal={false}
                           value={selectedCategory}
                           onValueChange={(val) => { setSelectedCategory(val); hasInteractedRef.current.categoryChanged = true; }}
                         >
-                          <SelectTrigger className="border-2 transition-all duration-300" style={{ borderColor: 'var(--tb-teal)', backgroundColor: 'white' }}>
+                          <SelectTrigger className="w-full min-w-[200px] border-2 transition-colors duration-200" style={{ borderColor: 'var(--tb-teal)', backgroundColor: 'white' }}>
                             <Filter className="h-4 w-4 mr-2" style={{ color: 'var(--tb-teal)' }} />
                             <SelectValue placeholder={t.allCategories} />
                           </SelectTrigger>
@@ -1409,7 +1495,7 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    <ScrollArea className="h-[55vh] sm:h-[60vh] md:h-[65vh] lg:h-[70vh]" style={{ "--scrollbar-width": "8px" }}>
+                    <ScrollArea className="h-[55vh] sm:h-[60vh] md:h-[65vh] lg:h-[70vh]" style={{ "--scrollbar-width": "8px" }} showBottomHint={false} viewportRef={listViewportRef}>
                       <div className="relative space-y-2 p-3 pt-8 pb-9">
                         {/* No results message */}
                         {filteredTemplates.length === 0 && (
@@ -1562,7 +1648,7 @@ function App() {
                 <PanelResizeHandle className="ResizeHandleX" />
 
               {/* Panneau de droite - Édition */}
-              <Panel minSize={50} maxSize={100} defaultSize={74} className="min-w-[420px]">
+              <Panel minSize={56} maxSize={100} defaultSize={78} className="min-w-[540px]" style={{ overflowAnchor: 'none', scrollbarGutter: 'stable both-edges' }}>
                 <div className="space-y-4 lg:space-y-5 w-full">
                 {selectedTemplate ? (
                   <>
@@ -1633,6 +1719,10 @@ function App() {
                                           [varName]: e.target.value,
                                         }))
                                       }
+                                      autoComplete="off"
+                                      autoCorrect="off"
+                                      autoCapitalize="none"
+                                      spellCheck={false}
                                       placeholder={varInfo.example}
                                       className="text-sm h-9 border-2 transition-all duration-200"
                                       style={getInputStyle()}
@@ -1680,6 +1770,7 @@ function App() {
                             value={finalSubject}
                             onChange={(e) => setFinalSubject(e.target.value)}
                             variables={variables}
+                            templateWithPlaceholders={selectedTemplate.subject[templateLanguage] || ""}
                             placeholder={t.subject}
                             minHeight="48px"
                             style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
@@ -1698,6 +1789,7 @@ function App() {
                             value={finalBody}
                             onChange={(e) => setFinalBody(e.target.value)}
                             variables={variables}
+                            templateWithPlaceholders={selectedTemplate.body[templateLanguage] || ""}
                             placeholder={t.body}
                             minHeight="200px"
                             style={{ border: '1.5px solid var(--tb-mint)', borderRadius: 'var(--radius)' }}
@@ -1720,17 +1812,34 @@ function App() {
                       </Button>
 
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3 ml-auto w-full md:w-auto justify-end">
-                        {/* Export .eml for Outlook */}
-                        <Button
-                          variant="outline"
-                          onClick={exportAsEML}
-                          className="border-2 transition-all duration-300 font-semibold text-sm px-3 py-2"
-                          style={{ borderColor: 'var(--tb-mint)', color: 'var(--tb-navy)', backgroundColor: 'white' }}
-                          title={t.exportEml || "Export .eml (Outlook)"}
-                        >
-                          <span className="sm:hidden">{t.exportEmlShort || t.exportEml || "Export .eml"}</span>
-                          <span className="hidden sm:inline">{t.exportEml || "Export .eml (Outlook)"}</span>
-                        </Button>
+                        {/* More actions dropdown */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="border transition-all duration-200 font-medium text-sm px-2 py-1.5 hover:bg-blue-50"
+                              style={{ borderColor: 'rgba(26,54,93,0.15)', color: 'var(--tb-navy)', backgroundColor: 'transparent' }}
+                              title={t.moreActions || 'More actions'}
+                            >
+                              <MoreHorizontal className="h-4 w-4 mr-1" />
+                              <span className="hidden sm:inline">{t.more || 'More'}</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="min-w-[220px]" align="end">
+                            <DropdownMenuItem onClick={exportAsEML}>
+                              <Mail className="h-4 w-4" />
+                              {t.exportEml || 'Export .eml (Outlook)'}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={exportAsHTML}>
+                              <FileText className="h-4 w-4" />
+                              {t.exportHtml || 'Export HTML'}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={copyHtmlToClipboard}>
+                              <Copy className="h-4 w-4" />
+                              {t.copyHtml || 'Copy HTML'}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
 
                         <Button
                           variant="outline"

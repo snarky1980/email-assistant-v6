@@ -134,6 +134,53 @@ npm run dev
 npm run build
 ```
 
+## ▶️ Démarrage rapide (Dev) + Hôte/Port/LAN
+
+Le serveur de développement Vite est configuré pour utiliser un port strict et peut être lié à un hôte spécifique.
+
+- Port par défaut: `5173` (strict)
+- Variables d'environnement supportées: `VITE_PORT` ou `PORT`, `VITE_HOST` ou `HOST`
+
+Exemples (macOS/zsh):
+
+```bash
+# 1) Dev local (localhost:5173)
+npm run dev
+
+# 2) Dev avec port forcé
+VITE_PORT=5173 npm run dev
+
+# 3) Dev accessible sur le réseau local (téléphone/tablette)
+VITE_PORT=5173 VITE_HOST=0.0.0.0 npm run dev
+# Puis ouvrir l'URL « Network » affichée par Vite (ex.: http://192.168.x.x:5173/)
+```
+
+Scripts pratiques:
+
+```bash
+# Strict sur 5173 (localhost)
+npm run dev:strict
+
+# LAN (liaison 0.0.0.0) sur 5173
+npm run dev:lan
+
+# Au besoin: arrêter vite s'il tourne déjà
+npm run clean:dev
+```
+
+## 🧯 Dépannage dev (macOS)
+
+- Port occupé / serveur déjà lancé:
+  - Symptôme: Vite s'arrête ou ne répond pas. Essayez `npm run clean:dev` puis relancez.
+- Pas d'accès depuis un autre appareil (LAN):
+  - Assurez-vous d'avoir lancé avec `VITE_HOST=0.0.0.0` (ou `npm run dev:lan`).
+  - Vérifiez l'IP de votre Mac: Réglages Système > Réseau (ex.: 192.168.x.x) et utilisez l'URL « Network » que Vite affiche.
+  - Vérifiez le pare-feu macOS (Sécurité > Pare-feu) et tout VPN/Proxy d'entreprise.
+- La page « bouge » légèrement lors de l'ouverture d'un filtre:
+  - Nous avons intégré des fix CSS (scrollbar-gutter, contain, isolation des popovers). Si vous voyez encore un micro-shift, rafraîchissez et réessayez; merci de noter le navigateur/version.
+
+Astuce: Vous pouvez définir vos préférences dans un fichier `.env.local` (non commité) d'après `.env.example`.
+
 ## 🔧 Modification des Modèles
 
 Les modèles d'email se trouvent dans `src/assets/complete_email_templates.json`.
