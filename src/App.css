@@ -316,3 +316,76 @@ html[style*="overflow: hidden"], body[style*="overflow: hidden"] {
 .animate-fade-in {
   animation: fade-in 220ms ease-out;
 }
+
+/* Banner decorative pattern primitives */
+.banner-pill {
+  position: absolute;
+  border-radius: 120px;
+  mix-blend-mode: normal;
+  box-shadow: inset 0 0 0 1px rgba(26,58,95,0.05), 0 0 0 1px rgba(26,58,95,0.04);
+}
+.banner-line {
+  position: absolute;
+  width: 2px;
+  background: rgba(26,58,95,0.9); /* navy line */
+  display: block;
+}
+.banner-line .banner-dot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  display: inline-block;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.65);
+}
+.banner-dot {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+}
+.banner-glide {
+  position: absolute;
+  height: 4px;
+  border-radius: 9999px;
+  filter: blur(.3px);
+}
+
+/* Inner header pill layer */
+.hpill-base { position:absolute; box-shadow:0 0 0 1px rgba(26,58,95,0.05); }
+.hpill-line { position:absolute; display:block; }
+.hpill-dot { position:absolute; }
+
+/* Reusable animated reset / utility button (teal themed) */
+.btn-reset-animate {
+  background: var(--tb-teal);
+  color: #fff;
+  border: 2px solid var(--tb-teal);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  letter-spacing: .3px;
+  transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+  cursor: pointer;
+}
+.btn-reset-animate:hover:not(:disabled) {
+  background: var(--tb-mint);
+  color: var(--tb-navy);
+  border-color: var(--tb-mint);
+}
+.btn-reset-animate:active:not(:disabled) {
+  background: var(--tb-navy);
+  color: #fff;
+  border-color: var(--tb-navy);
+}
+.btn-reset-animate:focus-visible {
+  outline: 2px solid var(--tb-teal);
+  outline-offset: 2px;
+}
+.btn-reset-animate:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}

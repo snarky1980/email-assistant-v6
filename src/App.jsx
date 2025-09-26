@@ -38,7 +38,8 @@ import { Separator } from "@/components/ui/separator.jsx";
 import { ScrollArea } from "@/components/ui/scroll-area.jsx";
 import { Toaster } from "@/components/ui/sonner.jsx";
 import { toast } from "sonner";
-import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+// Use wrapped resizable components to avoid duplicate identifier issues
+import { ResizablePanelGroup as PanelGroup, ResizablePanel as Panel, ResizableHandle as PanelResizeHandle } from "@/components/ui/resizable.jsx";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible.jsx";
 import { ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu.jsx";
@@ -378,6 +379,7 @@ function App() {
   const t = interfaceTexts[interfaceLanguage];
 
   // Charger les données des templates au démarrage
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     const loadTemplatesData = async () => {
       try {
@@ -405,9 +407,8 @@ function App() {
     };
 
     loadTemplatesData();
-    // deps intentionally empty: initial load + localStorage pruning only once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   /**
    * 🔗 SUPPORT DES PARAMÈTRES URL POUR PARTAGE DE LIENS PROFONDS
@@ -448,6 +449,7 @@ function App() {
    *
    * Compatible Mac (Cmd) et PC (Ctrl) pour une expérience universelle
    */
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     const handleKeyDown = (e) => {
       const tag = (e.target && e.target.tagName) || "";
@@ -487,9 +489,8 @@ function App() {
     // 🎯 Attacher les événements clavier globalement
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-    // selectedTemplate affects shortcut availability; favorites/recents counts accessed but acceptable stale values
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTemplate]);
+  }, [selectedTemplate]); // Re-bind quand le template change
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Filtrer et classer les modèles avec une recherche floue simple
   const filteredTemplates = useMemo(() => {
@@ -655,7 +656,15 @@ function App() {
   const [listMode, setListMode] = useState(() => {
     try { return localStorage.getItem('ea_listMode') || 'all'; } catch { return 'all'; }
   });
-  useEffect(() => { try { localStorage.setItem('ea_listMode', listMode); } catch { /* ignore persistence errors */ } }, [listMode]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('ea_listMode', listMode);
+    } catch {
+      // ignore persistence error
+    }
+  }, [listMode]);
+  // (Reverted) Removed dynamic left panel auto-resize for debugging blank screen issue
+
 
   // When selecting a template, update recents MRU
   const selectTemplate = (template) => {
@@ -1021,7 +1030,7 @@ function App() {
       ) : (
         <>
           {/* Sticky header moved OUTSIDE scrollable main area */}
-          <header className="organic-header relative top-0 z-50 sticky" style={{ boxShadow: isHeaderStuck ? '0 10px 34px rgba(26,54,93,0.18)' : '0 4px 16px rgba(26,54,93,0.10)', borderBottom: '4px solid rgba(31,138,153,0.26)', backdropFilter: 'blur(4px)', background:'rgba(255,255,255,0.96)'}}>
+          <header className="organic-header relative top-0 z-50 sticky" style={{ boxShadow: isHeaderStuck ? '0 10px 34px rgba(26,54,93,0.18)' : '0 4px 16px rgba(26,54,93,0.10)', borderBottom: '4px solid rgba(31,138,153,0.26)', background:'#ffffff'}}>
             {/* under-glow that appears only on scroll */}
             <div
               aria-hidden
@@ -1040,162 +1049,57 @@ function App() {
               <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '2px', background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent)' }} />
               {/* Removed radial highlight glows to eliminate white haze */}
             </div>
-            {/* Capsules et motifs (amplifiés) */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {/* Staff lines variant: gentle, asymmetrical horizontal lines behind header */}
-              <div
-                aria-hidden
-                className="absolute"
-                style={{
-                  left: '8%',
-                  right: '60%',
-                  top: '22px',
-                  height: '2px',
-                  backgroundColor: 'var(--tb-navy)',
-                  opacity: 0.25,
-                  borderRadius: '9999px',
-                }}
-              />
-              <div
-                aria-hidden
-                className="absolute"
-                style={{
-                  left: '14%',
-                  right: '18%',
-                  top: '38px',
-                  height: '2px',
-                  backgroundColor: 'var(--tb-light-blue)',
-                  opacity: 0.30,
-                  borderRadius: '9999px',
-                }}
-              />
-              <div
-                aria-hidden
-                className="absolute"
-                style={{
-                  left: '22%',
-                  right: '10%',
-                  top: '56px',
-                  height: '3px',
-                  backgroundColor: 'var(--tb-mint)',
-                  opacity: 0.22,
-                  borderRadius: '9999px',
-                }}
-              />
-              {/* Très grande capsule navy verticale à gauche (bolder) */}
-              <div 
-                className="absolute -left-12 -top-4 w-28 h-52 opacity-95"
-                style={{ 
-                  backgroundColor: 'var(--tb-navy)',
-                  borderRadius: '56px'
-                }}
-              ></div>
-              {/* Additional vertical capsule accents */}
-              <div className="absolute -left-10 top-4 w-32 h-40 rounded-full" style={{background:'var(--tb-light-blue)', opacity:0.9}}></div>
-              <div className="absolute left-1/4 -top-8 w-24 h-56 rounded-full" style={{background:'var(--tb-mint)', opacity:0.85}}></div>
-              <div className="absolute right-1/4 -top-6 w-28 h-60 rounded-full" style={{background:'var(--tb-sage-muted)', opacity:0.8}}></div>
-              <div className="absolute right-10 top-2 w-20 h-44 rounded-full" style={{background:'var(--tb-navy)', opacity:0.55}}></div>
-              <div className="absolute left-1/2 top-8 w-40 h-40 rounded-full" style={{background:'var(--tb-teal)', opacity:0.18, filter:'blur(12px)'}}></div>
-              
-              {/* Énorme capsule verticale à droite (light-blue) */}
-              <div 
-                className="absolute right-8 -top-6 w-32 h-56 opacity-70"
-                style={{ 
-                  backgroundColor: 'var(--tb-light-blue)',
-                  borderRadius: '64px'
-                }}
-              ></div>
-              
-              {/* Capsule verticale en bas à droite (light-blue, soft) */}
-              <div 
-                className="absolute right-16 bottom-2 w-16 h-40 opacity-65"
-                style={{ 
-                  backgroundColor: 'var(--tb-light-blue)',
-                  borderRadius: '40px'
-                }}
-              ></div>
-
-              {/* Petite capsule mint verticale (subtle) */}
-              <div 
-                className="absolute left-2 bottom-0 w-10 h-40 opacity-50"
-                style={{ 
-                  backgroundColor: 'var(--tb-mint)',
-                  borderRadius: '36px'
-                }}
-              ></div>
-              {/* Petite capsule sage verticale (very subtle, adds warmth) */}
-              <div 
-                className="absolute left-56 bottom-6 w-24 h-44"
-                style={{ 
-                  backgroundColor: 'var(--tb-sage-muted)',
-                  borderRadius: '30px',
-                  opacity: 0.9
-                }}
-              ></div>
-
-              {/* Tall vertical pill on the right side (higher) */}
-              <div 
-                className="absolute right-3 -top-8"
-                style={{ 
-                  width: '56px',
-                  height: '340px',
-                  backgroundColor: 'var(--tb-teal)',
-                  borderRadius: '44px',
-                  opacity: 0.28
-                }}
-              ></div>
-
-              {/* Horizontal capsules for banner layering (bold, blue-leaning) */}
-              <div
-                className="absolute left-6 bottom-3 w-80 h-12 opacity-80"
-                style={{ backgroundColor: 'var(--tb-light-blue)', borderRadius: '9999px' }}
-              ></div>
-              <div
-                className="absolute right-44 top-8 w-48 h-10 opacity-70"
-                style={{ backgroundColor: 'var(--tb-mint)', borderRadius: '9999px' }}
-              ></div>
-              <div
-                className="absolute top-6 right-6 opacity-90"
-                style={{ backgroundColor: 'var(--tb-sage-muted)', borderRadius: '9999px', width: '360px', height: '16px' }}
-              ></div>
-            </div>
+            {/* (Moved horizontal decorative capsules inside inner layer so they are visible above white content background) */}
             
             
-            <div className="w-full mx-auto max-w-none page-wrap py-4 relative z-50 sticky top-0 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b" style={{backgroundColor:'rgba(255,255,255,0.92)', borderColor:'var(--tb-mint)'}}>
-              {/* Decorative background capsules restored inside sticky banner */}
+            <div className="w-full mx-auto max-w-none page-wrap py-4 relative z-50 sticky top-0 border-b" style={{backgroundColor:'#ffffff', borderColor:'var(--tb-mint)'}}>
+              {/* High-contrast pill layer inside sticky banner */}
               <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-                <div className="absolute left-8 -top-10 w-72 h-24 opacity-70" style={{ backgroundColor: 'var(--tb-light-blue)', borderRadius: '9999px', filter:'blur(2px)' }}></div>
-                <div className="absolute left-1/3 top-6 w-64 h-14 opacity-80" style={{ backgroundColor: 'var(--tb-mint)', borderRadius: '9999px', filter:'blur(1px)' }}></div>
-                <div className="absolute right-10 top-4 w-80 h-16 opacity-60" style={{ backgroundColor: 'var(--tb-sage-muted)', borderRadius: '9999px', filter:'blur(1px)' }}></div>
+                {/* Reworked pattern update: enlarge middle mint & sage (spill), overlap mint/light-blue under title, extend mid navy, remove large right navy anchor */}
+                {/* Dark left anchor (navy) */}
+                <div className="banner-pill" style={{ top:'-38px', left:'-190px', width:'320px', height:'112px', background:'var(--tb-navy)', opacity:.93, borderRadius:'140px' }} />
+                {/* Overlapping light-blue (slightly darker) behind phrase */}
+                <div className="banner-pill" style={{ top:'-28px', left:'250px', width:'220px', height:'90px', background:'var(--tb-light-blue)', opacity:.58, borderRadius:'130px' }} />
+                {/* (Removed previous large teal spill pill per request) */}
+                {/* Overlap accent grey: longer to the left & thinner (spanning under future mint) */}
+                <div className="banner-pill" style={{ top:'-20px', left:'720px', width:'260px', height:'46px', background:'var(--tb-gray)', opacity:.34, borderRadius:'120px' }} />
+                {/* Extended mint pill (longer, overlaps dark navy to right) */}
+                <div className="banner-pill" style={{ top:'-10px', left:'960px', width:'360px', height:'90px', background:'var(--tb-mint)', opacity:.50, borderRadius:'140px' }} />
+                {/* Extended navy (replaces removed right larger navy) */}
+                <div className="banner-pill" style={{ top:'-40px', left:'1180px', width:'430px', height:'96px', background:'var(--tb-navy)', opacity:.85, borderRadius:'120px' }} />
+                {/* Far right navy anchor retained */}
+                <div className="banner-pill" style={{ top:'-30px', left:'1740px', width:'250px', height:'104px', background:'var(--tb-navy)', opacity:.88, borderRadius:'140px' }} />
+                {/* Sage pill adjusted slightly up & right */}
+                <div className="banner-pill" style={{ top:'62px', left:'-180px', width:'300px', height:'86px', background:'var(--tb-sage-muted)', opacity:.58, borderRadius:'120px' }} />
+                {/* Other spill accents adjusted positions */}
+                {/* Teal pill: extended and lowered so its bottom half is cropped (overlapping bottom edge) */}
+                <div className="banner-pill" style={{ top:'98px', left:'760px', width:'620px', height:'160px', background:'var(--tb-teal)', opacity:.40, borderRadius:'180px' }} />
+                <div className="banner-pill" style={{ top:'62px', left:'1320px', width:'120px', height:'68px', background:'var(--tb-light-blue)', opacity:.58, borderRadius:'100px' }} />
+                <div className="banner-pill" style={{ top:'74px', left:'1600px', width:'150px', height:'76px', background:'var(--tb-mint)', opacity:.56, borderRadius:'110px' }} />
+                {/* Small near-title light capsule retained */}
+                <div className="banner-pill" style={{ top:'-8px', left:'130px', width:'110px', height:'70px', background:'var(--tb-light-blue)', opacity:.32, borderRadius:'110px' }} />
+                {/* Horizontal line with circle (instead of vertical) */}
+                <div className="hpill-line" style={{ left:'600px', top:'40px', height:'2px', width:'320px', background:'var(--tb-navy)', opacity:.35 }}>
+                  <span className="hpill-dot" style={{ top:'50%', left:'30%', transform:'translate(-50%,-50%)', width:'18px', height:'18px', background:'#fff', borderRadius:'9999px', boxShadow:'0 0 0 4px var(--tb-mint), 0 0 0 6px #fff' }}></span>
+                </div>
+                {/* Keep one vertical line on far right for asymmetry */}
+                <div className="hpill-line" style={{ left:'1530px', top:'-44px', height:'176px', width:'2px', background:'var(--tb-navy)', opacity:.50 }}>
+                  <span className="hpill-dot" style={{ top:'52%', left:'50%', transform:'translate(-50%,-50%)', width:'16px', height:'16px', background:'#fff', borderRadius:'9999px', boxShadow:'0 0 0 4px var(--tb-sage-muted), 0 0 0 6px #fff' }}></span>
+                </div>
               </div>
               <div className="flex items-center justify-between relative">
                 <div className="flex items-center space-x-6" style={{ marginLeft: '2in' }}>
                   {/* Icône avec bold impact - solide */}
                   <div className="relative">
                     {/* halo behind the icon */}
-                    <div
-                      aria-hidden
-                      className="absolute"
-                      style={{
-                        zIndex: 0,
-                        left: '-18px',
-                        top: '-18px',
-                        width: '110px',
-                        height: '110px',
-                        borderRadius: '9999px',
-                        background: 'radial-gradient(52% 52% at 50% 50%, rgba(255,255,255,0.7), rgba(31,138,153,0.18) 60%, transparent 72%)',
-                        filter: 'blur(0.4px)'
-                      }}
-                    />
                     <div 
-                      className="p-6 shadow-xl transform hover:scale-105 transition-transform duration-300"
+                      className="p-6"
                       style={{ 
                         backgroundColor: 'var(--tb-navy)',
-                        borderRadius: '56px',
-                        boxShadow: '0 18px 36px rgba(26, 54, 93, 0.35)'
+                        borderRadius: '56px'
                       }}
                     >
-                      <Mail className="text-white" style={{ width: '60px', height: '60px', position: 'relative', zIndex: 1 }} />
+                      <Mail className="text-white" style={{ width: '60px', height: '60px' }} />
                     </div>
                   </div>
                   
@@ -1265,10 +1169,9 @@ function App() {
               <PanelGroup
                 direction="horizontal"
                 className="h-full gap-1 lg:gap-1.5"
-                defaultLayout={[20, 80]}
               >
                 {/* Panneau de gauche - Liste des modèles */}
-                <Panel minSize={22} maxSize={50} defaultSize={28} className="min-w-[300px] basis-[320px]" style={{ overflowAnchor: 'none', scrollbarGutter: 'stable both-edges', flexBasis:'320px' }}>
+                <Panel minSize={18} maxSize={48} defaultSize={22} className="min-w-[260px] basis-[260px]" style={{ overflowAnchor: 'none', scrollbarGutter: 'stable both-edges', flexBasis:'260px' }}>
                   <div>
                 <Card className="shadow-xl border-0 overflow-hidden relative gap-0 py-0" style={{ backgroundColor: 'white', boxShadow: '0 12px 28px rgba(26, 54, 93, 0.08)' }}>
                   {/* Solid teal header (no washout) to match Variables */}
@@ -1281,9 +1184,7 @@ function App() {
                           <span className="truncate">{t.selectTemplate}</span>
                         </CardTitle>
                       </div>
-                      <span className="col-start-3 justify-self-end ml-3 px-2 py-0.5 rounded-full text-[11px] font-bold border" style={{ backgroundColor: 'rgba(255,255,255,0.9)', color: 'var(--tb-navy)', borderColor: 'rgba(255,255,255,0.8)' }}>
-                        {filteredTemplates.length}
-                      </span>
+                      {/* Removed standalone count badge per request */}
                     </div>
                   </CardHeader>
 
@@ -1297,16 +1198,16 @@ function App() {
                           value={selectedCategory}
                           onValueChange={(val) => { setSelectedCategory(val); hasInteractedRef.current.categoryChanged = true; }}
                         >
-                          <SelectTrigger className="w-full min-w-[200px] border-2 transition-colors duration-200" style={{ borderColor: 'var(--tb-teal)', backgroundColor: 'white' }}>
+                          <SelectTrigger className="w-full min-w-[200px] border-2 transition-colors duration-200 font-medium" style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'var(--tb-sage-muted)', color:'var(--tb-navy)' }}>
                             <Filter className="h-4 w-4 mr-2" style={{ color: 'var(--tb-teal)' }} />
                             <SelectValue placeholder={t.allCategories} />
                           </SelectTrigger>
                           <SelectContent className="border-2" style={{ borderColor: 'var(--tb-mint)' }}>
-                            <SelectItem value="all" className="cursor-pointer data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]">
+                            <SelectItem value="all" className="cursor-pointer font-bold data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]">
                               {t.allCategories}
                             </SelectItem>
                             {categories.includes('favorites') && (
-                              <SelectItem value="favorites" className="cursor-pointer data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]">
+                              <SelectItem value="favorites" className="cursor-pointer font-bold data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]">
                                 {t.favorites}
                               </SelectItem>
                             )}
@@ -1438,11 +1339,12 @@ function App() {
                         {/* Segmented control + conditional lists injected here */}
                         <div className="sticky top-0 z-10 mb-2 pb-1 pt-0" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.97), rgba(255,255,255,0.85), rgba(255,255,255,0.4) 92%, rgba(255,255,255,0))' }}>
                           <div className="inline-flex items-stretch rounded-md overflow-hidden border shadow-sm" style={{ borderColor: 'var(--tb-mint)' }}>
+                            {/* eslint-disable no-unused-vars */}
                             {[
-                              { key: 'all', label: 'All', icon: Search },
+                              { key: 'all', label: interfaceLanguage === 'fr' ? 'Tous' : 'All', icon: Search },
                               { key: 'favorites', label: t.favorites, icon: Star, disabled: favoriteTemplates.length === 0 },
                               { key: 'recents', label: t.recents, icon: Clock, disabled: recentTemplates.length === 0 },
-                            ].map(({ key, label, icon, disabled }) => {
+                            ].map(({ key, label, icon: IconComponent, disabled }) => {
                               const active = listMode === key;
                               return (
                                 <button
@@ -1459,11 +1361,23 @@ function App() {
                                   aria-pressed={active}
                                   disabled={disabled}
                                 >
-                                  {React.createElement(icon, { className: "h-3.5 w-3.5" })}
-                                  <span className="hidden sm:inline flex items-center gap-1">{label}{key==='favorites' && favoriteTemplates.length>0 && (<span className="inline-block min-w-[16px] ml-0.5 px-[6px] py-[2px] rounded-full text-[9px] font-bold translate-x-[2px]" style={{background:'var(--tb-teal)', color:'white'}}>{favoriteTemplates.length}</span>)}</span>
+                                  <IconComponent className="h-3.5 w-3.5" />
+                                  <span className="hidden sm:inline flex items-center gap-1">{label}
+                                    {key==='favorites' && (
+                                      <span className="inline-block min-w-[16px] ml-0.5 px-[6px] py-[2px] rounded-full text-[9px] font-bold translate-x-[2px]" style={{
+                                        background: favoriteTemplates.length>0 ? 'var(--tb-teal)' : 'var(--tb-gray)',
+                                        color: favoriteTemplates.length>0 ? 'white' : 'var(--tb-navy)',
+                                        opacity: favoriteTemplates.length>0 ? 1 : 0.55
+                                      }}>{favoriteTemplates.length}</span>
+                                    )}
+                                    {key==='all' && filteredTemplates.length>0 && (
+                                      <span className="inline-block min-w-[16px] ml-0.5 px-[6px] py-[2px] rounded-full text-[9px] font-bold translate-x-[2px]" style={{background:'var(--tb-teal)', color:'white'}}>{filteredTemplates.length}</span>
+                                    )}
+                                  </span>
                                 </button>
                               );
                             })}
+                            {/* eslint-enable no-unused-vars */}
                           </div>
                         </div>
 

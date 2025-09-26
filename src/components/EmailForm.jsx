@@ -25,7 +25,8 @@ const EmailForm = ({
   // État local pour la validation des champs
   const [fieldErrors, setFieldErrors] = useState({});
 
-  // NOTE: Removed unused isSubmitted state to appease lint.
+  // État pour indiquer si le formulaire a été soumis
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   /**
    * Valide un champ spécifique
@@ -121,7 +122,11 @@ const EmailForm = ({
    */
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (validateForm()) onGenerate();
+    setIsSubmitted(true);
+
+    if (validateForm()) {
+      onGenerate();
+    }
   };
 
   /**
@@ -136,6 +141,7 @@ const EmailForm = ({
       language: "fr",
     });
     setFieldErrors({});
+    setIsSubmitted(false);
   };
 
   // Si aucun modèle n'est sélectionné, afficher un message
@@ -404,18 +410,8 @@ const EmailForm = ({
           <button
             type="button"
             onClick={handleReset}
-            className="px-6 py-3 text-sm font-bold rounded-lg transition-all duration-200 hover:scale-105 border-2"
-            style={{
-              color: 'var(--tb-navy)',
-              backgroundColor: 'white',
-              borderColor: 'var(--tb-mint)'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = 'var(--tb-light-blue)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'white';
-            }}
+            className="px-6 py-3 text-sm font-bold btn-reset-animate"
+            style={{ borderColor: 'var(--tb-mint)' }}
           >
             🔄 Réinitialiser
           </button>

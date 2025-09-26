@@ -32,7 +32,33 @@ const TemplateSelector = ({
   // État pour le filtre par catégorie
   const [categoryFilter, setCategoryFilter] = useState("all");
 
-  // Filtering logic inlined directly in useMemo to keep dependencies straightforward
+  /**
+   * Filtre les modèles selon les critères de recherche et de catégorie
+   * @returns {Array} Liste des modèles filtrés
+   */
+  const getFilteredTemplates = () => {
+    if (!templates) return [];
+
+    return templates.filter((template) => {
+      // Filtre par recherche textuelle
+      const matchesSearch =
+        searchFilter === "" ||
+        template.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
+        template.description
+          .toLowerCase()
+          .includes(searchFilter.toLowerCase()) ||
+        (template.tags &&
+          template.tags.some((tag) =>
+            tag.toLowerCase().includes(searchFilter.toLowerCase())
+          ));
+
+      // Filtre par catégorie
+      const matchesCategory =
+        categoryFilter === "all" || template.category === categoryFilter;
+
+      return matchesSearch && matchesCategory;
+    });
+  };
 
   /**
    * Obtient toutes les catégories disponibles
@@ -84,19 +110,7 @@ const TemplateSelector = ({
     }
   };
 
-  const filteredTemplates = useMemo(() => {
-    if (!templates) return [];
-    return templates.filter((template) => {
-      const s = searchFilter.toLowerCase();
-      const matchesSearch =
-        !s ||
-        template.name.toLowerCase().includes(s) ||
-        template.description.toLowerCase().includes(s) ||
-        (template.tags && template.tags.some((tag) => tag.toLowerCase().includes(s)));
-      const matchesCategory = categoryFilter === 'all' || template.category === categoryFilter;
-      return matchesSearch && matchesCategory;
-    });
-  }, [templates, searchFilter, categoryFilter]);
+  const filteredTemplates = useMemo(() => getFilteredTemplates(), [templates, searchFilter, categoryFilter]);
   const listContainerRef = useRef(null);
 
   // Gestion sélection + scroll dans la vue
@@ -161,11 +175,7 @@ const TemplateSelector = ({
               <button
                 type="button"
                 onClick={() => { setRawSearch(""); setSearchFilter(""); setCategoryFilter("all"); }}
-                className="text-xs font-semibold px-3 py-1 rounded-md transition-colors"
-                style={{
-                  backgroundColor: 'var(--tb-teal)',
-                  color: 'white'
-                }}
+                className="text-xs font-semibold px-3 py-1 btn-reset-animate"
               >Réinitialiser</button>
               <span className="text-[10px] uppercase tracking-wide opacity-70" style={{color:'var(--tb-navy)'}}>
                 {filteredTemplates.length} résultat{filteredTemplates.length !== 1 ? 's' : ''}
@@ -226,11 +236,7 @@ const TemplateSelector = ({
                 setSearchFilter("");
                 setCategoryFilter("all");
               }}
-              className="px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 hover:scale-105"
-              style={{ 
-                backgroundColor: 'var(--tb-teal)', 
-                color: 'white' 
-              }}
+              className="px-4 py-2 text-sm font-bold btn-reset-animate"
             >
               Réinitialiser les filtres
             </button>
