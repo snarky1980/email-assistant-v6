@@ -38,10 +38,6 @@ jobs:
           echo "OK"
 
   build-and-deploy:
-    # Temporarily disabled: repository currently deploys via gh-pages branch (deploy-gh-pages.yml)
-    # This job (GitHub Pages Actions deployment) conflicts with branch-based Pages.
-    # Re-enable by removing the following line when switching to Actions-based Pages.
-    if: ${{ false }}
     needs: smoke
     runs-on: ubuntu-latest
     concurrency:
