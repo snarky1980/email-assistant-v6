@@ -13,15 +13,21 @@
  * @author Bureau de la traduction
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 
 const TemplateSelector = ({
   templates,
   selectedTemplate,
   onTemplateSelect,
 }) => {
-  // État pour le filtre de recherche
+  // Recherche (saisie immédiate -> debounce pour filtrage)
+  const [rawSearch, setRawSearch] = useState("");
   const [searchFilter, setSearchFilter] = useState("");
+  // Debounce: applique la recherche après une courte pause
+  useEffect(() => {
+    const t = setTimeout(() => setSearchFilter(rawSearch.trim()), 160);
+    return () => clearTimeout(t);
+  }, [rawSearch]);
 
   // État pour le filtre par catégorie
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -105,6 +111,20 @@ const TemplateSelector = ({
   };
 
   const filteredTemplates = useMemo(() => getFilteredTemplates(), [templates, searchFilter, categoryFilter]);
+  const listContainerRef = useRef(null);
+
+  // Gestion sélection + scroll dans la vue
+  const handleSelect = (template) => {
+    onTemplateSelect(template);
+    // Scroll vers l'élément sélectionné lors de grands ensembles
+    requestAnimationFrame(() => {
+      if (!listContainerRef.current || !template?.id) return;
+      const el = listContainerRef.current.querySelector(`[data-template-id="${template.id}"]`);
+      if (el) {
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    });
+  };
   const availableCategories = getAvailableCategories();
 
   return (
@@ -133,8 +153,8 @@ const TemplateSelector = ({
           <input
             type="text"
             id="search"
-            value={searchFilter}
-            onChange={(e) => setSearchFilter(e.target.value)}
+            value={rawSearch}
+            onChange={(e) => setRawSearch(e.target.value)}
             placeholder="Nom, description, mots-clés..."
             className="w-full px-4 py-3 text-sm border-2 rounded-lg focus:outline-none transition-all"
             style={{
@@ -150,6 +170,22 @@ const TemplateSelector = ({
               e.target.style.boxShadow = 'none';
             }}
           />
+          {(rawSearch || categoryFilter !== 'all') && (
+            <div className="mt-2 flex gap-2 items-center">
+              <button
+                type="button"
+                onClick={() => { setRawSearch(""); setSearchFilter(""); setCategoryFilter("all"); }}
+                className="text-xs font-semibold px-3 py-1 rounded-md transition-colors"
+                style={{
+                  backgroundColor: 'var(--tb-teal)',
+                  color: 'white'
+                }}
+              >Réinitialiser</button>
+              <span className="text-[10px] uppercase tracking-wide opacity-70" style={{color:'var(--tb-navy)'}}>
+                {filteredTemplates.length} résultat{filteredTemplates.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Filtre par catégorie */}
@@ -192,7 +228,7 @@ const TemplateSelector = ({
       </div>
 
       {/* Liste des modèles */}
-      <div className="max-h-96 overflow-y-auto">
+  <div ref={listContainerRef} className="max-h-96 overflow-y-auto">
         {filteredTemplates.length === 0 ? (
           <div className="p-6 text-center">
             <div className="text-4xl mb-2">🔍</div>
@@ -215,27 +251,31 @@ const TemplateSelector = ({
           </div>
         ) : (
           <div className="space-y-1">
-            {filteredTemplates.map((template, index) => (
-              <div
-                key={template.id || index}
-                onClick={() => onTemplateSelect(template)}
-                className="p-5 cursor-pointer transition-all duration-200 hover:transform hover:scale-[1.02]"
-                style={{
-                  backgroundColor: selectedTemplate?.id === template.id ? 'var(--tb-light-blue)' : 'white',
-                    borderRight: selectedTemplate?.id === template.id ? `6px solid var(--tb-sage-muted)` : 'none',
-                    boxShadow: selectedTemplate?.id === template.id ? '0 4px 12px rgba(163, 179, 84, 0.20)' : 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (selectedTemplate?.id !== template.id) {
-                    e.currentTarget.style.backgroundColor = 'var(--tb-light-blue)';
+            {filteredTemplates.map((template, index) => {
+              const isSelected = selectedTemplate?.id === template.id;
+              return (
+                <div
+                  key={template.id || index}
+                  data-template-id={template.id}
+                  onClick={() => handleSelect(template)}
+                  aria-selected={isSelected}
+                  className={
+                    "p-5 cursor-pointer rounded-md transition-all will-change-transform " +
+                    "duration-300 ease-out hover:scale-[1.015] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--tb-teal)] " +
+                    (isSelected ? "scale-[1.01] shadow-md" : "")
                   }
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedTemplate?.id !== template.id) {
-                    e.currentTarget.style.backgroundColor = 'white';
-                  }
-                }}
-              >
+                  style={{
+                    backgroundColor: isSelected ? 'var(--tb-light-blue)' : 'white',
+                    borderRight: isSelected ? `6px solid var(--tb-sage-muted)` : 'none',
+                    boxShadow: isSelected ? '0 6px 18px -2px rgba(26,54,93,0.18)' : '0 1px 2px rgba(26,54,93,0.06)'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = 'var(--tb-light-blue)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = 'white';
+                  }}
+                >
                 {/* En-tête du modèle */}
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center space-x-2">
@@ -299,15 +339,16 @@ const TemplateSelector = ({
                   )}
                 </div>
 
-                {/* Indicateur de sélection */}
-                {selectedTemplate?.id === template.id && (
-                  <div className="mt-2 flex items-center text-blue-600 text-sm">
+                {/* Indicateur de sélection avec animation */}
+                {isSelected && (
+                  <div className="mt-2 flex items-center text-blue-600 text-sm animate-fade-in">
                     <span className="mr-1">✓</span>
                     Modèle sélectionné
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
