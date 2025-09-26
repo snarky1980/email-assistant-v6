@@ -1,5 +1,7 @@
 # 📧 Email Assistant v6
 
+[![Deploy to GitHub Pages](https://github.com/snarky1980/email-assistant-v6/actions/workflows/deploy.yml/badge.svg)](https://github.com/snarky1980/email-assistant-v6/actions/workflows/deploy.yml)
+
 > Application React moderne pour la gestion et la génération de modèles de courriels professionnels avec surlignage des variables et typographie moderne
 
 [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
