@@ -1881,19 +1881,19 @@ function App() {
                     </Card>
 
                     {/* Actions avec style moderne */}
-                    <div className="flex flex-wrap justify-between items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2 min-w-0">
                       {/* Bouton Copier le lien - Discret à gauche */}
                       <Button
                         variant="ghost"
                         onClick={() => copyTemplateLink()}
-                        className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 font-medium text-sm px-2 py-1"
+                        className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 font-medium text-sm px-2 py-1 shrink-0"
                         title="Copier le lien direct vers ce template"
                       >
                         <Link className="h-4 w-4 mr-2" />
                         Copier le lien
                       </Button>
 
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 ml-auto w-full md:w-auto justify-end">
                         {/* Export .eml for Outlook */}
                         <Button
                           variant="outline"
