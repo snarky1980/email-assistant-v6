@@ -59,7 +59,7 @@ const customEditorStyles = `
     background: var(--tb-light-blue);
     position: relative;
     overflow: hidden;
-    min-height: 96px;
+    min-height: 120px;
   }
 
   /* Modern typography base */
@@ -185,6 +185,8 @@ function App() {
   const [isHeaderStuck, setIsHeaderStuck] = useState(false);
   // Key to force remount of resizable layout when resetting
   const [remountKey, setRemountKey] = useState(0);
+  // Initial layout preference (uncontrolled PanelGroup for reliable defaults)
+  // Right pane should start wide
   
   useEffect(() => {
     const onScroll = () => {
@@ -218,16 +220,12 @@ function App() {
   ); // Langue des modèles
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [searchQuery, setSearchQuery] = useState(savedState.searchQuery || "");
-  const [selectedCategory, setSelectedCategory] = useState(
-    savedState.selectedCategory || "all"
-  );
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [finalSubject, setFinalSubject] = useState(""); // Version finale éditable
   const [finalBody, setFinalBody] = useState(""); // Version finale éditable
   const [variables, setVariables] = useState(savedState.variables || {});
   const [copySuccess, setCopySuccess] = useState(false);
-  const [varsOpen, setVarsOpen] = useState(
-    savedState.varsOpen !== undefined ? savedState.varsOpen : true
-  );
+  const [varsOpen, setVarsOpen] = useState(false);
 
   // Palette-based styles for category badges
   const getCategoryBadgeStyle = (category) => {
@@ -251,23 +249,24 @@ function App() {
   const searchRef = useRef(null); // Référence pour focus sur la recherche (Ctrl+J)
 
   // Sauvegarder automatiquement les préférences importantes
+  // Ne pas écraser les nouveaux défauts au tout premier rendu
+  const hasInteractedRef = useRef({ varsOpen: false, categoryChanged: false });
+
   useEffect(() => {
-    saveState({
+    const toSave = {
       interfaceLanguage,
       templateLanguage,
       searchQuery,
-      selectedCategory,
       variables,
-      varsOpen,
-    });
-  }, [
-    interfaceLanguage,
-    templateLanguage,
-    searchQuery,
-    selectedCategory,
-    variables,
-    varsOpen,
-  ]);
+    };
+    if (hasInteractedRef.current.categoryChanged) {
+      toSave.selectedCategory = selectedCategory;
+    }
+    if (hasInteractedRef.current.varsOpen) {
+      toSave.varsOpen = varsOpen;
+    }
+    saveState(toSave);
+  }, [interfaceLanguage, templateLanguage, searchQuery, selectedCategory, variables, varsOpen]);
 
   // Textes de l'interface selon la langue
   const interfaceTexts = {
@@ -753,7 +752,22 @@ function App() {
   };
 
   return (
-  <div className="min-h-screen" style={{ backgroundColor: 'var(--tb-light-blue)' }}>
+  <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
+    {/* Page-edge blending layers to fully fade edges */}
+    <div
+      aria-hidden
+      className="fixed right-0 top-0 bottom-0 w-12 pointer-events-none z-30"
+      style={{
+        backgroundImage: 'linear-gradient(to left, var(--background), transparent)'
+      }}
+    />
+    <div
+      aria-hidden
+      className="fixed left-0 right-0 bottom-0 h-10 pointer-events-none z-30"
+      style={{
+        backgroundImage: 'linear-gradient(to top, var(--background), transparent)'
+      }}
+    />
     <Toaster richColors position="top-right" />
       {loading ? (
         <div className="flex items-center justify-center min-h-screen">
@@ -765,10 +779,69 @@ function App() {
       ) : (
         <>
           {/* En-tête avec formes organiques inspirées de l'identité Bureau de la traduction */}
-          <header className="organic-header relative sticky top-0 z-40" style={{ boxShadow: isHeaderStuck ? '0 6px 18px rgba(26,54,93,0.16)' : '0 3px 9px rgba(26,54,93,0.10)' }}>
+          <header className="organic-header relative sticky top-0 z-40" style={{ boxShadow: isHeaderStuck ? '0 10px 34px rgba(26,54,93,0.18)' : '0 4px 16px rgba(26,54,93,0.10)', borderBottom: '4px solid rgba(31,138,153,0.26)' }}>
+            {/* under-glow that appears only on scroll */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-0 right-0"
+              style={{
+                bottom: '-12px',
+                height: '36px',
+                opacity: isHeaderStuck ? 1 : 0,
+                transition: 'opacity 240ms ease',
+                background: 'linear-gradient(to bottom, rgba(26,54,93,0.12), rgba(26,54,93,0))',
+                filter: 'blur(0.2px)'
+              }}
+            />
+            {/* subtle inner highlight and soft glows to make banner stand out */}
+            <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+              <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '2px', background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent)' }} />
+              <div style={{ position: 'absolute', left: '-8%', top: '-24%', width: '40%', height: '120%', background: 'radial-gradient(40% 40% at 30% 30%, rgba(255,255,255,0.28), transparent 70%)' }} />
+              <div style={{ position: 'absolute', right: '-6%', top: '-18%', width: '32%', height: '110%', background: 'radial-gradient(38% 38% at 70% 30%, rgba(255,255,255,0.24), transparent 72%)' }} />
+            </div>
             {/* Grandes capsules inspirées de l'identité Bureau de la traduction */}
             <div className="absolute inset-0 overflow-hidden">
-              {/* Très grande capsule navy verticale à gauche */}
+              {/* Staff lines variant: gentle, asymmetrical horizontal lines behind header */}
+              <div
+                aria-hidden
+                className="absolute"
+                style={{
+                  left: '8%',
+                  right: '60%',
+                  top: '22px',
+                  height: '2px',
+                  backgroundColor: 'var(--tb-navy)',
+                  opacity: 0.25,
+                  borderRadius: '9999px',
+                }}
+              />
+              <div
+                aria-hidden
+                className="absolute"
+                style={{
+                  left: '14%',
+                  right: '18%',
+                  top: '38px',
+                  height: '2px',
+                  backgroundColor: 'var(--tb-light-blue)',
+                  opacity: 0.30,
+                  borderRadius: '9999px',
+                }}
+              />
+              <div
+                aria-hidden
+                className="absolute"
+                style={{
+                  left: '22%',
+                  right: '10%',
+                  top: '56px',
+                  height: '3px',
+                  backgroundColor: 'var(--tb-mint)',
+                  opacity: 0.22,
+                  borderRadius: '9999px',
+                }}
+              />
+              {/* Très grande capsule navy verticale à gauche (bolder) */}
               <div 
                 className="absolute -left-12 -top-4 w-28 h-52 opacity-95"
                 style={{ 
@@ -777,48 +850,108 @@ function App() {
                 }}
               ></div>
               
-              {/* Grande capsule teal horizontale au centre */}
+              {/* Grande capsule teal verticale au centre (bolder, vertical) */}
               <div 
-                className="absolute left-24 top-8 w-64 h-24 opacity-85"
+                className="absolute left-28 top-2 w-20 h-64 opacity-95"
                 style={{ 
                   backgroundColor: 'var(--tb-teal)',
                   borderRadius: '48px'
                 }}
               ></div>
               
-              {/* Énorme capsule verticale à droite (muted sage from palette) */}
+              {/* Énorme capsule verticale à droite (light-blue) */}
               <div 
-                className="absolute right-8 -top-6 w-32 h-56 opacity-90"
+                className="absolute right-8 -top-6 w-32 h-56 opacity-70"
                 style={{ 
-                  backgroundColor: 'var(--tb-sage-muted)',
+                  backgroundColor: 'var(--tb-light-blue)',
                   borderRadius: '64px'
                 }}
               ></div>
               
-              {/* Grande capsule mint horizontale en bas */}
+              {/* Capsule verticale en bas à droite (light-blue, soft) */}
               <div 
-                className="absolute right-20 bottom-4 w-56 h-20 opacity-80"
+                className="absolute right-16 bottom-2 w-16 h-40 opacity-65"
                 style={{ 
-                  backgroundColor: 'var(--tb-mint)',
+                  backgroundColor: 'var(--tb-light-blue)',
                   borderRadius: '40px'
                 }}
               ></div>
+
+              {/* Petite capsule mint verticale (subtle) */}
+              <div 
+                className="absolute left-2 bottom-0 w-10 h-40 opacity-50"
+                style={{ 
+                  backgroundColor: 'var(--tb-mint)',
+                  borderRadius: '36px'
+                }}
+              ></div>
+              {/* Petite capsule sage verticale (very subtle, adds warmth) */}
+              <div 
+                className="absolute left-56 bottom-6 w-24 h-44"
+                style={{ 
+                  backgroundColor: 'var(--tb-sage-muted)',
+                  borderRadius: '30px',
+                  opacity: 0.9
+                }}
+              ></div>
+
+              {/* Tall vertical pill on the right side (higher) */}
+              <div 
+                className="absolute right-3 -top-8"
+                style={{ 
+                  width: '56px',
+                  height: '340px',
+                  backgroundColor: 'var(--tb-teal)',
+                  borderRadius: '44px',
+                  opacity: 0.28
+                }}
+              ></div>
+
+              {/* Horizontal capsules for banner layering (bold, blue-leaning) */}
+              <div
+                className="absolute left-6 bottom-3 w-80 h-12 opacity-80"
+                style={{ backgroundColor: 'var(--tb-light-blue)', borderRadius: '9999px' }}
+              ></div>
+              <div
+                className="absolute right-44 top-8 w-48 h-10 opacity-70"
+                style={{ backgroundColor: 'var(--tb-mint)', borderRadius: '9999px' }}
+              ></div>
+              <div
+                className="absolute top-6 right-6 opacity-90"
+                style={{ backgroundColor: 'var(--tb-sage-muted)', borderRadius: '9999px', width: '360px', height: '16px' }}
+              ></div>
             </div>
+            
             
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-6">
                   {/* Icône avec bold impact - solide */}
                   <div className="relative">
+                    {/* halo behind the icon */}
+                    <div
+                      aria-hidden
+                      className="absolute"
+                      style={{
+                        zIndex: 0,
+                        left: '-18px',
+                        top: '-18px',
+                        width: '110px',
+                        height: '110px',
+                        borderRadius: '9999px',
+                        background: 'radial-gradient(52% 52% at 50% 50%, rgba(255,255,255,0.7), rgba(31,138,153,0.18) 60%, transparent 72%)',
+                        filter: 'blur(0.4px)'
+                      }}
+                    />
                     <div 
-                      className="p-4 shadow-xl transform hover:scale-105 transition-transform duration-300"
+                      className="p-6 shadow-xl transform hover:scale-105 transition-transform duration-300"
                       style={{ 
                         backgroundColor: 'var(--tb-navy)',
-                        borderRadius: '40px',
+                        borderRadius: '56px',
                         boxShadow: '0 18px 36px rgba(26, 54, 93, 0.35)'
                       }}
                     >
-                      <Mail className="h-10 w-10 text-white" />
+                      <Mail className="text-white" style={{ width: '60px', height: '60px', position: 'relative', zIndex: 1 }} />
                     </div>
                   </div>
                   
@@ -881,194 +1014,344 @@ function App() {
             </div>
           </header>
 
-          {/* Contenu principal */}
-          <main className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 py-3" style={{ backgroundColor: 'var(--background)', borderRadius: '20px' }}>
-            {/* Controls row: Reset layout */}
-            <div className="flex items-center justify-end mb-2">
-              <Button
-                variant="ghost"
-                className="text-sm text-[var(--tb-navy)] hover:text-[var(--tb-teal)] hover:bg-[var(--tb-light-blue)]"
-                onClick={() => {
-                  // Clear saved split and remount PanelGroup via key change
-                  saveState({ ...loadState(), splitH: undefined });
-                  // Force remount by toggling a transient key in state
-                  setRemountKey((k) => k + 1);
-                }}
-                title={interfaceLanguage === 'fr' ? 'Réinitialiser la mise en page' : 'Reset layout'}
-              >
-                <RotateCcw className="h-4 w-4 mr-2" />
-                {interfaceLanguage === 'fr' ? 'Réinitialiser la mise en page' : 'Reset layout'}
-              </Button>
+          {/* Contenu principal wrapper to place side patterns outside work area */}
+          <div className="relative max-w-7xl mx-auto">
+            {/* Faint organic side patterns outside the work area */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute hidden md:block"
+              style={{
+                width: '320px',
+                right: 'calc(100% + 36px)',
+                top: '-10px',
+                bottom: '-48px',
+                zIndex: 0,
+                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 52%, black 100%)',
+                maskImage: 'linear-gradient(to right, transparent 0%, black 52%, black 100%)',
+              }}
+            >
+              <svg viewBox="0 0 340 640" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%' }}>
+                {/* Asymmetric, layered capsules with varied opacities */}
+                <rect x="12" y="36" width="134" height="520" rx="67" fill="var(--tb-light-blue)" fillOpacity="0.38" />
+                <rect x="96" y="150" width="96" height="430" rx="48" fill="var(--tb-navy)" fillOpacity="0.18" />
+                <rect x="58" y="260" width="110" height="290" rx="55" fill="var(--tb-teal)" fillOpacity="0.24" />
+                <rect x="194" y="90" width="68" height="480" rx="34" fill="var(--tb-light-blue)" fillOpacity="0.22" />
+                <rect x="10" y="454" width="160" height="152" rx="80" fill="var(--tb-mint)" fillOpacity="0.26" />
+                {/* Additional vertical accents for composite layering */}
+                <rect x="236" y="248" width="70" height="240" rx="35" fill="var(--tb-teal)" fillOpacity="0.20" />
+                <rect x="216" y="210" width="48" height="200" rx="24" fill="var(--tb-sage-muted)" fillOpacity="0.20" />
+                {/* Stems and dots */}
+                <line x1="116" y1="260" x2="116" y2="612" stroke="rgba(26,54,93,0.25)" strokeWidth="1.5" strokeLinecap="round" />
+                <circle cx="116" cy="332" r="6.5" fill="var(--tb-navy)" fillOpacity="0.9" />
+                <line x1="216" y1="90" x2="216" y2="420" stroke="rgba(26,54,93,0.22)" strokeWidth="1.5" strokeLinecap="round" />
+                <circle cx="216" cy="168" r="7" fill="white" fillOpacity="0.95" />
+              </svg>
             </div>
-            <div>
+            <div
+              aria-hidden
+              className="pointer-events-none absolute hidden md:block"
+              style={{
+                width: '320px',
+                left: 'calc(100% + 48px)',
+                top: '-18px',
+                bottom: '-56px',
+                zIndex: 0,
+                WebkitMaskImage: 'linear-gradient(to left, transparent 0%, black 66%, black 100%)',
+                maskImage: 'linear-gradient(to left, transparent 0%, black 66%, black 100%)',
+              }}
+            >
+              <svg viewBox="0 0 320 640" preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%' }}>
+                {/* Different composition for asymmetry */}
+                <rect x="188" y="24" width="123" height="560" rx="61" fill="var(--tb-light-blue)" fillOpacity="0.34" />
+                <rect x="126" y="160" width="92" height="420" rx="46" fill="var(--tb-navy)" fillOpacity="0.22" />
+                <rect x="144" y="262" width="102" height="298" rx="51" fill="var(--tb-teal)" fillOpacity="0.26" />
+                <rect x="58" y="100" width="60" height="480" rx="30" fill="var(--tb-light-blue)" fillOpacity="0.20" />
+                <rect x="168" y="440" width="156" height="148" rx="78" fill="var(--tb-mint)" fillOpacity="0.24" />
+                {/* Additional soft accent */}
+                <rect x="24" y="310" width="72" height="214" rx="36" fill="var(--tb-teal)" fillOpacity="0.20" />
+                {/* Subtle sage accent vertical */}
+                <rect x="98" y="218" width="44" height="244" rx="22" fill="var(--tb-sage-muted)" fillOpacity="0.22" />
+                {/* Stems and dots with different placement */}
+                <line x1="196" y1="210" x2="196" y2="590" stroke="rgba(26,54,93,0.24)" strokeWidth="1.5" strokeLinecap="round" />
+                <circle cx="196" cy="300" r="6" fill="var(--tb-navy)" fillOpacity="0.9" />
+                <line x1="86" y1="140" x2="86" y2="500" stroke="rgba(26,54,93,0.2)" strokeWidth="1.5" strokeLinecap="round" />
+                <circle cx="86" cy="200" r="6.5" fill="white" fillOpacity="0.95" />
+                {/* Small mint dot for balance (very subtle) */}
+                <circle cx="251" cy="468" r="5" fill="var(--tb-mint)" fillOpacity="0.7" />
+              </svg>
+            </div>
+
+            {/* The work area container - now blending with page background */}
+            <main className="relative z-10 overflow-hidden w-full px-3 sm:px-5 lg:px-6 py-3">
+              {/* Background pills that disappear under cards for seamless theme */}
+              <div aria-hidden className="absolute inset-0 z-0 pointer-events-none">
+                {/* Left side bold sage vertical pill (full, higher toward banner) */}
+                <div
+                  className="absolute"
+                  style={{
+                    left: '22px',
+                    top: '36px',
+                    width: '140px',
+                    height: '560px',
+                    backgroundColor: 'var(--tb-sage-muted)',
+                    opacity: 0.95,
+                    borderRadius: '80px',
+                  }}
+                />
+                {/* Left side pills behind Template picker */}
+                <div
+                  className="absolute"
+                  style={{
+                    left: '28px',
+                    top: '128px',
+                    width: '280px',
+                    height: '56px',
+                    backgroundColor: 'var(--tb-light-blue)',
+                    opacity: 0.9,
+                    borderRadius: '9999px',
+                  }}
+                />
+                <div
+                  className="absolute"
+                  style={{
+                    left: '56px',
+                    top: '240px',
+                    width: '180px',
+                    height: '280px',
+                    backgroundColor: 'var(--tb-mint)',
+                    opacity: 0.3,
+                    borderRadius: '110px',
+                  }}
+                />
+                {/* Right side pills behind Editors */}
+                <div
+                  className="absolute"
+                  style={{
+                    right: '72px',
+                    top: '176px',
+                    width: '460px',
+                    height: '60px',
+                    backgroundColor: 'var(--tb-light-blue)',
+                    opacity: 0.55,
+                    borderRadius: '9999px',
+                    WebkitMaskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
+                    maskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
+                  }}
+                />
+                <div
+                  className="absolute"
+                  style={{
+                    right: '88px',
+                    top: '260px',
+                    width: '260px',
+                    height: '420px',
+                    backgroundColor: 'var(--tb-teal)',
+                    opacity: 0.25,
+                    borderRadius: '140px',
+                    WebkitMaskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
+                    maskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
+                  }}
+                />
+                {/* Right side continuation vertical light-blue pill (full capsule under content) */}
+                <div
+                  className="absolute"
+                  style={{
+                    right: '64px',
+                    top: '140px',
+                    width: '200px',
+                    height: '560px',
+                    backgroundColor: 'var(--tb-light-blue)',
+                    opacity: 0.4,
+                    borderRadius: '100px',
+                    WebkitMaskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
+                    maskImage: 'linear-gradient(to right, black 0, black calc(100% - 14px), transparent 100%)',
+                  }}
+                />
+                {/* Subtle vertical accent under cards, very faint */}
+                <div
+                  className="absolute"
+                  style={{
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    top: '360px',
+                    width: '86px',
+                    height: '420px',
+                    backgroundColor: 'var(--tb-light-blue)',
+                    opacity: 0.18,
+                    borderRadius: '43px',
+                  }}
+                />
+              </div>
+              {/* Bottom blend to remove any visible seam */}
+              <div
+                aria-hidden
+                className="absolute left-0 right-0 bottom-0 h-12 z-[5] pointer-events-none"
+                style={{
+                  backgroundImage: 'linear-gradient(to bottom, transparent, var(--background))',
+                }}
+              />
+            
+            <div className="relative z-10">
               <PanelGroup
                 key={remountKey}
                 direction="horizontal"
                 className="h-full gap-1 lg:gap-2"
-                onLayout={(sizes) => {
-                  saveState({
-                    ...loadState(),
-                    splitH: sizes,
-                  });
-                }}
-                defaultLayout={loadState()?.splitH || [40, 60]}
+                defaultLayout={[30, 70]}
               >
                 {/* Panneau de gauche - Liste des modèles */}
-                <Panel minSize={25} maxSize={55} className="min-w-[320px]">
+                <Panel minSize={20} maxSize={55} defaultSize={30} className="min-w-[320px]">
                   <div>
-                <Card className="shadow-xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
-                  {/* Backdrop to fill rounded top corners with teal */}
-                  <div className="absolute inset-x-0 top-0" style={{ height: '72px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
+                <Card className="shadow-xl border-0 overflow-hidden relative gap-0 py-0" style={{ backgroundColor: 'white', boxShadow: '0 12px 28px rgba(26, 54, 93, 0.08)' }}>
+                  {/* Solid teal header (no washout) to match Variables */}
+                  <div className="absolute inset-x-0 top-0" style={{ height: '56px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
                   <CardHeader className="pb-3 relative z-10" style={{ backgroundColor: 'transparent' }}>
-                    <CardTitle className="text-xl font-bold text-white flex items-center">
-                      <FileText className="h-6 w-6 mr-2 text-white" />
-                      {t.selectTemplate}
-                    </CardTitle>
-                    <p className="text-xs text-white/95 mt-0.5 mb-1">
-                      {filteredTemplates.length} {t.templatesCount}
-                    </p>
-
-                    {/* Filtre par catégorie avec style */}
-                    <div className="mt-1">
-                    <Select
-                      value={selectedCategory}
-                      onValueChange={setSelectedCategory}
-                    >
-                      <SelectTrigger className="border-2 transition-all duration-300" style={{ borderColor: 'var(--tb-teal)', backgroundColor: 'white' }}>
-                        <Filter className="h-4 w-4 mr-2" style={{ color: 'var(--tb-teal)' }} />
-                        <SelectValue placeholder={t.allCategories} />
-                      </SelectTrigger>
-                      <SelectContent className="border-2" style={{ borderColor: 'var(--tb-mint)' }}>
-                        <SelectItem value="all" className="cursor-pointer data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]">
-                          {t.allCategories}
-                        </SelectItem>
-                        {categories.map((category) => (
-                          <SelectItem
-                            key={category}
-                            value={category}
-                            className="cursor-pointer data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]"
-                          >
-                            {t.categories[category] || category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    </div>
-
-                    {/* Recherche avec bouton d'effacement */}
-                    <div className="relative group w-full mt-1">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center search-adornment">
-                        <Search className="h-4 w-4 transition-colors" style={{ color: 'var(--tb-teal)' }} />
+                    <div className="h-[56px] grid grid-cols-[1fr_auto_1fr] items-center">
+                      <div className="col-start-2 justify-self-center min-w-0">
+                        <CardTitle className="text-lg md:text-xl font-bold text-white flex items-center justify-center gap-2 leading-tight whitespace-nowrap">
+                          <FileText className="h-6 w-6 text-white" />
+                          <span className="truncate">{t.selectTemplate}</span>
+                        </CardTitle>
                       </div>
-                      <Input
-                        ref={searchRef}
-                        type="text"
-                        placeholder={t.searchPlaceholder}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="h-10 pl-10 pr-10 border-2 transition-all duration-300 teal-focus"
-                        aria-label={t.searchPlaceholder}
-                        role="searchbox"
-                        autoComplete="off"
-                        autoCorrect="off"
-                        autoCapitalize="none"
-                        spellCheck={false}
-                        inputMode="search"
-                        style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'white' }}
-                        onFocus={(e) => {
-                          e.target.style.borderColor = 'var(--tb-teal)';
-                          e.target.style.boxShadow = '0 0 0 3px rgba(45, 212, 191, 0.1)';
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.borderColor = 'var(--tb-mint)';
-                          e.target.style.boxShadow = 'none';
-                        }}
-                        onKeyDown={(e) => {
-                          // Avoid global shortcuts while in the search box
-                          if ((e.ctrlKey || e.metaKey) && (e.key === 'Enter' || e.key.toLowerCase() === 'b')) {
-                            e.stopPropagation();
-                          }
-                          // Escape clears the search
-                          if (e.key === 'Escape' && searchQuery) {
-                            e.preventDefault();
-                            setSearchQuery('');
-                          }
-                        }}
-                      />
-                      {/* Bouton X pour effacer la recherche */}
-                      {searchQuery && (
-                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                          <button
-                            type="button"
-                            onClick={() => setSearchQuery("")}
-                            className="h-5 w-5 transition-colors button-ripple search-clear-btn"
-                            style={{ color: 'var(--tb-teal)' }}
-                            title="Effacer la recherche"
-                            aria-label="Effacer la recherche"
-                            onMouseDown={(e) => { e.preventDefault(); }}
-                          >
-                            <svg
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Langue des modèles avec style moderne */}
-                    <div className="flex items-center space-x-3 rounded-lg p-3" style={{ backgroundColor: 'var(--tb-light-blue)' }}>
-                      <Languages className="h-5 w-5" style={{ color: 'var(--tb-teal)' }} />
-                      <span className="text-sm font-semibold" style={{ color: 'var(--tb-navy)' }}>
-                        {t.templateLanguage}:
+                      <span className="col-start-3 justify-self-end ml-3 px-2 py-0.5 rounded-full text-[11px] font-bold border" style={{ backgroundColor: 'rgba(255,255,255,0.9)', color: 'var(--tb-navy)', borderColor: 'rgba(255,255,255,0.8)' }}>
+                        {filteredTemplates.length}
                       </span>
-                      <div className="flex bg-white rounded-lg p-1 shadow-sm">
-                        <button
-                          onClick={() => setTemplateLanguage("fr")}
-                          className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 button-ripple teal-focus`}
-                          style={{
-                            backgroundColor: templateLanguage === "fr" ? 'var(--tb-teal)' : 'transparent',
-                            color: templateLanguage === "fr" ? 'white' : 'var(--tb-navy)',
-                            transform: templateLanguage === "fr" ? 'scale(1.05)' : 'scale(1)'
-                          }}
-                        >
-                          FR
-                        </button>
-                        <button
-                          onClick={() => setTemplateLanguage("en")}
-                          className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 button-ripple teal-focus`}
-                          style={{
-                            backgroundColor: templateLanguage === "en" ? 'var(--tb-teal)' : 'transparent',
-                            color: templateLanguage === "en" ? 'white' : 'var(--tb-navy)',
-                            transform: templateLanguage === "en" ? 'scale(1.05)' : 'scale(1)'
-                          }}
-                        >
-                          EN
-                        </button>
-                      </div>
                     </div>
                   </CardHeader>
 
                   <CardContent className="p-0">
-                    <ScrollArea className="h-[55vh] sm:h-[60vh] md:h-[65vh] lg:h-[70vh]" style={{ "--scrollbar-width": "8px" }}>
-                      <div className="relative space-y-2 p-3">
-                        {/* Indicateur de scroll en bas */}
-                        {filteredTemplates.length > 6 && (
-                          <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none z-10 flex items-end justify-center pb-1" style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}>
-                            <div className="text-xs px-2 py-1 rounded-full shadow-sm border-2" style={{ color: 'var(--tb-navy)', backgroundColor: 'var(--tb-light-blue)', borderColor: 'var(--tb-mint)' }}>
-                              ↓ {filteredTemplates.length - 6}+ autres modèles
-                            </div>
+                    {/* Controls moved under the teal header for alignment with right pane */}
+                    <div className="px-6 pt-3 space-y-2">
+                      {/* Filtre par catégorie avec style */}
+                      <div>
+                        <Select
+                          value={selectedCategory}
+                          onValueChange={(val) => { setSelectedCategory(val); hasInteractedRef.current.categoryChanged = true; }}
+                        >
+                          <SelectTrigger className="border-2 transition-all duration-300" style={{ borderColor: 'var(--tb-teal)', backgroundColor: 'white' }}>
+                            <Filter className="h-4 w-4 mr-2" style={{ color: 'var(--tb-teal)' }} />
+                            <SelectValue placeholder={t.allCategories} />
+                          </SelectTrigger>
+                          <SelectContent className="border-2" style={{ borderColor: 'var(--tb-mint)' }}>
+                            <SelectItem value="all" className="cursor-pointer data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]">
+                              {t.allCategories}
+                            </SelectItem>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category}
+                                value={category}
+                                className="cursor-pointer data-[highlighted]:bg-[var(--tb-light-blue)] data-[highlighted]:text-[var(--tb-navy)] focus:bg-[var(--tb-light-blue)] focus:text-[var(--tb-navy)]"
+                              >
+                                {t.categories[category] || category}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Recherche avec bouton d'effacement */}
+                      <div className="relative group w-full">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center search-adornment">
+                          <Search className="h-4 w-4 transition-colors" style={{ color: 'var(--tb-teal)' }} />
+                        </div>
+                        <Input
+                          ref={searchRef}
+                          type="text"
+                          placeholder={t.searchPlaceholder}
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="h-10 pl-10 pr-10 border-2 transition-all duration-300 teal-focus"
+                          aria-label={t.searchPlaceholder}
+                          role="searchbox"
+                          autoComplete="off"
+                          autoCorrect="off"
+                          autoCapitalize="none"
+                          spellCheck={false}
+                          inputMode="search"
+                          style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'white' }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = 'var(--tb-teal)';
+                            e.target.style.boxShadow = '0 0 0 3px rgba(45, 212, 191, 0.1)';
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = 'var(--tb-mint)';
+                            e.target.style.boxShadow = 'none';
+                          }}
+                          onKeyDown={(e) => {
+                            // Avoid global shortcuts while in the search box
+                            if ((e.ctrlKey || e.metaKey) && (e.key === 'Enter' || e.key.toLowerCase() === 'b')) {
+                              e.stopPropagation();
+                            }
+                            // Escape clears the search
+                            if (e.key === 'Escape' && searchQuery) {
+                              e.preventDefault();
+                              setSearchQuery('');
+                            }
+                          }}
+                        />
+                        {/* Bouton X pour effacer la recherche */}
+                        {searchQuery && (
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button
+                              type="button"
+                              onClick={() => setSearchQuery("")}
+                              className="h-5 w-5 transition-colors button-ripple search-clear-btn"
+                              style={{ color: 'var(--tb-teal)' }}
+                              title="Effacer la recherche"
+                              aria-label="Effacer la recherche"
+                              onMouseDown={(e) => { e.preventDefault(); }}
+                            >
+                              <svg
+                                className="h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
                           </div>
                         )}
+                      </div>
+
+                      {/* Langue des modèles avec style moderne */}
+                      <div className="flex items-center space-x-3 rounded-lg p-3" style={{ backgroundColor: 'var(--tb-light-blue)' }}>
+                        <Languages className="h-5 w-5" style={{ color: 'var(--tb-teal)' }} />
+                        <span className="text-sm font-semibold" style={{ color: 'var(--tb-navy)' }}>
+                          {t.templateLanguage}:
+                        </span>
+                        <div className="flex bg-white rounded-lg p-1 shadow-sm">
+                          <button
+                            onClick={() => setTemplateLanguage("fr")}
+                            className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 button-ripple teal-focus`}
+                            style={{
+                              backgroundColor: templateLanguage === "fr" ? 'var(--tb-teal)' : 'transparent',
+                              color: templateLanguage === "fr" ? 'white' : 'var(--tb-navy)',
+                              transform: templateLanguage === "fr" ? 'scale(1.05)' : 'scale(1)'
+                            }}
+                          >
+                            FR
+                          </button>
+                          <button
+                            onClick={() => setTemplateLanguage("en")}
+                            className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 button-ripple teal-focus`}
+                            style={{
+                              backgroundColor: templateLanguage === "en" ? 'var(--tb-teal)' : 'transparent',
+                              color: templateLanguage === "en" ? 'white' : 'var(--tb-navy)',
+                              transform: templateLanguage === "en" ? 'scale(1.05)' : 'scale(1)'
+                            }}
+                          >
+                            EN
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <ScrollArea className="h-[55vh] sm:h-[60vh] md:h-[65vh] lg:h-[70vh]" style={{ "--scrollbar-width": "8px" }}>
+                      <div className="relative space-y-2 p-3 pt-8 pb-9">
                         {filteredTemplates.map((template) => (
                           <div
                             key={template.id}
@@ -1107,17 +1390,17 @@ function App() {
                 <PanelResizeHandle className="ResizeHandleX" />
 
               {/* Panneau de droite - Édition */}
-              <Panel minSize={45} className="min-w-[420px]">
+              <Panel minSize={45} maxSize={100} defaultSize={70} className="min-w-[420px]">
                 <div className="space-y-4 lg:space-y-5">
                 {selectedTemplate ? (
                   <>
                     {/* Variables avec style moderne */}
                     {selectedTemplate.variables &&
                       selectedTemplate.variables.length > 0 && (
-                        <Card className="shadow-xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
+                        <Card className="shadow-xl border-0 overflow-hidden relative gap-0 py-0" style={{ backgroundColor: 'white' }}>
                           {/* Fill header gap with teal to match editors */}
-                          <div className="absolute inset-x-0 top-0" style={{ height: '60px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
-                          <Collapsible open={varsOpen} onOpenChange={(v) => { setVarsOpen(v); }}>
+                          <div className="absolute inset-x-0 top-0" style={{ height: '56px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
+                          <Collapsible open={varsOpen} onOpenChange={(v) => { setVarsOpen(v); hasInteractedRef.current.varsOpen = true; }}>
                             <CardHeader className="relative z-10 py-2.5" style={{ backgroundColor: 'transparent' }}>
                               <CollapsibleTrigger asChild>
                                 <button className="w-full flex items-center justify-between group text-left">
@@ -1203,9 +1486,9 @@ function App() {
                       )}
 
                     {/* Version éditable - ZONE PRINCIPALE */}
-                        <Card className="shadow-2xl border-0 overflow-hidden relative" style={{ backgroundColor: 'white' }}>
-                      {/* Fill header gap on editors card */}
-                      <div className="absolute inset-x-0 top-0" style={{ height: '64px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
+                        <Card className="shadow-2xl border-0 overflow-hidden relative gap-0 py-0" style={{ backgroundColor: 'white', boxShadow: '0 12px 28px rgba(26, 54, 93, 0.08)' }}>
+                      {/* Solid teal header (no washout) to match Variables */}
+                      <div className="absolute inset-x-0 top-0" style={{ height: '56px', backgroundColor: 'var(--tb-teal)', zIndex: 0 }}></div>
                       <CardHeader className="relative z-10 py-2.5" style={{ backgroundColor: 'transparent' }}>
                         <CardTitle className="font-bold text-white flex items-center text-xl">
                           <Mail className="h-6 w-6 mr-3 text-white" />
@@ -1216,9 +1499,8 @@ function App() {
                         {/* Objet éditable avec aperçu surlignement */}
                         <div className="space-y-4">
                           <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
-                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
+                            <span className="inline-flex items-center">
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
                             </span>
                             <span className="text-base font-bold text-[var(--tb-navy)]">{t.subject}</span>
                           </div>
@@ -1235,9 +1517,8 @@ function App() {
                         {/* Corps éditable avec aperçu surlignement */}
                         <div className="space-y-4">
                           <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
-                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
+                            <span className="inline-flex items-center">
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--tb-teal)' }}></span>
                             </span>
                             <span className="text-base font-bold text-[var(--tb-navy)]">{t.body}</span>
                           </div>
@@ -1372,6 +1653,7 @@ function App() {
               </PanelGroup>
             </div>
           </main>
+          </div>
         </>
       )}
     </div>

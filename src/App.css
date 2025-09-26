@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -44,7 +44,7 @@
 :root {
   --radius: 0.875rem;
   /* Translation Bureau Brand Color Palette */
-  --background: #f8fffe;              /* Very light teal-tinted background */
+  --background: var(--tb-light-blue);  /* Unified background matches light-blue */
   --foreground: #1a365d;              /* Navy text */
   --card: #ffffff;                    /* Clean white cards */
   --card-foreground: #1a365d;         /* Navy on cards */
@@ -202,20 +202,44 @@ input::-webkit-clear-button {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 2px; /* subtle visible line */
+  width: 3px; /* slightly more visible line */
   height: 100%;
   border-radius: 1px;
-  background-color: rgba(31, 138, 153, 0.22); /* soft teal */
-  opacity: 0.08; /* nearly invisible at rest */
-  transition: background-color 0.2s ease, opacity 0.2s ease;
+  background-color: rgba(31, 138, 153, 0.35); /* soft teal */
+  opacity: 0.2; /* a bit more visible at rest */
+  transition: background-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
 }
 .ResizeHandleX:hover::before,
 .ResizeHandleX:focus-visible::before {
-  background-color: rgba(31, 138, 153, 0.5);
+  background-color: rgba(31, 138, 153, 0.7);
   opacity: 1; /* fade in on hover/focus */
+  box-shadow: 0 0 0 1px rgba(31, 138, 153, 0.18);
 }
 .ResizeHandleY {
   height: 8px;
   cursor: row-resize;
   background: linear-gradient(to right, transparent 0%, rgba(31,138,153,0.35) 20%, rgba(31,138,153,0.55) 50%, rgba(31,138,153,0.35) 80%, transparent 100%);
+}
+
+/* Subtle header-to-content cohesion gradient for the main area */
+.main-gradient {
+  background: linear-gradient(
+    to bottom,
+    rgba(219, 234, 254, 0.65) 0%,
+    rgba(219, 234, 254, 0.35) 48px,
+    rgba(255, 255, 255, 0) 180px
+  );
+}
+
+/* Subtle frame outline for the main work area */
+/* Removed main-frame for a softer, more organic layout */
+
+/* Ensure the global page background fully covers edges */
+html, body, #root {
+  background-color: var(--background);
+  min-height: 100%;
+}
+html, body {
+  margin: 0;
+  overflow-x: clip; /* prevent horizontal scroll gaps showing white */
 }

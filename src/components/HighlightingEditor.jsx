@@ -13,6 +13,15 @@ const HighlightingEditor = ({
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef(null);
 
+  // Auto-resize helper for textarea
+  const autoResize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    // Reset height to measure correct scrollHeight and then set it
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
+
   // Focus textarea and place caret at end when entering edit mode
   useEffect(() => {
     if (isEditing && textareaRef.current) {
@@ -23,8 +32,15 @@ const HighlightingEditor = ({
       } catch (_) {
         // Ignore if not supported
       }
+      // Ensure correct height on entering edit mode
+      autoResize();
     }
   }, [isEditing, value]);
+
+  // Re-calc height when value changes while editing
+  useEffect(() => {
+    if (isEditing) autoResize();
+  }, [value, isEditing]);
 
   // Generate highlighted HTML for variables
   const generateHighlightedContent = (text) => {
@@ -83,9 +99,10 @@ const HighlightingEditor = ({
 
   const editStyle = {
     ...baseStyle,
-    resize: "vertical",
+    resize: "none",
     outline: "none",
     boxShadow: "none",
+    overflowY: "hidden",
   };
 
   return (
@@ -96,6 +113,7 @@ const HighlightingEditor = ({
             ref={textareaRef}
             value={value}
             onChange={onChange}
+            onInput={autoResize}
             onKeyDown={(e) => {
               if (e.key === "Escape") {
                 e.preventDefault();
