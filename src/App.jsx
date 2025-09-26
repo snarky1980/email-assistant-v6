@@ -227,6 +227,8 @@ function App() {
   const [variables, setVariables] = useState(savedState.variables || {});
   const [copySuccess, setCopySuccess] = useState(false);
   const [varsOpen, setVarsOpen] = useState(false);
+  // Debounced query to avoid filtering on every keystroke
+  const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
   // NEW: Favorites and Recents (local-only)
   const [favorites, setFavorites] = useState(savedState.favorites || []); // array of template ids
   const [recents, setRecents] = useState(savedState.recents || []); // MRU array of template ids
@@ -276,6 +278,12 @@ function App() {
     saveState(toSave);
   }, [interfaceLanguage, templateLanguage, searchQuery, selectedCategory, variables, varsOpen, favorites, recents]);
 
+  // Debounce search input to improve responsiveness
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(searchQuery), 200);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
+
   // Textes de l'interface selon la langue
   const interfaceTexts = {
     fr: {
@@ -307,6 +315,8 @@ function App() {
       noTemplate: "Sélectionnez un modèle pour commencer",
       favorites: "Favoris",
       recents: "Récents",
+      noResults: "Aucun résultat",
+      tryDifferentSearch: "Essayez d'autres mots-clés ou effacez la recherche.",
     },
     en: {
       title: "Email Writing Assistant for Clients",
@@ -337,6 +347,8 @@ function App() {
       noTemplate: "Select a template to get started",
       favorites: "Favorites",
       recents: "Recents",
+      noResults: "No results",
+      tryDifferentSearch: "Try different keywords or clear the search.",
     },
   };
 
@@ -444,32 +456,80 @@ function App() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [selectedTemplate]); // Re-bind quand le template change
 
-  // Filtrer les modèles selon la recherche et la catégorie
+  // Filtrer et classer les modèles avec une recherche floue simple
   const filteredTemplates = useMemo(() => {
     if (!templatesData) return [];
-    let filtered = templatesData.templates;
+    let list = templatesData.templates;
 
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (template) =>
-          template.title[templateLanguage]
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          template.description[templateLanguage]
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          template.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
+    // Filtre par catégorie en premier
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(
-        (template) => template.category === selectedCategory
-      );
+      list = list.filter((t) => t.category === selectedCategory);
     }
 
-    return filtered;
-  }, [templatesData, searchQuery, selectedCategory, templateLanguage]);
+    const q = debouncedQuery?.trim();
+    if (!q) return list;
+
+    // Helpers: normaliser (casse/accents), score simple
+    const normalize = (s) =>
+      (s || "")
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "");
+
+    const nq = normalize(q);
+    const tokens = nq.split(/\s+/).filter(Boolean);
+
+    const scoreField = (fieldText, weight = 1) => {
+      const nt = normalize(fieldText);
+      if (!nt) return 0;
+      let score = 0;
+      // match complet
+      if (nt.includes(nq)) {
+        score += 50 * weight;
+        if (nt.startsWith(nq)) score += 20 * weight;
+      }
+      // correspondance par tokens
+      for (const tok of tokens) {
+        const idx = nt.indexOf(tok);
+        if (idx >= 0) {
+          score += 10 * weight;
+          // bonus au début de mot
+          if (idx === 0 || /\W/.test(nt[idx - 1])) score += 4 * weight;
+        } else {
+          // très léger fallback « sous-séquence » (premières lettres)
+          let i = 0;
+          for (const ch of tok) {
+            i = nt.indexOf(ch, i);
+            if (i === -1) break;
+            i++;
+          }
+          if (i !== -1) score += 3 * weight;
+        }
+      }
+      return score;
+    };
+
+    // Calculer un score par template à partir de titre/description/catégorie
+    const ranked = list
+      .map((t) => {
+        const title = t.title?.[templateLanguage] || "";
+        const desc = t.description?.[templateLanguage] || "";
+        const cat = t.category || "";
+        const score =
+          scoreField(title, 2.5) + // titre prioritaire
+          scoreField(desc, 1.2) +
+          scoreField(cat, 1.0);
+        return { t, score };
+      })
+      // Seuil minimal: écarter si score trop faible
+      .filter((r) => r.score > 0)
+      // Ordre décroissant par pertinence
+      .sort((a, b) => b.score - a.score)
+      .map((r) => r.t);
+
+    return ranked;
+  }, [templatesData, debouncedQuery, selectedCategory, templateLanguage]);
 
   // Derive ordered Favorites and Recents lists from filteredTemplates
   const { favoriteTemplates, recentTemplates, otherTemplates } = useMemo(() => {
@@ -1404,6 +1464,14 @@ function App() {
                     </div>
                     <ScrollArea className="h-[55vh] sm:h-[60vh] md:h-[65vh] lg:h-[70vh]" style={{ "--scrollbar-width": "8px" }}>
                       <div className="relative space-y-2 p-3 pt-8 pb-9">
+                        {/* No results message */}
+                        {filteredTemplates.length === 0 && (
+                          <div className="px-2 py-3 rounded-lg border-2 text-center" style={{ borderColor: 'var(--tb-mint)', backgroundColor: 'white' }}>
+                            <div className="text-sm font-semibold" style={{ color: 'var(--tb-navy)' }}>{t.noResults}</div>
+                            <div className="text-xs mt-1" style={{ color: 'var(--tb-gray)' }}>{t.tryDifferentSearch}</div>
+                          </div>
+                        )}
+
                         {/* Favorites section */}
                         {favoriteTemplates.length > 0 && (
                           <div className="mb-2">
