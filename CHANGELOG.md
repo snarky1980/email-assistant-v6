@@ -5,6 +5,34 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.1.0] - 2025-09-25
+
+### ✨ Ajouté
+
+- Indicateurs de débordement en haut et en bas des listes (fades discrets)
+- Auto-redimensionnement des éditeurs (Objet et Corps) pour s’adapter au contenu
+
+### 🎨 Amélioré
+
+- Bannière mise en valeur: séparateur inférieur plus marqué, halo interne doux, sous-lueur au scroll, icône enveloppe 150% plus grande, et couches de « pills » horizontales
+- Zone de travail fusionnée avec l’arrière‑plan du site pour une intégration sans couture; suppression des lavis internes
+- Motifs latéraux très discrets et asymétriques (capsules verticales), positionnés hors de la zone de travail avec masques de fondu vers l’intérieur
+- En‑têtes des cartes unifiés en teal plein (alignés sur « Variables »)
+- Titre centré dans l’en‑tête de gauche; poignée de redimensionnement légèrement plus visible mais subtile
+- Masques d’auto‑atténuation sur les pilules côté droit pour éviter tout effet de « demi‑pilule »
+- Overlays de fondu aux bords droit et bas pour éliminer toute lueur blanche résiduelle
+
+### 🛠️ Technique
+
+- Unification de l’arrière‑plan via variables CSS; clip horizontal (overflow‑x) pour éviter les lignes blanches
+- Réorganisation et masquage des SVG décoratifs hors zone de travail
+- Sauvegarde d’état plus sûre (catégorie/varsOpen enregistrés seulement après interaction de l’utilisateur)
+
+### 🐛 Corrigé
+
+- Artefacts/halos blancs sur les bords droit et inférieur
+- Apparition de « demi‑pilules » sur certains formats d’écran
+
 ## [6.0.0] - 2024-09-23
 
 ### ✨ Ajouté

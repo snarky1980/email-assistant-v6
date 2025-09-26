@@ -1,7 +1,7 @@
 {
   "name": "email-assistant-v7",
   "private": false,
-  "version": "7.0.0",
+  "version": "7.1.0",
   "type": "module",
   "description": "Application React moderne pour la génération d'emails professionnels avec surlignage intelligent des variables",
   "homepage": "https://snarky1980.github.io/email-assistant-v7",
