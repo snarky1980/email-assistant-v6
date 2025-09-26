@@ -28,22 +28,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
-          cache-dependency-path: pnpm-lock.yaml
+          cache: "npm"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.15.1
+      # Using npm in CI to avoid pnpm PATH issues on some runners
 
-      - name: Ensure pnpm on PATH (fallback)
-        run: npm i -g pnpm@10.15.1
+      - name: Install dependencies (npm)
+        run: npm install --no-audit --fund=false
 
-      - name: Install dependencies (pnpm or npm fallback)
-        run: pnpm install --no-frozen-lockfile || npm install
-
-      - name: Build (pnpm or npm fallback)
-        run: pnpm build || npm run build
+      - name: Build (npm)
+        run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
