@@ -65,6 +65,23 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Artefacts/halos blancs sur les bords droit et inférieur
 - Apparition de « demi‑pilules » sur certains formats d’écran
 
+## [7.2.2] - 2025-09-26
+
+### ✨ Ajouté
+
+- Export .eml (Outlook) du courriel courant (objet RFC 2047, corps UTF‑8, CRLF)
+
+### 🎨 Amélioré
+
+- Boutons sous l’éditeur rendus compacts et responsive; labels courts en mobile
+- Largeur par défaut du panneau gauche augmentée pour mieux accueillir l’en‑tête
+- Éditeur recentré avec marges latérales ~1" et zone d’édition élargie
+- Titre principal agrandi et décalé à droite (~2") avec hiérarchie renforcée
+
+### 🗑️ Supprimé
+
+- Capsules/graphismes décoratifs en arrière‑plan (conserve uniquement le fond bleu)
+
 ## [6.0.0] - 2024-09-23
 
 ### ✨ Ajouté
