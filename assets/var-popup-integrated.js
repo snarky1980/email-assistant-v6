@@ -182,6 +182,7 @@
     log('injectFixedButton: creating new fixed button');
     const btn=document.createElement('button');
     btn.id='varMgrBtn'; btn.type='button'; btn.textContent='Variables';
+    btn.setAttribute('data-popup-trigger','1'); // mark so suppression logic skips it
     btn.style.cssText='position:fixed; top:65px; right:12px; z-index:2147484100; background:var(--tb-sage-muted,#c2d469);color:#1e3a5f;border:1px solid #8f9c40;padding:8px 18px;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 18px -4px rgba(0,0,0,.25); transition:background .18s,box-shadow .18s,transform .15s;';
     btn.onmouseenter=()=>{ btn.style.background='#b1c25e'; };
     btn.onmouseleave=()=>{ btn.style.background='var(--tb-sage-muted,#c2d469)'; };
@@ -220,6 +221,8 @@
   function suppressOriginalVariablesToggle(){
     const hide=(btn)=>{
       if(!btn || btn.__varHidden) return;
+      // Skip our injected floating trigger
+      if(btn.id==='varMgrBtn' || btn.hasAttribute('data-popup-trigger')) return;
       btn.__varHidden=true;
       try { const panel=getVariablesContentFromToggle(btn); if(panel) capturedVarPanel=panel; } catch(_){ }
       // Keep button inline to preserve nextElementSibling linkage
