@@ -30,10 +30,16 @@
 
   function isEditable(el){ return !!el && (el.tagName==='TEXTAREA' || el.isContentEditable || (el.getAttribute && el.getAttribute('role')==='textbox')); }
   function findBody(){
-    const explicit=document.querySelector('[data-email-body],[data-body],[data-editor="body"]'); if(explicit) return explicit;
-    const all=Array.from(document.querySelectorAll('textarea,[contenteditable="true"],[contenteditable=""],div[role=textbox]')).filter(isEditable);
-    if(!all.length) return null;
-    return all.sort((a,b)=> (b.getBoundingClientRect().height*b.getBoundingClientRect().width) - (a.getBoundingClientRect().height*a.getBoundingClientRect().width))[0];
+    // Explicit markers first
+    const explicit=document.querySelector('[data-email-body],[data-body],[data-editor="body"],[data-role="email-body"]'); if(explicit) return explicit;
+    // Common rich editor class names
+    const rich=document.querySelector('.ProseMirror, .editor-content, [data-slate-editor="true"]'); if(rich) return rich;
+    // Look for large contenteditable blocks with text
+    const cands=Array.from(document.querySelectorAll('textarea,[contenteditable="true"],[contenteditable=""],div[role=textbox]')).filter(isEditable);
+    if(!cands.length) return null;
+    // Prefer element with most text length (not just area) to reduce chance of picking subject input
+    cands.sort((a,b)=> (b.innerText||b.textContent||'').length - (a.innerText||a.textContent||'').length);
+    return cands[0];
   }
 
   function ensureWrapper(){
@@ -72,12 +78,37 @@
       const subject=subjectRaw.replace(/\s+/g,' ').trim().slice(0,200);
       bodyRaw=bodyRaw.replace(/\n{3,}/g,'\n\n');
       const body=bodyRaw.trim();
-      const clipText= subject ? `Sujet: ${subject}\n\n${body}` : body;
-      copyToClipboard(clipText, subject ? 'Sujet + corps copiés' : 'Copié');
-      const mailto=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      if(mailto.length>1800) console.warn('[email-launcher] mailto long; possible truncation');
-      setTimeout(()=>{ window.location.href=mailto; },40);
+      let finalSubject = subject;
+      let finalBody = body;
+      // If subject empty but body present, use first non-empty line of body as derived subject (truncated)
+      if(!finalSubject && finalBody){
+        const firstLine = finalBody.split(/\n+/).map(l=>l.trim()).filter(Boolean)[0] || '';
+        finalSubject = firstLine.slice(0,120);
+      }
+      // If still both empty, retry quickly then abort if still empty
+      if(!finalSubject && !finalBody){
+        setTimeout(()=>{
+          const retrySubj = (findSubject()?.value || findSubject()?.textContent || '').trim();
+          const retryBodyEl = findBody();
+          const retryBodyRaw = retryBodyEl ? (retryBodyEl.value || retryBodyEl.innerText || retryBodyEl.textContent || '') : '';
+          const retryBody = retryBodyRaw.trim();
+          let rs = retrySubj.replace(/\s+/g,' ').trim().slice(0,200);
+          if(!rs && retryBody){ rs = (retryBody.split(/\n+/).map(l=>l.trim()).filter(Boolean)[0]||'').slice(0,120); }
+          if(!rs && !retryBody){ showToast('Aucun contenu'); return; }
+          proceed(rs, retryBody);
+        },80);
+        return;
+      }
+      proceed(finalSubject, finalBody);
     } catch(e){ console.error('[email-launcher] click failed', e); }
+  }
+
+  function proceed(subject, body){
+    const clipText = subject ? `Sujet: ${subject}\n\n${body}` : body;
+    copyToClipboard(clipText, subject ? 'Sujet + corps copiés' : 'Copié');
+    const mailto=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    if(mailto.length>1800) console.warn('[email-launcher] mailto long; possible truncation');
+    setTimeout(()=>{ window.location.href=mailto; },40);
   }
 
   function copyToClipboard(text,label){
