@@ -28,6 +28,26 @@
     return generic[0] || null;
   }
 
+  // Attempt to extract subject text directly from copy buttons (if user hasn't edited DOM yet)
+  function extractSubjectViaButtons(){
+    // Find a button whose text includes 'Objet' or 'Subject'
+    const btn = Array.from(document.querySelectorAll('button')).find(b=>/\b(Objet|Subject)\b/i.test(b.textContent||''));
+    if(!btn) return null;
+    // Heuristic: subject input often near (preceding) the copy subject button
+    // Search previous siblings / ancestors for an input
+    let cursor = btn;
+    for(let depth=0; depth<5 && cursor; depth++){
+      const inp = cursor.querySelector?.('input[type="text"],input:not([type]),input[placeholder],textarea');
+      if(inp && (inp.value||'').trim()) return inp.value.trim();
+      cursor = cursor.previousElementSibling || cursor.parentElement;
+    }
+    // Fallback: look globally at inputs with value length < 160 and > 0 (exclude search inputs by placeholder wording)
+    const inputs = Array.from(document.querySelectorAll('input[type="text"],input:not([type])'))
+      .filter(i=> i.value && i.value.trim() && i.value.length < 160 && !/rechercher|search/i.test(i.placeholder||''));
+    if(inputs.length === 1) return inputs[0].value.trim();
+    return null;
+  }
+
   function isEditable(el){ return !!el && (el.tagName==='TEXTAREA' || el.isContentEditable || (el.getAttribute && el.getAttribute('role')==='textbox')); }
   function findBody(){
     // Explicit markers first
@@ -40,6 +60,21 @@
     // Prefer element with most text length (not just area) to reduce chance of picking subject input
     cands.sort((a,b)=> (b.innerText||b.textContent||'').length - (a.innerText||a.textContent||'').length);
     return cands[0];
+  }
+
+  function extractBodyViaButtons(){
+    // Try to locate the "Copier Corps" / "Copy Body" button and inspect siblings
+    const bodyBtn = Array.from(document.querySelectorAll('button')).find(b=>/(Copier\s+Corps|Copy\s+Body)/i.test(b.textContent||''));
+    if(!bodyBtn) return null;
+    // Search following siblings / parent descendants for large textarea/contenteditable
+    const scope = bodyBtn.parentElement || document;
+    const candidates = Array.from(scope.querySelectorAll('textarea,[contenteditable="true"],[contenteditable=""],div[role=textbox]'));
+    let richest=null, richestLen=0;
+    for(const el of candidates){
+      const txt=(el.value||el.innerText||el.textContent||'').trim();
+      if(txt.length>richestLen){ richest=el; richestLen=txt.length; }
+    }
+    return richestLen>0 ? (richest.value||richest.innerText||richest.textContent||'').trim() : null;
   }
 
   function ensureWrapper(){
@@ -73,8 +108,10 @@
     try {
       const subjEl=findSubject();
       const bodyEl=findBody();
-      const subjectRaw=subjEl ? (subjEl.value || subjEl.textContent || '') : '';
+      let subjectRaw=subjEl ? (subjEl.value || subjEl.textContent || '') : '';
       let bodyRaw=bodyEl ? (bodyEl.value || bodyEl.innerText || bodyEl.textContent || '') : '';
+      if(!subjectRaw){ const viaBtn=extractSubjectViaButtons(); if(viaBtn) subjectRaw=viaBtn; }
+      if(!bodyRaw){ const viaBody=extractBodyViaButtons(); if(viaBody) bodyRaw=viaBody; }
       const subject=subjectRaw.replace(/\s+/g,' ').trim().slice(0,200);
       bodyRaw=bodyRaw.replace(/\n{3,}/g,'\n\n');
       const body=bodyRaw.trim();
@@ -88,9 +125,12 @@
       // If still both empty, retry quickly then abort if still empty
       if(!finalSubject && !finalBody){
         setTimeout(()=>{
-          const retrySubj = (findSubject()?.value || findSubject()?.textContent || '').trim();
+          const subjNode=findSubject();
+          let retrySubj = subjNode ? ((subjNode.value||subjNode.textContent)||'').trim() : '';
+          if(!retrySubj){ const viaBtn2=extractSubjectViaButtons(); if(viaBtn2) retrySubj=viaBtn2; }
           const retryBodyEl = findBody();
-          const retryBodyRaw = retryBodyEl ? (retryBodyEl.value || retryBodyEl.innerText || retryBodyEl.textContent || '') : '';
+          let retryBodyRaw = retryBodyEl ? (retryBodyEl.value || retryBodyEl.innerText || retryBodyEl.textContent || '') : '';
+          if(!retryBodyRaw){ const viaB2=extractBodyViaButtons(); if(viaB2) retryBodyRaw=viaB2; }
           const retryBody = retryBodyRaw.trim();
           let rs = retrySubj.replace(/\s+/g,' ').trim().slice(0,200);
           if(!rs && retryBody){ rs = (retryBody.split(/\n+/).map(l=>l.trim()).filter(Boolean)[0]||'').slice(0,120); }
