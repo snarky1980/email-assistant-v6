@@ -25,39 +25,55 @@
 
   let btn = null; // single launcher (only for message body editor in edit mode)
   function isEditMode(){
-    // Heuristic: presence of label 'Corps du message' or translation key elements OR banner text 'Éditez votre courriel'
-    const txt = document.body.textContent || '';
-    return /Éditez votre courriel|Edit your email|Corps du message/i.test(txt);
+    // Heuristic broadened: presence of typical edit labels OR at least one large editable textarea/contenteditable
+    const txt = (document.body.textContent||'').slice(0,5000); // limit for performance
+    if(/Éditez votre courriel|Edit your email|Corps du message|Objet\s*:|Subject\s*:/.test(txt)) return true;
+    // Fallback: detect at least one sizeable editable node
+    const cand = detectBodyEditorCandidate();
+    return !!cand;
+  }
+  function detectBodyEditorCandidate(){
+    // 1. Preferred: existing findExternalBody
+    let el = findExternalBody();
+    if(el && isEditableElement(el)) return el;
+    // 2. Largest visible textarea/contenteditable (height > 120px) that is not hidden
+    const all = Array.from(document.querySelectorAll('textarea,[contenteditable="true"],[contenteditable=""],div[role=textbox]'))
+      .filter(e=> isEditableElement(e) && e.offsetParent && e.getBoundingClientRect().height > 120);
+    if(all.length){ return all.sort((a,b)=> b.getBoundingClientRect().height - a.getBoundingClientRect().height)[0]; }
+    return null;
   }
   function ensureLauncher(){
-    if(panel) return; // panel open already
-    if(!isEditMode()) { if(btn){ btn.remove(); btn=null; } return; }
-    // Prefer the externally detected body element only
-    const target = findExternalBody();
-    if(!target || !isEditableElement(target)) { if(btn){ btn.remove(); btn=null; } return; }
-    // Avoid placing multiple or inside non-body editors
-    if(btn && btn.isConnected && btn.parentElement===target.parentElement) return;
-    if(btn) { try{ btn.remove(); }catch(_){} btn=null; }
-    const parent = target.parentElement || document.body;
-    const cs = window.getComputedStyle(parent);
-    if(cs.position==='static') parent.style.position='relative';
-    btn = document.createElement('button');
-    btn.id = BTN_ID;
-    btn.type='button';
-    btn.innerHTML='IA ✨';
-    btn.setAttribute('aria-label','Ouvrir assistant IA (Corps)');
-    btn.style.cssText = 'position:absolute;right:6px;bottom:6px;z-index:2147483600;background:var(--primary);color:var(--primary-foreground);border:1px solid var(--primary);padding:8px 14px;font-weight:600;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;border-radius:var(--radius);cursor:pointer;box-shadow:0 4px 10px -2px #1a365d33,0 1px 2px #1a365d1a;font-size:12px;display:flex;align-items:center;gap:6px;letter-spacing:.3px;transition:background-color .18s,transform .18s,box-shadow .18s;';
-    btn.onmouseenter=()=>btn.style.filter='brightness(1.05)';
-    btn.onmouseleave=()=>btn.style.filter='none';
-    btn.onclick=togglePanel;
-    parent.appendChild(btn);
-    console.log('[ai-optional] launcher placed in body editing area');
+    try {
+      if(panel) return; // panel open already
+      if(!isEditMode()){ if(btn){ btn.remove(); btn=null; } return; }
+      const target = detectBodyEditorCandidate();
+      if(!target){ if(btn){ btn.remove(); btn=null; } return; }
+      if(btn && btn.isConnected && btn.parentElement===target.parentElement) return;
+      if(btn) { try{ btn.remove(); }catch(_){} btn=null; }
+      const parent = target.parentElement || document.body;
+      const cs = window.getComputedStyle(parent);
+      if(cs.position==='static') parent.style.position='relative';
+      btn = document.createElement('button');
+      btn.id = BTN_ID;
+      btn.type='button';
+      btn.innerHTML='IA ✨';
+      btn.setAttribute('aria-label','Ouvrir assistant IA (Corps)');
+      btn.style.cssText = 'position:absolute;right:6px;bottom:6px;z-index:2147483600;background:var(--primary,#0d8094);color:var(--primary-foreground,#fff);border:1px solid var(--primary,#0d8094);padding:8px 14px;font-weight:600;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;border-radius:var(--radius,14px);cursor:pointer;box-shadow:0 4px 10px -2px #1a365d33,0 1px 2px #1a365d1a;font-size:12px;display:flex;align-items:center;gap:6px;letter-spacing:.3px;transition:background-color .18s,transform .18s,box-shadow .18s;';
+      btn.onmouseenter=()=>btn.style.filter='brightness(1.05)';
+      btn.onmouseleave=()=>btn.style.filter='none';
+      btn.onclick=togglePanel;
+      parent.appendChild(btn);
+      console.log('[ai-optional] launcher placed', { parent, target });
+    } catch(e){ console.warn('[ai-optional] ensureLauncher error', e); }
   }
   function isEditableElement(el){ return !!el && (el.tagName==='TEXTAREA' || el.isContentEditable || (el.getAttribute && el.getAttribute('role')==='textbox')); }
   // Deprecated generic finder removed: we only attach to the message body now
   function findFirstEditable(){ return null; }
-  // Periodic check (throttled) strictly for body edit mode
-  setInterval(ensureLauncher, 1500);
+  // Periodic check (throttled) for body edit mode (dynamic React remounts)
+  setInterval(ensureLauncher, 1300);
+  // Mutation observer to react quicker to editor mounts
+  const mo = new MutationObserver(()=> ensureLauncher());
+  try { mo.observe(document.body,{childList:true,subtree:true}); } catch(_){ }
   console.log('[ai-optional] launcher watcher initialized');
 
   let panel=null, lang=prefs.lang||'fr';
