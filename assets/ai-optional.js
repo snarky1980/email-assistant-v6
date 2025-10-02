@@ -23,45 +23,36 @@
 
   const prefs = loadPrefs();
 
-  let btn = null; // launcher created only when an editable area exists
+  let btn = null; // simple single launcher
+  function findFirstEditable(){
+    return Array.from(document.querySelectorAll('textarea,[contenteditable="true"],[contenteditable=""],div[role=textbox]'))
+      .find(el=> isEditableElement(el) && el.offsetParent);
+  }
   function ensureLauncher(){
-    if(panel) return; // panel open already, keep existing
-    // Determine current editable body element
-    let target = externalBodyEl && isEditableElement(externalBodyEl) ? externalBodyEl : findFirstEditable();
-    if(!target){
-      // No editable element; remove button if present
-      if(btn){ btn.remove(); btn=null; }
-      return;
-    }
+    if(panel) return;
+    const target = externalBodyEl && isEditableElement(externalBodyEl) ? externalBodyEl : findFirstEditable();
+    if(!target){ if(btn){ btn.remove(); btn=null; } return; }
     if(btn && btn.isConnected){
-      // Reposition if parent changed
-      if(btn.parentElement !== target.parentElement){ btn.remove(); btn=null; }
+      if(btn.parentElement !== target.parentElement){ try{ btn.remove(); }catch(_){ } btn=null; }
     }
     if(!btn){
-      const parent = target.parentElement || document.body;
-      const cs = window.getComputedStyle(parent);
-      if(cs.position==='static') parent.style.position='relative';
-      btn = document.createElement('button');
-      btn.id = BTN_ID;
-      btn.type='button';
-      btn.innerHTML='IA ✨';
+      const parent=target.parentElement||document.body;
+      if(getComputedStyle(parent).position==='static') parent.style.position='relative';
+      btn=document.createElement('button');
+      btn.id=BTN_ID; btn.type='button'; btn.innerHTML='IA ✨';
       btn.setAttribute('aria-label','Ouvrir assistant IA');
-      btn.style.cssText = 'position:absolute;right:6px;bottom:6px;z-index:2147483600;background:var(--primary);color:var(--primary-foreground);border:1px solid var(--primary);padding:8px 14px;font-weight:600;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;border-radius:var(--radius);cursor:pointer;box-shadow:0 4px 10px -2px #1a365d33,0 1px 2px #1a365d1a;font-size:12px;display:flex;align-items:center;gap:6px;letter-spacing:.3px;transition:background-color .18s,transform .18s,box-shadow .18s;';
+      btn.style.cssText='position:absolute;right:6px;bottom:6px;z-index:2147483600;background:var(--primary,#0d8094);color:var(--primary-foreground,#fff);border:1px solid var(--primary,#0d8094);padding:8px 14px;font-weight:600;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;border-radius:14px;cursor:pointer;box-shadow:0 4px 10px -2px #1a365d33,0 1px 2px #1a365d1a;font-size:12px;display:flex;align-items:center;gap:6px;letter-spacing:.3px;';
       btn.onmouseenter=()=>btn.style.filter='brightness(1.05)';
       btn.onmouseleave=()=>btn.style.filter='none';
       btn.onclick=togglePanel;
       parent.appendChild(btn);
-      console.log('[ai-optional] launcher placed in editor parent');
+      console.log('[ai-optional] launcher placed (simple mode)');
     }
   }
   function isEditableElement(el){ return !!el && (el.tagName==='TEXTAREA' || el.isContentEditable || (el.getAttribute && el.getAttribute('role')==='textbox')); }
-  function findFirstEditable(){
-    const candidates = Array.from(document.querySelectorAll('textarea,[contenteditable="true"],[contenteditable=""],div[role=textbox]'))
-      .filter(c=> isEditableElement(c) && (!panel || !panel.contains(c)) && (!btn || !btn.contains(c)) );
-    return candidates[0]||null;
-  }
-  // Periodic check in case the editing area appears later
+  // Periodic check (throttled) for dynamic remounts
   setInterval(ensureLauncher, 1200);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', ensureLauncher); else ensureLauncher();
   console.log('[ai-optional] launcher watcher initialized');
 
   let panel=null, lang=prefs.lang||'fr';
@@ -77,8 +68,18 @@
   const API_ROOT = (API_BASE.endsWith('/') ? API_BASE.slice(0,-1) : API_BASE) || '';
 
   function togglePanel(){
+    try { console.debug('[ai-optional] togglePanel invoked', { hasPanel: !!panel }); } catch(_){ }
     if(panel){ closePanel(); return; }
+    const beforeCount = document.body.querySelectorAll('#'+PANEL_ID).length;
     openPanel();
+    // Safety: if after attempting open no panel present, retry once after small delay
+    setTimeout(()=>{
+      if(!panel){
+        const afterCount = document.body.querySelectorAll('#'+PANEL_ID).length;
+        console.warn('[ai-optional] panel did not open (counts)', { beforeCount, afterCount });
+        if(afterCount===0){ try { openPanel(); } catch(e){ console.error('[ai-optional] second open attempt failed', e); } }
+      }
+    }, 120);
   }
 
   function openPanel(){
@@ -86,7 +87,8 @@
     panel.id = PANEL_ID;
     const pos = prefs.position || { x: window.innerWidth - 480, y: window.innerHeight - 620 };
     const sz = prefs.size || { w: 420, h: 560 };
-  panel.style.cssText = `position:fixed;left:${pos.x}px;top:${pos.y}px;width:${sz.w}px;height:${sz.h}px;z-index:2147483600;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;box-shadow:0 6px 18px -6px #1a365d26,0 2px 4px -1px #1a365d1f;backdrop-filter:saturate(1.2);`;
+  panel.style.cssText = `position:fixed;left:${pos.x}px;top:${pos.y}px;width:${sz.w}px;height:${sz.h}px;z-index:2147484600;background:var(--card,#fff);border:1px solid var(--border,#d3d8de);border-radius:var(--radius,16px);display:flex;flex-direction:column;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;box-shadow:0 8px 26px -10px #0f172a66,0 4px 12px -4px #0f172a40;backdrop-filter:saturate(1.2);`;
+  try { console.debug('[ai-optional] panel opening at', pos, sz); } catch(_){ }
     panel.innerHTML = templateHTML();
     document.body.appendChild(panel);
     wirePanel(panel);
