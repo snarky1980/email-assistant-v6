@@ -62,9 +62,44 @@
         // Very long bodies can overflow typical OS limits; warn in console
         if(mailto.length > 1800){ console.warn('[email-launcher] mailto URL is large; some clients may truncate.'); }
         window.location.href = mailto; // direct open (lets system handler decide)
+
+        // Also copy subject + body to clipboard for convenience
+        const clipText = subject ? `Sujet: ${subject}\n\n${body}` : body;
+        if(navigator.clipboard && clipText.trim()){
+          navigator.clipboard.writeText(clipText).then(()=>{
+            showCopiedToast(btn, subject ? 'Sujet + corps copiés' : 'Corps copié');
+          }).catch(err=>{
+            log('clipboard write failed', err);
+          });
+        } else if(clipText.trim()) {
+          // Fallback method
+            const ta=document.createElement('textarea');
+            ta.style.position='fixed'; ta.style.opacity='0'; ta.value=clipText; document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); showCopiedToast(btn, subject ? 'Sujet + corps copiés' : 'Copié'); } catch(e){ log('execCommand copy failed', e); }
+            document.body.removeChild(ta);
+        }
       } catch(e){ console.error('[email-launcher] failed to build email', e); }
     };
     container.appendChild(btn);
+  }
+
+  function showCopiedToast(anchor, text){
+    try {
+      const existing=document.getElementById('email-launcher-toast'); if(existing) existing.remove();
+      const div=document.createElement('div');
+      div.id='email-launcher-toast';
+      div.textContent=text;
+      div.style.cssText='position:fixed;z-index:2147483601;background:#0d8094;color:#fff;padding:6px 12px;font-size:12px;border-radius:20px;box-shadow:0 4px 10px -2px rgba(0,0,0,.35);opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;pointer-events:none;';
+      const rect = anchor.getBoundingClientRect();
+      const top = rect.top - 38; const left = rect.left + (rect.width/2);
+      div.style.top = (top < 8 ? rect.bottom + 8 : top) + 'px';
+      div.style.left = (left) + 'px';
+      div.style.transform = 'translate(-50%, 6px)';
+      document.body.appendChild(div);
+      requestAnimationFrame(()=>{ div.style.opacity='1'; div.style.transform='translate(-50%,0)'; });
+      setTimeout(()=>{ div.style.opacity='0'; div.style.transform='translate(-50%, -4px)'; }, 1800);
+      setTimeout(()=>{ div.remove(); }, 2400);
+    } catch(e){ log('toast failed', e); }
   }
 
   function findToolbar(){
