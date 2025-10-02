@@ -23,47 +23,81 @@
 
   const prefs = loadPrefs();
 
-  let btn = null; // single launcher (only for message body editor in edit mode)
-  function isEditMode(){
-    // Heuristic broadened: presence of typical edit labels OR at least one large editable textarea/contenteditable
-    const txt = (document.body.textContent||'').slice(0,5000); // limit for performance
-    if(/Éditez votre courriel|Edit your email|Corps du message|Objet\s*:|Subject\s*:/.test(txt)) return true;
-    // Fallback: detect at least one sizeable editable node
-    const cand = detectBodyEditorCandidate();
-    return !!cand;
-  }
+  let btn = null; // single launcher (message body only)
+  const LAUNCHER_FALLBACK_TIMEOUT = 4000; // ms before we create a viewport fallback button if not placed
+  let fallbackIssued = false;
   function detectBodyEditorCandidate(){
-    // 1. Preferred: existing findExternalBody
+    // 1. Direct external body (preferred)
     let el = findExternalBody();
     if(el && isEditableElement(el)) return el;
-    // 2. Largest visible textarea/contenteditable (height > 120px) that is not hidden
+    // 2. Textarea / contenteditable with label indicating body/message
+    el = findLabeledBodyTextarea(); if(el) return el;
+    // 3. Largest visible sizeable editable element
     const all = Array.from(document.querySelectorAll('textarea,[contenteditable="true"],[contenteditable=""],div[role=textbox]'))
-      .filter(e=> isEditableElement(e) && e.offsetParent && e.getBoundingClientRect().height > 120);
-    if(all.length){ return all.sort((a,b)=> b.getBoundingClientRect().height - a.getBoundingClientRect().height)[0]; }
+      .filter(e=> isEditableElement(e) && e.offsetParent && e.getBoundingClientRect().height > 100 && e.getBoundingClientRect().width > 300);
+    if(all.length){
+      return all.sort((a,b)=> (b.getBoundingClientRect().height*b.getBoundingClientRect().width) - (a.getBoundingClientRect().height*a.getBoundingClientRect().width))[0];
+    }
     return null;
+  }
+  function findLabeledBodyTextarea(){
+    const textareas = Array.from(document.querySelectorAll('textarea'));
+    for(const ta of textareas){
+      let label = null;
+      // explicit label for attribute
+      if(ta.id){ const lab = document.querySelector(`label[for="${ta.id}"]`); if(lab) label=lab; }
+      // previous sibling
+      if(!label && ta.previousElementSibling && ta.previousElementSibling.tagName==='LABEL') label=ta.previousElementSibling;
+      // parent label wrapping
+      if(!label && ta.parentElement && ta.parentElement.tagName==='LABEL') label=ta.parentElement;
+      const txt=(label?label.textContent:'') || '';
+      if(/Corps|Body|Message/i.test(txt)) return ta;
+    }
+    return null;
+  }
+  function buildLauncherFor(target){
+    if(!target) return;
+    const parent = target.parentElement || document.body;
+    const cs = window.getComputedStyle(parent);
+    if(cs.position==='static') parent.style.position='relative';
+    btn = document.createElement('button');
+    btn.id = BTN_ID;
+    btn.type='button';
+    btn.innerHTML='IA ✨';
+    btn.setAttribute('aria-label','Ouvrir assistant IA (Corps)');
+    btn.style.cssText='position:absolute;right:6px;bottom:6px;z-index:2147483600;background:var(--primary,#0d8094);color:var(--primary-foreground,#fff);border:1px solid var(--primary,#0d8094);padding:8px 14px;font-weight:600;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;border-radius:14px;cursor:pointer;box-shadow:0 4px 10px -2px #1a365d33,0 1px 2px #1a365d1a;font-size:12px;display:flex;align-items:center;gap:6px;letter-spacing:.3px;transition:background-color .18s,transform .18s,box-shadow .18s;';
+    btn.onmouseenter=()=>btn.style.filter='brightness(1.05)';
+    btn.onmouseleave=()=>btn.style.filter='none';
+    btn.onclick=togglePanel;
+    parent.appendChild(btn);
+    console.log('[ai-optional] launcher placed',{target,parent});
+  }
+  function buildViewportFallback(){
+    if(fallbackIssued || btn) return; fallbackIssued=true;
+    btn=document.createElement('button');
+    btn.id=BTN_ID; btn.type='button'; btn.innerHTML='IA ✨';
+    btn.setAttribute('aria-label','Assistant IA (fallback)');
+    btn.style.cssText='position:fixed;right:14px;bottom:14px;z-index:2147483600;background:#0d8094;color:#fff;border:1px solid #0d8094;padding:10px 16px;font-weight:600;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;border-radius:18px;cursor:pointer;box-shadow:0 6px 18px -6px #0f172a40,0 2px 4px -1px #0f172a33;font-size:13px;display:flex;align-items:center;gap:6px;letter-spacing:.35px;';
+    btn.onclick=()=>{ // try to relocate if target appears later
+      const target=detectBodyEditorCandidate();
+      if(target){ try{ btn.remove(); }catch(_){ } btn=null; buildLauncherFor(target); togglePanel(); return; }
+      togglePanel();
+    };
+    document.body.appendChild(btn);
+    console.warn('[ai-optional] fallback launcher created (body editor not detected yet)');
   }
   function ensureLauncher(){
     try {
-      if(panel) return; // panel open already
-      if(!isEditMode()){ if(btn){ btn.remove(); btn=null; } return; }
+      if(panel) return; // panel is open
       const target = detectBodyEditorCandidate();
-      if(!target){ if(btn){ btn.remove(); btn=null; } return; }
-      if(btn && btn.isConnected && btn.parentElement===target.parentElement) return;
-      if(btn) { try{ btn.remove(); }catch(_){} btn=null; }
-      const parent = target.parentElement || document.body;
-      const cs = window.getComputedStyle(parent);
-      if(cs.position==='static') parent.style.position='relative';
-      btn = document.createElement('button');
-      btn.id = BTN_ID;
-      btn.type='button';
-      btn.innerHTML='IA ✨';
-      btn.setAttribute('aria-label','Ouvrir assistant IA (Corps)');
-      btn.style.cssText = 'position:absolute;right:6px;bottom:6px;z-index:2147483600;background:var(--primary,#0d8094);color:var(--primary-foreground,#fff);border:1px solid var(--primary,#0d8094);padding:8px 14px;font-weight:600;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;border-radius:var(--radius,14px);cursor:pointer;box-shadow:0 4px 10px -2px #1a365d33,0 1px 2px #1a365d1a;font-size:12px;display:flex;align-items:center;gap:6px;letter-spacing:.3px;transition:background-color .18s,transform .18s,box-shadow .18s;';
-      btn.onmouseenter=()=>btn.style.filter='brightness(1.05)';
-      btn.onmouseleave=()=>btn.style.filter='none';
-      btn.onclick=togglePanel;
-      parent.appendChild(btn);
-      console.log('[ai-optional] launcher placed', { parent, target });
+      if(!target){ if(btn && btn.parentElement && btn.style.position!=='fixed'){ btn.remove(); btn=null; } return; }
+      if(btn && btn.isConnected){
+        // If already placed correctly, keep
+        if(btn.style.position!=='fixed' && btn.parentElement===target.parentElement) return;
+        try{ btn.remove(); }catch(_){ }
+        btn=null;
+      }
+      buildLauncherFor(target);
     } catch(e){ console.warn('[ai-optional] ensureLauncher error', e); }
   }
   function isEditableElement(el){ return !!el && (el.tagName==='TEXTAREA' || el.isContentEditable || (el.getAttribute && el.getAttribute('role')==='textbox')); }
@@ -71,9 +105,19 @@
   function findFirstEditable(){ return null; }
   // Periodic check (throttled) for body edit mode (dynamic React remounts)
   setInterval(ensureLauncher, 1300);
-  // Mutation observer to react quicker to editor mounts
   const mo = new MutationObserver(()=> ensureLauncher());
   try { mo.observe(document.body,{childList:true,subtree:true}); } catch(_){ }
+  // Fallback timer
+  setTimeout(()=>{ if(!btn) buildViewportFallback(); }, LAUNCHER_FALLBACK_TIMEOUT);
+  // Debug API
+  if(!window.forceAILauncher){
+    window.forceAILauncher = function(){ try { ensureLauncher(); if(!btn) buildViewportFallback(); return !!btn; } catch(e){ console.error(e); return false; } };
+    window.inspectAILauncher = function(){
+      const cand = detectBodyEditorCandidate();
+      console.log('[ai-optional] inspect',{candidate:cand});
+      if(cand){ cand.style.outline='2px solid #0d8094'; setTimeout(()=>{ try{ cand.style.outline=''; }catch(_){ } }, 1600); }
+    };
+  }
   console.log('[ai-optional] launcher watcher initialized');
 
   let panel=null, lang=prefs.lang||'fr';
