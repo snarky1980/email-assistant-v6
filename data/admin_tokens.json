@@ -8,7 +8,16 @@
       "source": "env",
       "createdAt": "2025-09-28T13:10:55.282Z",
       "lastUsedAt": "2025-09-29T12:13:46.204Z"
+    },
+    {
+      "id": "seed_primary",
+      "token": "9d2513a45dbb0312214989a2432172dd9c3ee3830303901723cc3f397ee93be5",
+      "role": "admin",
+      "label": "Primary (env)",
+      "source": "env",
+      "createdAt": "2025-10-02T04:51:02.395Z",
+      "lastUsedAt": "2025-10-02T04:53:50.028Z"
     }
   ],
-  "updatedAt": "2025-09-29T12:13:46.204Z"
+  "updatedAt": "2025-10-02T04:53:50.028Z"
 }

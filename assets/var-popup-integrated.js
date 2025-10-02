@@ -25,13 +25,13 @@
 
   // Boundary where panel should not visually cross (flush with banner bottom). Previously had +8 margin; removed per request.
   function bannerBottomOffset(){
-    try { const b=findEditBanner(); if(!b) return 0; const r=b.getBoundingClientRect(); return r.bottom; } catch(_) { return 0; }
+    return 60; // Fixed offset from top of viewport
   }
 
   function clampPanelToViewport(panel){
     if(!panel) return;
     const rect=panel.getBoundingClientRect();
-    const minTop=bannerBottomOffset();
+    const minTop=10; // Generic top margin now that banner is gone
     let top=parseFloat(panel.style.top)||rect.top;
     let left=parseFloat(panel.style.left)||rect.left;
     if(top < minTop) top = minTop;
@@ -45,11 +45,7 @@
   }
 
   function findEditBanner(){
-    const candidates = Array.from(document.querySelectorAll('div,header,section'));
-    // Prefer elements whose class hints it's a card/header
-    const primary = candidates.filter(el=> /card-header|header|banner|toolbar/i.test(el.className) && new RegExp(LABEL_FR,'i').test(el.textContent||''));
-    if(primary.length) return primary[0];
-    return candidates.find(el=> new RegExp(LABEL_FR,'i').test(el.textContent||''));
+    return null; // No longer used
   }
 
   function ensureStyles(){
@@ -181,84 +177,69 @@
     function up(){ if(drag){ drag=false; const boundary=bannerBottomOffset(); performSnap(boundary); } document.removeEventListener('mousemove',mv); document.removeEventListener('mouseup',up); }
   }
 
-  function injectBannerButton(){
-    const banner = findEditBanner();
-    if(!banner){
-      if(!document.querySelector('[data-var-popup-fallback-btn]')){
-        const fb=document.createElement('button');
-        fb.setAttribute('data-var-popup-fallback-btn','');
-        fb.textContent='Variables';
-        fb.onclick=()=>{ if(!popup){ transformExistingPanel(); } else { popup.style.display = popup.style.display==='none' ? 'block':'none'; localStorage.setItem(LS_KEY_OPEN, popup.style.display==='none'?'0':'1'); } };
-        document.body.appendChild(fb);
-      }
-      return;
-    }
-    if(banner.querySelector('#varMgrBtn')) return;
+  function injectFixedButton(){
+    if(document.getElementById('varMgrBtn')) return;
+    log('injectFixedButton: creating new fixed button');
     const btn=document.createElement('button');
     btn.id='varMgrBtn'; btn.type='button'; btn.textContent='Variables';
-    btn.style.cssText='margin-left:auto;background:var(--tb-sage-muted,#c2d469);color:#1e3a5f;border:1px solid #8f9c40;padding:6px 16px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.18);display:inline-flex;align-items:center;gap:6px;transition:background .18s,box-shadow .18s;line-height:1;position:relative;z-index:2147484000;';
+    btn.style.cssText='position:fixed; top:65px; right:12px; z-index:2147484100; background:var(--tb-sage-muted,#c2d469);color:#1e3a5f;border:1px solid #8f9c40;padding:8px 18px;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 18px -4px rgba(0,0,0,.25); transition:background .18s,box-shadow .18s,transform .15s;';
     btn.onmouseenter=()=>{ btn.style.background='#b1c25e'; };
     btn.onmouseleave=()=>{ btn.style.background='var(--tb-sage-muted,#c2d469)'; };
     btn.onclick=()=>{
+      try { console.debug('[var-popup-integrated] Variables button clicked'); } catch(_){ }
       if(!popup){
-        let attempts=0; let delay=100;
-        const ensure=()=>{
-          attempts++;
-          if(transformExistingPanel()){
-            popup.style.display='block';
-            localStorage.setItem(LS_KEY_OPEN,'1');
-            return;
-          }
-            if(attempts>20){
-              console.warn('[var-popup-integrated] failed to build popup after retries – creating placeholder');
-              buildEmptyPanel();
-              return;
-            }
-          delay = Math.min(900, Math.round(delay*1.4));
-          setTimeout(ensure, delay);
-        };
-        ensure();
+        localStorage.setItem(LS_KEY_OPEN,'1');
+        // First direct transform attempt
+        if(transformExistingPanel()){
+          popup.style.display='block';
+          clampPanelToViewport(popup);
+          setTimeout(()=>{ try{ if(!popup || popup.style.display==='none' || popup.getBoundingClientRect().height<40){ console.warn('[var-popup-integrated] popup transform looked successful but not visible; building placeholder'); buildEmptyPanel(); } }catch(_){ } },150);
+          return;
+        }
+        // Heuristic rescue (may set popup)
+        try { rescueHeuristicBuild(); } catch(_){ }
+        if(popup){ popup.style.display='block'; clampPanelToViewport(popup); return; }
+        // Final fallback: empty shell so user always sees something immediately
+        buildEmptyPanel();
         return;
       }
       if(popup.style.display==='none'){
         popup.style.display='block';
         localStorage.setItem(LS_KEY_OPEN,'1');
+        clampPanelToViewport(popup);
+        setTimeout(()=>{ try{ if(popup && (popup.style.display==='none' || popup.getBoundingClientRect().height<40)){ console.warn('[var-popup-integrated] popup re-open attempt failed; forcing placeholder'); popup=null; extracted=false; buildEmptyPanel(); } }catch(_){ } },160);
       } else {
         popup.style.display='none';
         localStorage.setItem(LS_KEY_OPEN,'0');
       }
     };
-    const actionSlot = banner.querySelector('[data-slot="card-action"]');
-    if(actionSlot) actionSlot.appendChild(btn); else {
-      const titleEl = Array.from(banner.querySelectorAll('*')).find(n=> /Éditez votre courriel|Edit your email/i.test(n.textContent||''));
-      if(titleEl){
-        const parent=titleEl.parentElement;
-        if(parent===banner && getComputedStyle(banner).display.includes('grid')){ btn.style.justifySelf='end'; banner.appendChild(btn); }
-        else if(parent){ parent.insertAdjacentElement('beforeend', btn); }
-        else banner.appendChild(btn);
-      } else banner.appendChild(btn);
-    }
-    // Remove fallback floating button if it existed
-    const fallback=document.querySelector('[data-var-popup-fallback-btn]'); if(fallback) fallback.remove();
-    const mo=new MutationObserver(()=>{ if(!document.body.contains(btn)){ const b=findEditBanner(); if(b && !b.querySelector('#varMgrBtn')) b.appendChild(btn); } });
-    mo.observe(document.body,{childList:true,subtree:true});
+    document.body.appendChild(btn);
+    log('injectFixedButton: button appended to body');
   }
 
   function suppressOriginalVariablesToggle(){
-    const kill=(node)=>{
-      if(!node) return false;
-      if(node.id==='varMgrBtn' || (node.hasAttribute && node.hasAttribute('data-var-popup-fallback-btn'))) return false;
-      if(node.tagName==='BUTTON' && VAR_LABEL_REGEX.test(node.textContent||'')){
-        // Capture panel before hiding
-        try { const panel=getVariablesContentFromToggle(node); if(panel) capturedVarPanel=panel; } catch(_){ }
-        node.setAttribute('data-var-toggle-hidden','');
-        node.style.display='none';
-        return true; }
-      return false;
+    const hide=(btn)=>{
+      if(!btn || btn.__varHidden) return;
+      btn.__varHidden=true;
+      try { const panel=getVariablesContentFromToggle(btn); if(panel) capturedVarPanel=panel; } catch(_){ }
+      // Keep button inline to preserve nextElementSibling linkage
+      btn.style.opacity='0';
+      btn.style.pointerEvents='none';
+      btn.style.position='absolute';
+      btn.style.left='-9999px';
+      btn.style.width='1px'; btn.style.height='1px';
+      btn.setAttribute('aria-hidden','true');
     };
-    Array.from(document.querySelectorAll('button')).forEach(kill);
-    const obs=new MutationObserver(muts=>{ muts.forEach(m=> m.addedNodes && m.addedNodes.forEach(n=>{ if(n.nodeType===1){ if(kill(n)) return; Array.from(n.querySelectorAll? n.querySelectorAll('button'):[]).forEach(kill);} })); });
-    obs.observe(document.body,{childList:true,subtree:true});
+    function sweep(){ Array.from(document.querySelectorAll('button,[role="button"]')).forEach(b=>{ const t=(b.textContent||'').trim(); if(VAR_LABEL_REGEX.test(t)) hide(b); }); }
+    sweep();
+    const mo=new MutationObserver(muts=>{
+      muts.forEach(m=> m.addedNodes && m.addedNodes.forEach(n=>{
+        if(!(n instanceof HTMLElement)) return;
+        if(n.matches && (n.matches('button') || n.getAttribute('role')==='button')){ const t=(n.textContent||'').trim(); if(VAR_LABEL_REGEX.test(t)) hide(n); }
+        n.querySelectorAll && n.querySelectorAll('button,[role="button"]').forEach(b=>{ const t=(b.textContent||'').trim(); if(VAR_LABEL_REGEX.test(t)) hide(b); });
+      }));
+    });
+    try { mo.observe(document.body,{childList:true,subtree:true}); } catch(_){ }
   }
   function transformExistingPanel(){
     if(extracted) return true;
@@ -268,6 +249,21 @@
       log('transformExistingPanel: panel not found yet');
       return false;
     }
+    // If panel exists but appears empty (very few editable fields) try a late expand heuristic before aborting
+    try {
+      const fieldCount = panel.querySelectorAll('input,textarea,select').length;
+      if(fieldCount < 2){
+        // Attempt to unhide descendants that might be collapsed via inline styles / classes
+        Array.from(panel.querySelectorAll('[style]')).forEach(el=>{
+          if(/display\s*:\s*none/i.test(el.getAttribute('style')||'')) el.style.display='';
+        });
+        // Retry counting
+        const retryCount = panel.querySelectorAll('input,textarea,select').length;
+        if(retryCount < 2){
+          log('Panel found but insufficient fields; will let rescue flow attempt later');
+        }
+      }
+    } catch(_){ }
     // If we previously moved it to body, attempt to restore into original parent to keep React synthetic events intact
     if(panel.parentElement===document.body && originalParent){
       if(originalNext) originalParent.insertBefore(panel, originalNext); else originalParent.appendChild(panel);
@@ -286,10 +282,9 @@
       const left = saved? saved.x : 40;
       const width= saved? saved.w : Math.min(Math.max(rect.width, 640), window.innerWidth-80);
       const height=saved? saved.h : Math.min(Math.max(rect.height, 420), window.innerHeight-120);
-      // Reposition upward to reclaim original collapsible space (only on first build if not saved)
+      // Reposition to a default safe spot
       if(!saved){
-        const banner=findEditBanner();
-        if(banner){ const bRect=banner.getBoundingClientRect(); top = Math.min(top, Math.max( bRect.bottom + 8, 20)); }
+        top = 70;
       }
       // Store baseline size once
       if(!localStorage.getItem(LS_KEY_BASE)){
@@ -341,7 +336,10 @@
       // Add visible resize handles (corners & edges)
       addResizeHandles(panel);
     } // end first-time style/init block
-    const toggle=findVariablesToggle(); if(toggle) toggle.style.display='none';
+    const toggle=findVariablesToggle(); if(toggle) {
+      // Make sure we re-collapse rather than remove (in case transform ran before suppression)
+      suppressOriginalVariablesToggle();
+    }
     // Collapse original wrapper container space (parent) if still in document flow
     if(originalParent && originalParent !== document.body){
       originalParent.setAttribute('data-var-popup-shell','');
@@ -435,14 +433,15 @@
     const interval=setInterval(()=>{
       attempts++;
       const toggle=findVariablesToggle();
-      const banner=findEditBanner();
-      if(toggle && banner){ clearInterval(interval); onReady(); }
-      if(attempts>=max){ clearInterval(interval); onReady(); }
+      if(toggle){ clearInterval(interval); onReady(); }
+      if(attempts>=max){ clearInterval(interval); onReady(); } // Proceed even if toggle not found, to show button
     },250);
   }
   function onReady(){
     ensureStyles();
-    injectBannerButton();
+    // Start a persistent interval to keep the button in place against aggressive re-renders
+    setInterval(injectFixedButton, 250);
+
     // (Delayed) suppressOriginalVariablesToggle now called only after successful extraction
     // Version badge removed in production cleanup (was previously injected for debugging between browsers)
     // Auto-build popup if previously open
@@ -511,6 +510,7 @@
     log('buildEmptyPanel: creating placeholder shell');
     const shell=document.createElement('div');
     shell.setAttribute('data-var-popup','1');
+    shell.setAttribute('data-var-popup-placeholder','1');
     shell.innerHTML='<div data-var-popup-header style="background:var(--tb-teal);color:#fff;padding:10px 14px;font-weight:600;font-size:15px;border-radius:18px 18px 0 0;cursor:move;">Variables</div><div class="var-popup-body" style="padding:12px;font:13px system-ui;">Section des variables introuvable pour le moment.<br><br><em>Le contenu ne s\'est pas encore rendu.</em><br><br><button type="button" data-vp-retry style="margin-top:8px;background:#0fa3c4;color:#fff;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;">Réessayer</button></div>';
     Object.assign(shell.style,{position:'fixed',top:'120px',left:'60px',width:'520px',height:'260px',zIndex:'2147483900',background:'#fff',border:'1px solid rgba(0,0,0,.08)',borderRadius:'18px',display:'flex',flexDirection:'column',boxShadow:'0 12px 42px -10px rgba(15,23,42,0.45),0 4px 16px -4px rgba(15,23,42,0.30)',overflow:'hidden'});
     document.body.appendChild(shell);
@@ -523,6 +523,24 @@
       extracted=false; popup=null; shell.remove();
       setTimeout(()=>{ if(!transformExistingPanel()) rescueHeuristicBuild(); }, 50);
     };
+    // Continuous upgrade attempts: replace placeholder with real panel when it becomes available
+    let upgradeTries=0; const upgradeMax=120; // ~1 minute at 500ms
+    const upgradeInterval=setInterval(()=>{
+      if(!document.body.contains(shell)){ clearInterval(upgradeInterval); return; }
+      if(upgradeTries++ >= upgradeMax){ clearInterval(upgradeInterval); return; }
+      if(extracted && popup!==shell){ clearInterval(upgradeInterval); return; } // already upgraded
+      // Temporarily mark as not extracted to allow transform logic to run
+      extracted=false; popup=null;
+      if(transformExistingPanel()){
+        // Success; remove placeholder
+        try { shell.remove(); } catch(_){ shell.style.display='none'; }
+        clearInterval(upgradeInterval);
+        log('Placeholder upgraded to real variables panel');
+      } else {
+        // restore placeholder state
+        if(!popup){ popup=shell; extracted=true; }
+      }
+    },500);
   }
 
   // Manual global escape hatch for environments where automatic detection still misses
