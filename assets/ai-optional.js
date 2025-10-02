@@ -50,10 +50,9 @@
     }
   }
   function isEditableElement(el){ return !!el && (el.tagName==='TEXTAREA' || el.isContentEditable || (el.getAttribute && el.getAttribute('role')==='textbox')); }
-  // Deprecated generic finder removed: we only attach to the message body now
-  function findFirstEditable(){ return null; }
-  // Periodic check (throttled) for body edit mode (dynamic React remounts)
+  // Periodic check (throttled) for dynamic remounts
   setInterval(ensureLauncher, 1200);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', ensureLauncher); else ensureLauncher();
   console.log('[ai-optional] launcher watcher initialized');
 
   let panel=null, lang=prefs.lang||'fr';
