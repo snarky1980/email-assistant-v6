@@ -11,6 +11,7 @@
 // 6. Provide a fallback if structure not found (creates an empty popup with message).
 (function(){
   const VAR_POPUP_SCRIPT_VERSION = 'v1.5.3';
+  const VAR_POPUP_ENABLED = false; // feature disabled: revert to original collapsible region
   const MAGNETIC_LEEWAY_PX = 100; // User-configurable upward drag allowance above banner before snapping
   const IS_SAFARI = /^((?!chrome|android).)*safari/i.test(navigator.userAgent||'');
   const LS_KEY_POS='VAR_POPUP_POS_V1';
@@ -441,19 +442,17 @@
     },250);
   }
   function onReady(){
+    if(!VAR_POPUP_ENABLED){
+      // Remove floating button if present from previous versions
+      const b=document.getElementById('varMgrBtn'); if(b) try{ b.remove(); }catch(_){ }
+      return; // Keep native collapsible variables section untouched
+    }
     ensureStyles();
-    // Start a persistent interval to keep the button in place against aggressive re-renders
     setInterval(injectFixedButton, 250);
-
-    // (Delayed) suppressOriginalVariablesToggle now called only after successful extraction
-    // Version badge removed in production cleanup (was previously injected for debugging between browsers)
-    // Auto-build popup if previously open
     if(localStorage.getItem(LS_KEY_OPEN)==='1'){
       const attempt=()=>{ if(transformExistingPanel()){ clampPanelToViewport(popup); return; } setTimeout(attempt,400); }; attempt();
     }
-    // Start background autodetect if panel not yet extracted (helps Simple Browser delayed renders)
     startPanelAutodetect();
-    // Force detect button removed per request
     enhanceResetButton();
   }
 
