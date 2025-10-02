@@ -133,8 +133,18 @@
   const API_ROOT = (API_BASE.endsWith('/') ? API_BASE.slice(0,-1) : API_BASE) || '';
 
   function togglePanel(){
+    try { console.debug('[ai-optional] togglePanel invoked', { hasPanel: !!panel }); } catch(_){ }
     if(panel){ closePanel(); return; }
+    const beforeCount = document.body.querySelectorAll('#'+PANEL_ID).length;
     openPanel();
+    // Safety: if after attempting open no panel present, retry once after small delay
+    setTimeout(()=>{
+      if(!panel){
+        const afterCount = document.body.querySelectorAll('#'+PANEL_ID).length;
+        console.warn('[ai-optional] panel did not open (counts)', { beforeCount, afterCount });
+        if(afterCount===0){ try { openPanel(); } catch(e){ console.error('[ai-optional] second open attempt failed', e); } }
+      }
+    }, 120);
   }
 
   function openPanel(){
@@ -142,7 +152,8 @@
     panel.id = PANEL_ID;
     const pos = prefs.position || { x: window.innerWidth - 480, y: window.innerHeight - 620 };
     const sz = prefs.size || { w: 420, h: 560 };
-  panel.style.cssText = `position:fixed;left:${pos.x}px;top:${pos.y}px;width:${sz.w}px;height:${sz.h}px;z-index:2147483600;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;box-shadow:0 6px 18px -6px #1a365d26,0 2px 4px -1px #1a365d1f;backdrop-filter:saturate(1.2);`;
+  panel.style.cssText = `position:fixed;left:${pos.x}px;top:${pos.y}px;width:${sz.w}px;height:${sz.h}px;z-index:2147484600;background:var(--card,#fff);border:1px solid var(--border,#d3d8de);border-radius:var(--radius,16px);display:flex;flex-direction:column;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;box-shadow:0 8px 26px -10px #0f172a66,0 4px 12px -4px #0f172a40;backdrop-filter:saturate(1.2);`;
+  try { console.debug('[ai-optional] panel opening at', pos, sz); } catch(_){ }
     panel.innerHTML = templateHTML();
     document.body.appendChild(panel);
     wirePanel(panel);
