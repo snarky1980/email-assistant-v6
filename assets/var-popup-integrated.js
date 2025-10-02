@@ -442,10 +442,11 @@
     },250);
   }
   function onReady(){
+    // Always enhance the reset button regardless of popup feature state
+    enhanceResetButton();
     if(!VAR_POPUP_ENABLED){
-      // Remove floating button if present from previous versions
       const b=document.getElementById('varMgrBtn'); if(b) try{ b.remove(); }catch(_){ }
-      return; // Keep native collapsible variables section untouched
+      return; // Skip popup mechanics; native collapsible stays
     }
     ensureStyles();
     setInterval(injectFixedButton, 250);
@@ -453,7 +454,6 @@
       const attempt=()=>{ if(transformExistingPanel()){ clampPanelToViewport(popup); return; } setTimeout(attempt,400); }; attempt();
     }
     startPanelAutodetect();
-    enhanceResetButton();
   }
 
   let autodetectStarted=false;
