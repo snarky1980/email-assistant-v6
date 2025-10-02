@@ -23,45 +23,41 @@
 
   const prefs = loadPrefs();
 
-  let btn = null; // launcher created only when an editable area exists
+  let btn = null; // single launcher (only for message body editor in edit mode)
+  function isEditMode(){
+    // Heuristic: presence of label 'Corps du message' or translation key elements OR banner text 'Éditez votre courriel'
+    const txt = document.body.textContent || '';
+    return /Éditez votre courriel|Edit your email|Corps du message/i.test(txt);
+  }
   function ensureLauncher(){
-    if(panel) return; // panel open already, keep existing
-    // Determine current editable body element
-    let target = externalBodyEl && isEditableElement(externalBodyEl) ? externalBodyEl : findFirstEditable();
-    if(!target){
-      // No editable element; remove button if present
-      if(btn){ btn.remove(); btn=null; }
-      return;
-    }
-    if(btn && btn.isConnected){
-      // Reposition if parent changed
-      if(btn.parentElement !== target.parentElement){ btn.remove(); btn=null; }
-    }
-    if(!btn){
-      const parent = target.parentElement || document.body;
-      const cs = window.getComputedStyle(parent);
-      if(cs.position==='static') parent.style.position='relative';
-      btn = document.createElement('button');
-      btn.id = BTN_ID;
-      btn.type='button';
-      btn.innerHTML='IA ✨';
-      btn.setAttribute('aria-label','Ouvrir assistant IA');
-      btn.style.cssText = 'position:absolute;right:6px;bottom:6px;z-index:2147483600;background:var(--primary);color:var(--primary-foreground);border:1px solid var(--primary);padding:8px 14px;font-weight:600;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;border-radius:var(--radius);cursor:pointer;box-shadow:0 4px 10px -2px #1a365d33,0 1px 2px #1a365d1a;font-size:12px;display:flex;align-items:center;gap:6px;letter-spacing:.3px;transition:background-color .18s,transform .18s,box-shadow .18s;';
-      btn.onmouseenter=()=>btn.style.filter='brightness(1.05)';
-      btn.onmouseleave=()=>btn.style.filter='none';
-      btn.onclick=togglePanel;
-      parent.appendChild(btn);
-      console.log('[ai-optional] launcher placed in editor parent');
-    }
+    if(panel) return; // panel open already
+    if(!isEditMode()) { if(btn){ btn.remove(); btn=null; } return; }
+    // Prefer the externally detected body element only
+    const target = findExternalBody();
+    if(!target || !isEditableElement(target)) { if(btn){ btn.remove(); btn=null; } return; }
+    // Avoid placing multiple or inside non-body editors
+    if(btn && btn.isConnected && btn.parentElement===target.parentElement) return;
+    if(btn) { try{ btn.remove(); }catch(_){} btn=null; }
+    const parent = target.parentElement || document.body;
+    const cs = window.getComputedStyle(parent);
+    if(cs.position==='static') parent.style.position='relative';
+    btn = document.createElement('button');
+    btn.id = BTN_ID;
+    btn.type='button';
+    btn.innerHTML='IA ✨';
+    btn.setAttribute('aria-label','Ouvrir assistant IA (Corps)');
+    btn.style.cssText = 'position:absolute;right:6px;bottom:6px;z-index:2147483600;background:var(--primary);color:var(--primary-foreground);border:1px solid var(--primary);padding:8px 14px;font-weight:600;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;border-radius:var(--radius);cursor:pointer;box-shadow:0 4px 10px -2px #1a365d33,0 1px 2px #1a365d1a;font-size:12px;display:flex;align-items:center;gap:6px;letter-spacing:.3px;transition:background-color .18s,transform .18s,box-shadow .18s;';
+    btn.onmouseenter=()=>btn.style.filter='brightness(1.05)';
+    btn.onmouseleave=()=>btn.style.filter='none';
+    btn.onclick=togglePanel;
+    parent.appendChild(btn);
+    console.log('[ai-optional] launcher placed in body editing area');
   }
   function isEditableElement(el){ return !!el && (el.tagName==='TEXTAREA' || el.isContentEditable || (el.getAttribute && el.getAttribute('role')==='textbox')); }
-  function findFirstEditable(){
-    const candidates = Array.from(document.querySelectorAll('textarea,[contenteditable="true"],[contenteditable=""],div[role=textbox]'))
-      .filter(c=> isEditableElement(c) && (!panel || !panel.contains(c)) && (!btn || !btn.contains(c)) );
-    return candidates[0]||null;
-  }
-  // Periodic check in case the editing area appears later
-  setInterval(ensureLauncher, 1200);
+  // Deprecated generic finder removed: we only attach to the message body now
+  function findFirstEditable(){ return null; }
+  // Periodic check (throttled) strictly for body edit mode
+  setInterval(ensureLauncher, 1500);
   console.log('[ai-optional] launcher watcher initialized');
 
   let panel=null, lang=prefs.lang||'fr';
